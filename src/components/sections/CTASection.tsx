@@ -24,7 +24,7 @@ const CTASection = ({ isVisible }: CTASectionProps) => {
               <Link to="/register">Sign Up Now</Link>
             </Button>
             <Button size="lg" variant="outline" className="text-white border-white/30 hover:bg-white/10 px-8">
-              <Link to="/contact">Contact Sales</Link>
+              <Link to="/profiles">Browse Profiles</Link>
             </Button>
           </div>
         </div>
