@@ -33,7 +33,8 @@ import {
   Star,
   Code,
   Laptop,
-  Book
+  Book,
+  CheckCircle
 } from 'lucide-react';
 import { sampleCandidates, sampleEmployers } from '../data/sampleProfiles';
 
