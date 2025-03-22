@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Briefcase, ChevronUp, Book, Code, Laptop, Award, CheckCircle, Clock, X } from 'lucide-react';
 
@@ -69,6 +68,7 @@ const Dashboard = () => {
             </Card>
           </div>
           
+          {/* Recommended Jobs and Skills Section */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2">
               <Card>
