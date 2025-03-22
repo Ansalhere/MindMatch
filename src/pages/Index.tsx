@@ -196,7 +196,7 @@ const Index = () => {
               <p className={`text-lg text-muted-foreground transition-all duration-700 delay-100 ${
                 isVisible.testimonials ? 'opacity-100' : 'opacity-0 translate-y-10'
               }`}>
-                Don't just take our word for it. Here's what freshers and employers have to say about FresherPools.
+                Don&apos;t just take our word for it. Here&apos;s what freshers and employers have to say about FresherPools.
               </p>
             </div>
             
@@ -211,7 +211,7 @@ const Index = () => {
                 {
                   name: 'David M.',
                   role: 'HR Manager at TechCorp',
-                  testimonial: 'As an employer, finding the right fresher talent was always challenging. FresherPools' skill-based matching has saved us countless hours of screening.',
+                  testimonial: 'As an employer, finding the right fresher talent was always challenging. FresherPools skill-based matching has saved us countless hours of screening.',
                   delay: 400
                 },
                 {
@@ -235,7 +235,7 @@ const Index = () => {
                       <p className="text-sm text-muted-foreground">{item.role}</p>
                     </div>
                   </div>
-                  <p className="text-muted-foreground">"{item.testimonial}"</p>
+                  <p className="text-muted-foreground">&quot;{item.testimonial}&quot;</p>
                   <div className="mt-6 flex">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star key={star} className="h-4 w-4 text-amber-400 fill-amber-400" />
