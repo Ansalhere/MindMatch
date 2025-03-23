@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AddSkillForm } from '@/components/profile/AddSkillForm';
+import AddSkillForm from '@/components/profile/AddSkillForm';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from "sonner";

@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PostJobForm } from '@/components/employer/PostJobForm';
+import PostJobForm from '@/components/employer/PostJobForm';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from "sonner";

@@ -2,7 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { RankingExplanation } from '@/components/ranking/RankingExplanation';
+import RankingExplanation from '@/components/ranking/RankingExplanation';
 
 const RankingExplanationPage = () => {
   const navigate = useNavigate();
