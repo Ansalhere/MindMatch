@@ -5,17 +5,27 @@ import { toast } from "sonner";
 // Authentication functions
 export async function signUp(email: string, password: string, userData: any) {
   try {
+    // First try to sign up the user
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: userData,
-        emailRedirectTo: window.location.origin + '/dashboard'
+        // Don't set emailRedirectTo to avoid sending verification emails
       }
     });
 
     if (error) throw error;
-    return { data, error: null };
+    
+    // If signup was successful, immediately sign in the user
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+    
+    if (signInError) throw signInError;
+    
+    return { data: signInData, error: null };
   } catch (error: any) {
     console.error("Error signing up:", error);
     return { data: null, error };

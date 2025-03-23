@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
@@ -14,9 +14,13 @@ import { useScrollAnimation } from '../hooks/useScrollAnimation';
 const Index = () => {
   const isVisible = useScrollAnimation();
   const location = useLocation();
+  const howItWorksRef = useRef<HTMLDivElement>(null);
+  const statsRef = useRef<HTMLDivElement>(null);
+  const testimonialsRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Handle scroll to section when redirected from another page
+    // Handle scroll to section when redirected from another page or when hash is present
     if (location.state && location.state.scrollTo) {
       setTimeout(() => {
         const section = document.getElementById(location.state.scrollTo);
@@ -24,8 +28,17 @@ const Index = () => {
           section.scrollIntoView({ behavior: 'smooth' });
         }
       }, 100);
+    } else if (location.hash) {
+      // Also handle direct URL with hash
+      const sectionId = location.hash.substring(1); // Remove the # character
+      setTimeout(() => {
+        const section = document.getElementById(sectionId);
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
     }
-  }, [location.state]);
+  }, [location.state, location.hash]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -33,11 +46,19 @@ const Index = () => {
       
       <main className="flex-grow">
         <Hero />
-        <StatsSection isVisible={isVisible.stats} />
+        <div id="stats" ref={statsRef}>
+          <StatsSection isVisible={isVisible.stats} />
+        </div>
         <Features />
-        <HowItWorksSection isVisible={isVisible.howItWorks} />
-        <TestimonialsSection isVisible={isVisible.testimonials} />
-        <CTASection isVisible={isVisible.cta} />
+        <div id="how-it-works" ref={howItWorksRef}>
+          <HowItWorksSection isVisible={isVisible.howItWorks} />
+        </div>
+        <div id="testimonials" ref={testimonialsRef}>
+          <TestimonialsSection isVisible={isVisible.testimonials} />
+        </div>
+        <div id="cta" ref={ctaRef}>
+          <CTASection isVisible={isVisible.cta} />
+        </div>
       </main>
       
       <Footer />

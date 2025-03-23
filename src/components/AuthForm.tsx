@@ -37,9 +37,7 @@ const AuthForm = () => {
       const { data, error } = await signIn(formData.email, formData.password);
       
       if (error) {
-        if (error.message.includes('Email not confirmed')) {
-          toast.error("Please check your email to verify your account before logging in.");
-        } else if (error.message.includes('Invalid login credentials')) {
+        if (error.message.includes('Invalid login credentials')) {
           toast.error("Invalid email or password. Please try again.");
         } else {
           throw error;
@@ -76,18 +74,8 @@ const AuthForm = () => {
       
       if (error) throw error;
       
-      // No email verification required, auto-login user
-      toast.success("Registration successful! Logging you in...");
-      
-      // Attempt to login immediately
-      const loginResponse = await signIn(formData.registerEmail, formData.registerPassword);
-      
-      if (loginResponse.error) {
-        toast.warning("Account created but couldn't log in automatically. Please try logging in manually.");
-      } else {
-        // Navigate to dashboard if login successful
-        navigate('/dashboard');
-      }
+      toast.success("Registration successful! You are now logged in.");
+      navigate('/dashboard');
     } catch (error: any) {
       console.error("Registration error:", error);
       if (error.message.includes("User already registered")) {
