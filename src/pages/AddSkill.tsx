@@ -5,22 +5,30 @@ import AddSkillForm from '@/components/profile/AddSkillForm';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from "sonner";
+import { addUserSkill } from '@/lib/supabase';
+import { useUser } from '@/hooks/useUser';
 
 const AddSkill = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useUser();
 
   const handleSubmit = async (formData: any) => {
+    if (!user) {
+      toast.error("You must be logged in to add skills");
+      navigate('/login');
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
-      // This would connect to Supabase in a real implementation
-      console.log('Skill data:', formData);
+      const skillData = {
+        ...formData,
+        user_id: user.id
+      };
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast.success("Skill added successfully!");
+      await addUserSkill(skillData);
       navigate('/dashboard');
     } catch (error) {
       console.error('Error adding skill:', error);

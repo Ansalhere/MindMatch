@@ -15,32 +15,35 @@ import Packages from "./pages/Packages";
 import PostJob from "./pages/PostJob";
 import AddSkill from "./pages/AddSkill";
 import RankingExplanationPage from "./pages/RankingExplanation";
+import { AuthProvider } from "./hooks/useUser";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner position="top-center" closeButton theme="light" className="font-sans" />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/register" element={<AuthForm />} />
-          <Route path="/login" element={<AuthForm />} />
-          <Route path="/profile/:id/:type" element={<Profile />} />
-          <Route path="/candidate/:id" element={<CandidateDetails />} />
-          <Route path="/profiles" element={<Profiles />} />
-          <Route path="/packages" element={<Packages />} />
-          <Route path="/post-job" element={<PostJob />} />
-          <Route path="/add-skill" element={<AddSkill />} />
-          <Route path="/ranking-explanation" element={<RankingExplanationPage />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner position="top-center" closeButton theme="light" className="font-sans" />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/register" element={<AuthForm />} />
+            <Route path="/login" element={<AuthForm />} />
+            <Route path="/profile/:id/:type" element={<Profile />} />
+            <Route path="/candidate/:id" element={<CandidateDetails />} />
+            <Route path="/profiles" element={<Profiles />} />
+            <Route path="/packages" element={<Packages />} />
+            <Route path="/post-job" element={<PostJob />} />
+            <Route path="/add-skill" element={<AddSkill />} />
+            <Route path="/ranking-explanation" element={<RankingExplanationPage />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

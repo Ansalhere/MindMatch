@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Eye, EyeOff, CheckCircle } from 'lucide-react';
 import LoginCredentials from './LoginCredentials';
-import { sampleCandidates, sampleEmployers } from '../data/sampleProfiles';
+import { signIn, signUp } from '@/lib/supabase';
 
 const AuthForm = () => {
   const navigate = useNavigate();
@@ -30,65 +30,49 @@ const AuthForm = () => {
     setFormData(prev => ({ ...prev, [id]: value }));
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Check if credentials match any of our sample users
-    let authenticated = false;
-    let userId = '';
-    
-    if (userType === 'candidate') {
-      const candidate = sampleCandidates.find(
-        c => c.email === formData.email && c.password === formData.password
-      );
-      if (candidate) {
-        authenticated = true;
-        userId = candidate.id;
-      }
-    } else {
-      const employer = sampleEmployers.find(
-        e => e.email === formData.email && e.password === formData.password
-      );
-      if (employer) {
-        authenticated = true;
-        userId = employer.id;
-      }
-    }
-    
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const { data, error } = await signIn(formData.email, formData.password);
       
-      if (authenticated) {
-        toast.success("Login successful!");
-        
-        // Store user info in localStorage (in a real app, you'd use a proper auth system)
-        localStorage.setItem('userType', userType);
-        localStorage.setItem('userId', userId);
-        
-        // Redirect to dashboard
-        navigate('/dashboard');
-      } else {
-        toast.error("Invalid credentials. Please try again or use the sample credentials below.");
-      }
-    }, 1000);
+      if (error) throw error;
+      
+      toast.success("Login successful!");
+      navigate('/dashboard');
+    } catch (error: any) {
+      console.error("Login error:", error);
+      toast.error(error.message || "Login failed. Please check your credentials.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate registration process
-    setTimeout(() => {
-      setIsLoading(false);
-      toast.success("Registration successful! Please check your email to verify your account.");
+    try {
+      const userData = {
+        name: formData.name,
+        user_type: userType
+      };
       
-      // In a real app, you would create a new user here
-      // For now, we'll just redirect to login
+      const { data, error } = await signUp(formData.registerEmail, formData.registerPassword, userData);
+      
+      if (error) throw error;
+      
+      toast.success("Registration successful! Please check your email to verify your account.");
       setTimeout(() => {
         window.location.reload();
       }, 1500);
-    }, 1500);
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      toast.error(error.message || "Registration failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -184,7 +168,7 @@ const AuthForm = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="register-email">Email</Label>
+                    <Label htmlFor="registerEmail">Email</Label>
                     <Input 
                       id="registerEmail" 
                       type="email" 
@@ -196,7 +180,7 @@ const AuthForm = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="register-name">Full Name</Label>
+                    <Label htmlFor="name">Full Name</Label>
                     <Input 
                       id="name" 
                       type="text" 
@@ -208,7 +192,7 @@ const AuthForm = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="register-password">Password</Label>
+                    <Label htmlFor="registerPassword">Password</Label>
                     <div className="relative">
                       <Input 
                         id="registerPassword" 
