@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { cn } from '@/lib/utils';
@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   // Handle scroll effect
   useEffect(() => {
@@ -22,6 +23,21 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const scrollToHowItWorks = () => {
+    setIsMobileMenuOpen(false);
+    
+    // If we're on the homepage, scroll to the section
+    if (window.location.pathname === '/') {
+      const section = document.getElementById('how-it-works');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // If we're on another page, navigate to homepage and then scroll
+      navigate('/', { state: { scrollTo: 'how-it-works' } });
+    }
+  };
 
   return (
     <nav
@@ -47,6 +63,12 @@ const Navbar = () => {
           <Link to="/" className="hover-underline-animation text-foreground/80 hover:text-foreground transition-colors">
             Home
           </Link>
+          <button 
+            onClick={scrollToHowItWorks}
+            className="hover-underline-animation text-foreground/80 hover:text-foreground transition-colors bg-transparent border-none cursor-pointer"
+          >
+            How It Works
+          </button>
           <Link to="/profiles" className="hover-underline-animation text-foreground/80 hover:text-foreground transition-colors">
             Browse Profiles
           </Link>
@@ -91,6 +113,12 @@ const Navbar = () => {
             >
               Home
             </Link>
+            <button
+              onClick={scrollToHowItWorks}
+              className="text-lg font-medium text-foreground/80 hover:text-foreground transition-colors bg-transparent border-none cursor-pointer"
+            >
+              How It Works
+            </button>
             <Link 
               to="/profiles" 
               className="text-lg font-medium text-foreground/80 hover:text-foreground transition-colors"

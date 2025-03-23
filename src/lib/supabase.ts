@@ -9,7 +9,8 @@ export async function signUp(email: string, password: string, userData: any) {
       email,
       password,
       options: {
-        data: userData
+        data: userData,
+        emailRedirectTo: window.location.origin + '/dashboard'
       }
     });
 
@@ -240,6 +241,21 @@ export async function getUserApplications(userId: string) {
 // Calculate user rank (calling the function we created in the database)
 export async function calculateUserRank(userId: string) {
   try {
+    // Try to use the edge function first
+    try {
+      const response = await supabase.functions.invoke('rank-calculator', {
+        body: { userId }
+      });
+      
+      if (response.data && !response.error) {
+        return { rank: response.data.rank, error: null };
+      }
+    } catch (edgeFunctionError) {
+      console.log("Edge function failed, falling back to RPC:", edgeFunctionError);
+      // Fall back to RPC if edge function fails
+    }
+    
+    // Fall back to direct RPC call
     const { data, error } = await supabase.rpc('calculate_candidate_rank', { user_id: userId });
     
     if (error) throw error;
@@ -247,5 +263,34 @@ export async function calculateUserRank(userId: string) {
   } catch (error: any) {
     console.error("Error calculating user rank:", error);
     return { rank: 0, error };
+  }
+}
+
+// Get candidate ranking factors
+export async function getRankingFactors(userId: string) {
+  try {
+    const [skills, certifications, education, experience] = await Promise.all([
+      getUserSkills(userId),
+      getUserCertifications(userId),
+      getUserEducation(userId),
+      getUserExperience(userId)
+    ]);
+    
+    return {
+      skills: skills.skills || [],
+      certifications: certifications.certifications || [],
+      education: education.education || [],
+      experience: experience.experiences || [],
+      error: null
+    };
+  } catch (error: any) {
+    console.error("Error fetching ranking factors:", error);
+    return {
+      skills: [],
+      certifications: [],
+      education: [],
+      experience: [],
+      error
+    };
   }
 }

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -37,10 +36,18 @@ const AuthForm = () => {
     try {
       const { data, error } = await signIn(formData.email, formData.password);
       
-      if (error) throw error;
-      
-      toast.success("Login successful!");
-      navigate('/dashboard');
+      if (error) {
+        if (error.message.includes('Email not confirmed')) {
+          toast.error("Please check your email to verify your account before logging in.");
+        } else if (error.message.includes('Invalid login credentials')) {
+          toast.error("Invalid email or password. Please try again.");
+        } else {
+          throw error;
+        }
+      } else {
+        toast.success("Login successful!");
+        navigate('/dashboard');
+      }
     } catch (error: any) {
       console.error("Login error:", error);
       toast.error(error.message || "Login failed. Please check your credentials.");
@@ -51,6 +58,12 @@ const AuthForm = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (formData.registerPassword.length < 6) {
+      toast.error("Password must be at least 6 characters long");
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
@@ -63,13 +76,25 @@ const AuthForm = () => {
       
       if (error) throw error;
       
-      toast.success("Registration successful! Please check your email to verify your account.");
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      // No email verification required, auto-login user
+      toast.success("Registration successful! Logging you in...");
+      
+      // Attempt to login immediately
+      const loginResponse = await signIn(formData.registerEmail, formData.registerPassword);
+      
+      if (loginResponse.error) {
+        toast.warning("Account created but couldn't log in automatically. Please try logging in manually.");
+      } else {
+        // Navigate to dashboard if login successful
+        navigate('/dashboard');
+      }
     } catch (error: any) {
       console.error("Registration error:", error);
-      toast.error(error.message || "Registration failed. Please try again.");
+      if (error.message.includes("User already registered")) {
+        toast.error("Email already registered. Try logging in instead.");
+      } else {
+        toast.error(error.message || "Registration failed. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }

@@ -2,12 +2,19 @@
 import { ArrowRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface HowItWorksSectionProps {
   isVisible: boolean;
 }
 
 const HowItWorksSection = ({ isVisible }: HowItWorksSectionProps) => {
+  const navigate = useNavigate();
+  
+  const handleGetStarted = () => {
+    navigate('/register');
+  };
+  
   const steps = [
     {
       step: '01',
@@ -66,10 +73,8 @@ const HowItWorksSection = ({ isVisible }: HowItWorksSectionProps) => {
         <div className={`flex justify-center mt-12 transition-all duration-700 delay-800 ${
           isVisible ? 'opacity-100' : 'opacity-0'
         }`}>
-          <Button asChild>
-            <Link to="/register">
-              Get Started Now <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
+          <Button onClick={handleGetStarted}>
+            Get Started Now <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
       </div>
