@@ -7,7 +7,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -21,11 +20,23 @@ import {
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Briefcase, MapPin, Calendar, Trophy, Plus, Trash } from "lucide-react";
-import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 
-const PostJobForm = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+interface PostJobFormProps {
+  onSubmit: (formData: any) => Promise<void>;
+  isSubmitting: boolean;
+}
+
+const PostJobForm = ({ onSubmit, isSubmitting }: PostJobFormProps) => {
+  const [jobTitle, setJobTitle] = useState("");
+  const [department, setDepartment] = useState("");
+  const [jobType, setJobType] = useState("");
+  const [workLocation, setWorkLocation] = useState("");
+  const [location, setLocation] = useState("");
+  const [deadline, setDeadline] = useState("");
+  const [minSalary, setMinSalary] = useState("");
+  const [maxSalary, setMaxSalary] = useState("");
+  const [description, setDescription] = useState("");
   const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
   const [rankRestriction, setRankRestriction] = useState(false);
@@ -44,15 +55,24 @@ const PostJobForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast.success("Job posted successfully!");
-      
-      // Reset form (would need to use formState in a real implementation)
-    }, 1500);
+    // Prepare form data
+    const formData = {
+      jobTitle,
+      department,
+      jobType,
+      workLocation,
+      location,
+      deadline,
+      salary: { min: minSalary, max: maxSalary },
+      description,
+      requiredSkills,
+      rankRestriction,
+      minRank: rankRestriction ? minRank : null
+    };
+    
+    // Call the parent's onSubmit handler
+    onSubmit(formData);
   };
 
   return (
@@ -73,6 +93,8 @@ const PostJobForm = () => {
             <Input
               id="jobTitle"
               placeholder="e.g., Senior Frontend Developer"
+              value={jobTitle}
+              onChange={(e) => setJobTitle(e.target.value)}
               required
             />
           </div>
@@ -82,6 +104,8 @@ const PostJobForm = () => {
             <Input
               id="department"
               placeholder="e.g., Engineering, Design, Marketing"
+              value={department}
+              onChange={(e) => setDepartment(e.target.value)}
               required
             />
           </div>
@@ -89,7 +113,7 @@ const PostJobForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="jobType">Job Type</Label>
-              <Select required>
+              <Select value={jobType} onValueChange={setJobType} required>
                 <SelectTrigger id="jobType">
                   <SelectValue placeholder="Select job type" />
                 </SelectTrigger>
@@ -104,7 +128,7 @@ const PostJobForm = () => {
             
             <div className="space-y-2">
               <Label htmlFor="workLocation">Work Location</Label>
-              <Select required>
+              <Select value={workLocation} onValueChange={setWorkLocation} required>
                 <SelectTrigger id="workLocation">
                   <SelectValue placeholder="Select location type" />
                 </SelectTrigger>
@@ -128,6 +152,8 @@ const PostJobForm = () => {
                   id="location"
                   placeholder="e.g., San Francisco, CA"
                   className="rounded-l-none"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
                 />
               </div>
             </div>
@@ -142,6 +168,8 @@ const PostJobForm = () => {
                   id="deadline"
                   type="date"
                   className="rounded-l-none"
+                  value={deadline}
+                  onChange={(e) => setDeadline(e.target.value)}
                   required
                 />
               </div>
@@ -155,6 +183,8 @@ const PostJobForm = () => {
                 id="minSalary"
                 type="number"
                 placeholder="e.g., 80000"
+                value={minSalary}
+                onChange={(e) => setMinSalary(e.target.value)}
               />
             </div>
             
@@ -164,6 +194,8 @@ const PostJobForm = () => {
                 id="maxSalary"
                 type="number"
                 placeholder="e.g., 120000"
+                value={maxSalary}
+                onChange={(e) => setMaxSalary(e.target.value)}
               />
             </div>
           </div>
@@ -174,6 +206,8 @@ const PostJobForm = () => {
               id="description"
               placeholder="Describe the role, responsibilities, and requirements"
               rows={4}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               required
             />
           </div>

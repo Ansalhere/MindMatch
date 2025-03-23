@@ -20,23 +20,35 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { FileCheck, Award, Plus } from "lucide-react";
-import { toast } from "sonner";
 
-const AddSkillForm = () => {
+interface AddSkillFormProps {
+  onSubmit: (formData: any) => Promise<void>;
+  isSubmitting: boolean;
+}
+
+const AddSkillForm = ({ onSubmit, isSubmitting }: AddSkillFormProps) => {
   const [formType, setFormType] = useState<"skill" | "certification">("skill");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [skillName, setSkillName] = useState("");
+  const [proficiency, setProficiency] = useState("");
+  const [experience, setExperience] = useState("");
+  const [details, setDetails] = useState("");
+  const [certName, setCertName] = useState("");
+  const [issuingOrg, setIssuingOrg] = useState("");
+  const [issueDate, setIssueDate] = useState("");
+  const [expiration, setExpiration] = useState("");
+  const [credentialID, setCredentialID] = useState("");
+  const [credentialURL, setCredentialURL] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast.success(`${formType === "skill" ? "Skill" : "Certification"} added successfully!`);
-      
-      // Reset form (would need to use formState in a real implementation)
-    }, 1000);
+    // Prepare form data based on the type
+    const formData = formType === "skill" 
+      ? { type: "skill", skillName, proficiency, experience, details }
+      : { type: "certification", certName, issuingOrg, issueDate, expiration, credentialID, credentialURL };
+    
+    // Call the parent's onSubmit handler
+    onSubmit(formData);
   };
 
   return (
@@ -80,13 +92,15 @@ const AddSkillForm = () => {
                 <Input
                   id="skillName"
                   placeholder="e.g., React.js, Python, UI/UX Design"
+                  value={skillName}
+                  onChange={(e) => setSkillName(e.target.value)}
                   required
                 />
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="proficiency">Proficiency Level</Label>
-                <Select required>
+                <Select value={proficiency} onValueChange={setProficiency} required>
                   <SelectTrigger>
                     <SelectValue placeholder="Select proficiency level" />
                   </SelectTrigger>
@@ -107,6 +121,8 @@ const AddSkillForm = () => {
                   min="0"
                   step="0.5"
                   placeholder="e.g., 2.5"
+                  value={experience}
+                  onChange={(e) => setExperience(e.target.value)}
                   required
                 />
               </div>
@@ -116,6 +132,8 @@ const AddSkillForm = () => {
                 <Textarea
                   id="details"
                   placeholder="Describe your experience with this skill and any notable projects"
+                  value={details}
+                  onChange={(e) => setDetails(e.target.value)}
                 />
               </div>
             </div>
@@ -126,6 +144,8 @@ const AddSkillForm = () => {
                 <Input
                   id="certName"
                   placeholder="e.g., AWS Solutions Architect, Google Analytics"
+                  value={certName}
+                  onChange={(e) => setCertName(e.target.value)}
                   required
                 />
               </div>
@@ -135,6 +155,8 @@ const AddSkillForm = () => {
                 <Input
                   id="issuingOrg"
                   placeholder="e.g., Amazon Web Services, Google"
+                  value={issuingOrg}
+                  onChange={(e) => setIssuingOrg(e.target.value)}
                   required
                 />
               </div>
@@ -144,6 +166,8 @@ const AddSkillForm = () => {
                 <Input
                   id="issueDate"
                   type="date"
+                  value={issueDate}
+                  onChange={(e) => setIssueDate(e.target.value)}
                   required
                 />
               </div>
@@ -153,6 +177,8 @@ const AddSkillForm = () => {
                 <Input
                   id="expiration"
                   type="date"
+                  value={expiration}
+                  onChange={(e) => setExpiration(e.target.value)}
                 />
               </div>
               
@@ -161,6 +187,8 @@ const AddSkillForm = () => {
                 <Input
                   id="credentialID"
                   placeholder="e.g., ABC123XYZ"
+                  value={credentialID}
+                  onChange={(e) => setCredentialID(e.target.value)}
                 />
               </div>
               
@@ -170,6 +198,8 @@ const AddSkillForm = () => {
                   id="credentialURL"
                   type="url"
                   placeholder="e.g., https://credential.net/verify/abc123"
+                  value={credentialURL}
+                  onChange={(e) => setCredentialURL(e.target.value)}
                 />
               </div>
             </div>
