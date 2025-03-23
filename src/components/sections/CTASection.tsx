@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
-import { Trophy } from 'lucide-react';
+import { Trophy, Star, Users, Award } from 'lucide-react';
 
 interface CTASectionProps {
   isVisible: boolean;
@@ -15,23 +15,41 @@ const CTASection = ({ isVisible }: CTASectionProps) => {
           isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
         }`}>
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Ready to Boost Your Career Ranking?
+            Ready to Boost Your Career With Our Ranking System?
           </h2>
           <p className="text-lg text-white/80 mb-6">
-            Join thousands of freshers and employers already using FresherPools to connect talent with opportunity based on skill rankings.
+            Join thousands of freshers and employers already using FresherPools to connect talent with opportunity based on our advanced skill-based ranking system.
           </p>
-          <div className="flex items-center justify-center mb-8">
-            <div className="bg-white/10 px-4 py-3 rounded-lg flex items-center">
-              <Trophy className="h-5 w-5 text-yellow-300 mr-2" />
-              <span className="text-white">Our unique ranking system helps top talent stand out!</span>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <div className="bg-white/10 px-4 py-3 rounded-lg flex flex-col items-center">
+              <Trophy className="h-6 w-6 text-yellow-300 mb-2" />
+              <span className="text-white font-medium">Stand Out with Rankings</span>
+              <span className="text-xs text-white/70">Showcase your skills with our verified ranking system</span>
+            </div>
+            
+            <div className="bg-white/10 px-4 py-3 rounded-lg flex flex-col items-center">
+              <Award className="h-6 w-6 text-yellow-300 mb-2" />
+              <span className="text-white font-medium">Improve Your Score</span>
+              <span className="text-xs text-white/70">Add certifications, take assessments, update your experience</span>
+            </div>
+            
+            <div className="bg-white/10 px-4 py-3 rounded-lg flex flex-col items-center">
+              <Star className="h-6 w-6 text-yellow-300 mb-2" />
+              <span className="text-white font-medium">Get Discovered</span>
+              <span className="text-xs text-white/70">Top-ranked profiles get more visibility with employers</span>
             </div>
           </div>
+          
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="secondary" className="text-primary px-8">
               <Link to="/register">Sign Up Now</Link>
             </Button>
             <Button size="lg" variant="outline" className="text-white border-white/30 hover:bg-white/10 px-8">
               <Link to="/profiles">Browse Ranked Profiles</Link>
+            </Button>
+            <Button size="lg" variant="outline" className="text-white border-white/30 hover:bg-white/10 px-8">
+              <Link to="/packages">View Packages</Link>
             </Button>
           </div>
         </div>
