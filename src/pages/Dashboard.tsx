@@ -47,15 +47,12 @@ const Dashboard = () => {
   const [userData, setUserData] = useState<any>(null);
   
   useEffect(() => {
-    // In a real app, this would be handled by an auth system
-    // For now, we'll check localStorage or use a default
     const storedUserType = localStorage.getItem('userType');
     const storedUserId = localStorage.getItem('userId');
     
     if (storedUserType) {
       setUserType(storedUserType);
       
-      // Fetch user data
       if (storedUserType === 'candidate' && storedUserId) {
         const candidate = sampleCandidates.find(c => c.id === storedUserId);
         if (candidate) {
@@ -295,7 +292,6 @@ const EmployerDashboard = ({ userData }: { userData: any }) => {
   const [rankFilter, setRankFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("highest");
   
-  // Create a mock list of applicants with rank information
   const applicants = [
     {
       id: "c1",
@@ -325,7 +321,7 @@ const EmployerDashboard = ({ userData }: { userData: any }) => {
     },
     {
       id: "c3",
-4 name: "Michael Chen",
+      name: "Michael Chen",
       position: "Mobile Developer",
       skills: ["Swift", "React Native", "UX Design"],
       matchScore: 88,
@@ -364,7 +360,6 @@ const EmployerDashboard = ({ userData }: { userData: any }) => {
     }
   ];
 
-  // Filter applicants based on rank filter
   const filteredApplicants = applicants.filter(applicant => {
     if (rankFilter === "all") return true;
     if (rankFilter === "top50" && applicant.ranking.position <= 50) return true;
@@ -373,7 +368,6 @@ const EmployerDashboard = ({ userData }: { userData: any }) => {
     return false;
   });
 
-  // Sort applicants based on sort order
   const sortedApplicants = [...filteredApplicants].sort((a, b) => {
     if (sortOrder === "highest") {
       return a.ranking.position - b.ranking.position;
