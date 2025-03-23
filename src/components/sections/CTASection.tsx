@@ -42,14 +42,14 @@ const CTASection = ({ isVisible }: CTASectionProps) => {
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="text-primary px-8">
+            <Button size="lg" variant="secondary" className="text-primary px-8" asChild>
               <Link to="/register">Sign Up Now</Link>
             </Button>
-            <Button size="lg" variant="outline" className="text-white border-white/30 hover:bg-white/10 px-8">
+            <Button size="lg" variant="outline" className="text-white border-white/30 hover:bg-white/10 px-8" asChild>
               <Link to="/profiles">Browse Ranked Profiles</Link>
             </Button>
-            <Button size="lg" variant="outline" className="text-white border-white/30 hover:bg-white/10 px-8">
-              <Link to="/packages">View Packages</Link>
+            <Button size="lg" variant="outline" className="text-white border-white/30 hover:bg-white/10 px-8" asChild>
+              <Link to="/ranking-explanation">Learn About Ranking</Link>
             </Button>
           </div>
         </div>

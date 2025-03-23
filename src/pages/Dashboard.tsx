@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -81,7 +80,15 @@ const Dashboard = () => {
   const handleViewAllProfiles = () => {
     navigate('/profiles');
   };
-  
+
+  const handlePostJob = () => {
+    navigate('/post-job');
+  };
+
+  const handleAddSkill = () => {
+    navigate('/add-skill');
+  };
+
   return (
     <div className="container mx-auto px-6 py-8">
       <div className="flex justify-between items-center mb-8">
@@ -98,7 +105,7 @@ const Dashboard = () => {
             <Users className="h-4 w-4 mr-2" />
             Browse Profiles
           </Button>
-          <Button>
+          <Button onClick={userType === "candidate" ? handleAddSkill : handlePostJob}>
             <Plus className="h-4 w-4 mr-2" />
             {userType === "candidate" ? "Add Skill" : "Post Job"}
           </Button>
@@ -318,7 +325,7 @@ const EmployerDashboard = ({ userData }: { userData: any }) => {
     },
     {
       id: "c3",
-      name: "Michael Chen",
+4 name: "Michael Chen",
       position: "Mobile Developer",
       skills: ["Swift", "React Native", "UX Design"],
       matchScore: 88,

@@ -47,14 +47,17 @@ const Navbar = () => {
           <Link to="/" className="hover-underline-animation text-foreground/80 hover:text-foreground transition-colors">
             Home
           </Link>
-          <Link to="/jobs" className="hover-underline-animation text-foreground/80 hover:text-foreground transition-colors">
-            Find Jobs
+          <Link to="/profiles" className="hover-underline-animation text-foreground/80 hover:text-foreground transition-colors">
+            Browse Profiles
           </Link>
-          <Link to="/employers" className="hover-underline-animation text-foreground/80 hover:text-foreground transition-colors">
-            For Employers
+          <Link to="/post-job" className="hover-underline-animation text-foreground/80 hover:text-foreground transition-colors">
+            Post Job
           </Link>
-          <Link to="/about" className="hover-underline-animation text-foreground/80 hover:text-foreground transition-colors">
-            About
+          <Link to="/packages" className="hover-underline-animation text-foreground/80 hover:text-foreground transition-colors">
+            Packages
+          </Link>
+          <Link to="/ranking-explanation" className="hover-underline-animation text-foreground/80 hover:text-foreground transition-colors">
+            How Ranking Works
           </Link>
         </div>
 
@@ -89,25 +92,32 @@ const Navbar = () => {
               Home
             </Link>
             <Link 
-              to="/jobs" 
+              to="/profiles" 
               className="text-lg font-medium text-foreground/80 hover:text-foreground transition-colors"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Find Jobs
+              Browse Profiles
             </Link>
             <Link 
-              to="/employers" 
+              to="/post-job" 
               className="text-lg font-medium text-foreground/80 hover:text-foreground transition-colors"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              For Employers
+              Post Job
             </Link>
             <Link 
-              to="/about" 
+              to="/packages" 
               className="text-lg font-medium text-foreground/80 hover:text-foreground transition-colors"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              About
+              Packages
+            </Link>
+            <Link 
+              to="/ranking-explanation" 
+              className="text-lg font-medium text-foreground/80 hover:text-foreground transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              How Ranking Works
             </Link>
             <div className="flex flex-col w-full items-center space-y-4 mt-4 px-12">
               <Button variant="outline" className="w-full" asChild>

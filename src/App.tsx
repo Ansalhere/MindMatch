@@ -12,6 +12,9 @@ import Profiles from "./pages/Profiles";
 import NotFound from "./pages/NotFound";
 import AuthForm from "./components/AuthForm";
 import Packages from "./pages/Packages";
+import PostJob from "./pages/PostJob";
+import AddSkill from "./pages/AddSkill";
+import RankingExplanationPage from "./pages/RankingExplanation";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +33,9 @@ const App = () => (
           <Route path="/candidate/:id" element={<CandidateDetails />} />
           <Route path="/profiles" element={<Profiles />} />
           <Route path="/packages" element={<Packages />} />
+          <Route path="/post-job" element={<PostJob />} />
+          <Route path="/add-skill" element={<AddSkill />} />
+          <Route path="/ranking-explanation" element={<RankingExplanationPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
