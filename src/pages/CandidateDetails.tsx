@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
@@ -41,12 +40,17 @@ import {
 import { sampleCandidates } from '../data/sampleProfiles';
 import RankingExplanation from '@/components/ranking/RankingExplanation';
 import AddSkillForm from '@/components/profile/AddSkillForm';
+import { toast } from 'sonner';
+import { addUserSkill } from '@/lib/supabase';
+import { useUser } from '@/hooks/useUser';
 
 const CandidateDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("overview");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useUser();
   
   useEffect(() => {
     // In a real app, you would fetch profile data from an API
@@ -55,6 +59,32 @@ const CandidateDetails = () => {
       setProfile(candidate);
     }
   }, [id]);
+
+  const handleAddSkill = async (formData: any) => {
+    if (!user) {
+      toast.error("You must be logged in to add skills");
+      navigate('/login');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      const skillData = {
+        ...formData,
+        user_id: user.id
+      };
+      
+      await addUserSkill(skillData);
+      toast.success("Skill added successfully!");
+      // Optionally refresh the profile data here
+    } catch (error) {
+      console.error('Error adding skill:', error);
+      toast.error("Failed to add skill. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (!profile) {
     return (
@@ -400,7 +430,7 @@ const CandidateDetails = () => {
             </TabsContent>
             
             <TabsContent value="add-skills">
-              <AddSkillForm />
+              <AddSkillForm onSubmit={handleAddSkill} isSubmitting={isSubmitting} />
             </TabsContent>
           </Tabs>
         </div>
