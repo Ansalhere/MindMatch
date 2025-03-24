@@ -10,6 +10,7 @@ import HowItWorksSection from '../components/sections/HowItWorksSection';
 import TestimonialsSection from '../components/sections/TestimonialsSection';
 import CTASection from '../components/sections/CTASection';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
+import RankingShowcase from '../components/RankingShowcase';
 
 const Index = () => {
   const isVisible = useScrollAnimation();
@@ -18,6 +19,7 @@ const Index = () => {
   const statsRef = useRef<HTMLDivElement>(null);
   const testimonialsRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
+  const rankingRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Handle scroll to section when redirected from another page or when hash is present
@@ -50,6 +52,9 @@ const Index = () => {
           <StatsSection isVisible={isVisible.stats} />
         </div>
         <Features />
+        <div id="ranking-system" ref={rankingRef}>
+          <RankingShowcase isVisible={isVisible.ranking} />
+        </div>
         <div id="how-it-works" ref={howItWorksRef}>
           <HowItWorksSection isVisible={isVisible.howItWorks} />
         </div>

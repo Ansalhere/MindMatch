@@ -1,14 +1,27 @@
 
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Menu, X, User } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { cn } from '@/lib/utils';
+import { useUser } from '@/hooks/useUser';
+import { signOut } from '@/lib/supabase';
+import { toast } from 'sonner';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user, isLoading } = useUser();
 
   // Handle scroll effect
   useEffect(() => {
@@ -24,18 +37,28 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollToHowItWorks = () => {
+  const navigateToSection = (sectionId: string) => {
     setIsMobileMenuOpen(false);
     
     // If we're on the homepage, scroll to the section
-    if (window.location.pathname === '/') {
-      const section = document.getElementById('how-it-works');
+    if (location.pathname === '/') {
+      const section = document.getElementById(sectionId);
       if (section) {
         section.scrollIntoView({ behavior: 'smooth' });
       }
     } else {
-      // If we're on another page, navigate to homepage and then scroll
-      navigate('/', { state: { scrollTo: 'how-it-works' } });
+      // If we're on another page, navigate to homepage with the section
+      navigate('/', { state: { scrollTo: sectionId } });
+    }
+  };
+
+  const handleLogout = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast.error("Failed to sign out: " + error.message);
+    } else {
+      toast.success("Signed out successfully");
+      navigate('/');
     }
   };
 
@@ -64,7 +87,7 @@ const Navbar = () => {
             Home
           </Link>
           <button 
-            onClick={scrollToHowItWorks}
+            onClick={() => navigateToSection('how-it-works')}
             className="hover-underline-animation text-foreground/80 hover:text-foreground transition-colors bg-transparent border-none cursor-pointer"
           >
             How It Works
@@ -85,12 +108,46 @@ const Navbar = () => {
 
         {/* Auth Buttons - Desktop */}
         <div className="hidden md:flex items-center space-x-4">
-          <Button variant="outline" asChild>
-            <Link to="/login">Sign In</Link>
-          </Button>
-          <Button asChild>
-            <Link to="/register">Sign Up</Link>
-          </Button>
+          {isLoading ? (
+            <div className="w-24 h-10 bg-muted animate-pulse rounded-md"></div>
+          ) : user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="flex items-center gap-2">
+                  <User size={16} />
+                  <span>{user.name ? user.name.split(' ')[0] : 'Account'}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                  Dashboard
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate(`/profile/${user.id}/${user.user_type}`)}>
+                  Profile
+                </DropdownMenuItem>
+                {user.user_type === 'employer' && (
+                  <DropdownMenuItem onClick={() => navigate('/post-job')}>
+                    Post a Job
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button variant="outline" asChild>
+                <Link to="/login">Sign In</Link>
+              </Button>
+              <Button asChild>
+                <Link to="/register">Sign Up</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -114,7 +171,7 @@ const Navbar = () => {
               Home
             </Link>
             <button
-              onClick={scrollToHowItWorks}
+              onClick={() => navigateToSection('how-it-works')}
               className="text-lg font-medium text-foreground/80 hover:text-foreground transition-colors bg-transparent border-none cursor-pointer"
             >
               How It Works
@@ -147,13 +204,27 @@ const Navbar = () => {
             >
               How Ranking Works
             </Link>
+            
             <div className="flex flex-col w-full items-center space-y-4 mt-4 px-12">
-              <Button variant="outline" className="w-full" asChild>
-                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>Sign In</Link>
-              </Button>
-              <Button className="w-full" asChild>
-                <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}>Sign Up</Link>
-              </Button>
+              {user ? (
+                <>
+                  <Button onClick={() => { navigate('/dashboard'); setIsMobileMenuOpen(false); }} className="w-full">
+                    Dashboard
+                  </Button>
+                  <Button variant="outline" onClick={handleLogout} className="w-full">
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>Sign In</Link>
+                  </Button>
+                  <Button className="w-full" asChild>
+                    <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}>Sign Up</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>

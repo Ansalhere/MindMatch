@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -108,25 +109,6 @@ const AuthForm = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="userType">I am a</Label>
-                    <RadioGroup 
-                      defaultValue="candidate" 
-                      className="flex gap-4" 
-                      onValueChange={setUserType}
-                      value={userType}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="candidate" id="login-candidate" />
-                        <Label htmlFor="login-candidate" className="cursor-pointer">Candidate</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="employer" id="login-employer" />
-                        <Label htmlFor="login-employer" className="cursor-pointer">Employer</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                  
-                  <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input 
                       id="email" 
@@ -224,13 +206,9 @@ const AuthForm = () => {
                       </button>
                     </div>
                     <ul className="mt-2 space-y-1">
-                      <li className="text-xs flex items-center text-muted-foreground">
-                        <CheckCircle size={12} className="mr-1 text-green-500" />
-                        At least 8 characters
-                      </li>
-                      <li className="text-xs flex items-center text-muted-foreground">
-                        <CheckCircle size={12} className="mr-1 text-green-500" />
-                        Contains at least one number
+                      <li className={`text-xs flex items-center ${formData.registerPassword.length >= 6 ? 'text-green-500' : 'text-muted-foreground'}`}>
+                        <CheckCircle size={12} className="mr-1" />
+                        At least 6 characters
                       </li>
                     </ul>
                   </div>

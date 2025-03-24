@@ -1,12 +1,13 @@
 
 import { useState, useEffect } from 'react';
 
-export const useScrollAnimation = () => {
+export function useScrollAnimation() {
   const [isVisible, setIsVisible] = useState({
     stats: false,
     howItWorks: false,
     testimonials: false,
-    cta: false
+    cta: false,
+    ranking: false
   });
 
   useEffect(() => {
@@ -15,50 +16,57 @@ export const useScrollAnimation = () => {
       const howItWorks = document.getElementById('how-it-works');
       const testimonials = document.getElementById('testimonials');
       const cta = document.getElementById('cta');
+      const ranking = document.getElementById('ranking-system');
+
+      const windowHeight = window.innerHeight;
+      const revealPoint = 150;
 
       if (stats) {
+        const statsTop = stats.getBoundingClientRect().top;
         setIsVisible(prev => ({ 
           ...prev, 
-          stats: isElementInViewport(stats) 
+          stats: statsTop < windowHeight - revealPoint 
         }));
       }
-      
-      if (howItWorks) {
-        setIsVisible(prev => ({ 
-          ...prev, 
-          howItWorks: isElementInViewport(howItWorks) 
-        }));
-      }
-      
-      if (testimonials) {
-        setIsVisible(prev => ({ 
-          ...prev, 
-          testimonials: isElementInViewport(testimonials) 
-        }));
-      }
-      
-      if (cta) {
-        setIsVisible(prev => ({ 
-          ...prev, 
-          cta: isElementInViewport(cta) 
-        }));
-      }
-    };
 
-    const isElementInViewport = (el: HTMLElement) => {
-      const rect = el.getBoundingClientRect();
-      return (
-        rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
-        rect.bottom >= 0
-      );
+      if (howItWorks) {
+        const howItWorksTop = howItWorks.getBoundingClientRect().top;
+        setIsVisible(prev => ({ 
+          ...prev, 
+          howItWorks: howItWorksTop < windowHeight - revealPoint 
+        }));
+      }
+
+      if (testimonials) {
+        const testimonialsTop = testimonials.getBoundingClientRect().top;
+        setIsVisible(prev => ({ 
+          ...prev, 
+          testimonials: testimonialsTop < windowHeight - revealPoint 
+        }));
+      }
+
+      if (cta) {
+        const ctaTop = cta.getBoundingClientRect().top;
+        setIsVisible(prev => ({ 
+          ...prev, 
+          cta: ctaTop < windowHeight - revealPoint 
+        }));
+      }
+
+      if (ranking) {
+        const rankingTop = ranking.getBoundingClientRect().top;
+        setIsVisible(prev => ({ 
+          ...prev, 
+          ranking: rankingTop < windowHeight - revealPoint 
+        }));
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
-    // Trigger once on load
-    handleScroll();
-
+    handleScroll(); // Check on initial load
+    
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return isVisible;
-};
+}

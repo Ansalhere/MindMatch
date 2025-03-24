@@ -1,23 +1,22 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 // Authentication functions
 export async function signUp(email: string, password: string, userData: any) {
   try {
-    // First try to sign up the user
+    // Sign up without email verification
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: userData,
-        // Don't set emailRedirectTo to avoid sending verification emails
+        emailRedirectTo: null // Explicitly set to null to avoid email verification
       }
     });
 
     if (error) throw error;
     
-    // If signup was successful, immediately sign in the user
+    // Immediately sign in the user
     const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password
@@ -85,7 +84,6 @@ export async function getUserProfile(userId: string) {
   }
 }
 
-// Skills related functions
 export async function getUserSkills(userId: string) {
   try {
     const { data, error } = await supabase
@@ -120,7 +118,6 @@ export async function addUserSkill(skillData: any) {
   }
 }
 
-// User education functions
 export async function getUserEducation(userId: string) {
   try {
     const { data, error } = await supabase
@@ -137,7 +134,6 @@ export async function getUserEducation(userId: string) {
   }
 }
 
-// User experience functions
 export async function getUserExperience(userId: string) {
   try {
     const { data, error } = await supabase
@@ -154,7 +150,6 @@ export async function getUserExperience(userId: string) {
   }
 }
 
-// User certifications functions
 export async function getUserCertifications(userId: string) {
   try {
     const { data, error } = await supabase
@@ -171,7 +166,6 @@ export async function getUserCertifications(userId: string) {
   }
 }
 
-// Jobs related functions
 export async function getJobs() {
   try {
     const { data, error } = await supabase
@@ -190,9 +184,21 @@ export async function getJobs() {
 
 export async function createJob(jobData: any) {
   try {
+    // Get current user to set as employer_id
+    const { user } = await getCurrentUser();
+    if (!user) throw new Error("You must be logged in to post a job");
+
+    // Prepare job data with employer ID
+    const newJobData = {
+      ...jobData,
+      employer_id: user.id,
+      created_at: new Date(),
+      is_active: true
+    };
+
     const { data, error } = await supabase
       .from('jobs')
-      .insert(jobData)
+      .insert(newJobData)
       .select()
       .single();
 
@@ -206,7 +212,6 @@ export async function createJob(jobData: any) {
   }
 }
 
-// Applications related functions
 export async function applyForJob(applicationData: any) {
   try {
     const { data, error } = await supabase
@@ -248,7 +253,6 @@ export async function getUserApplications(userId: string) {
   }
 }
 
-// Calculate user rank (calling the function we created in the database)
 export async function calculateUserRank(userId: string) {
   try {
     // Try to use the edge function first
@@ -276,7 +280,6 @@ export async function calculateUserRank(userId: string) {
   }
 }
 
-// Get candidate ranking factors
 export async function getRankingFactors(userId: string) {
   try {
     const [skills, certifications, education, experience] = await Promise.all([
