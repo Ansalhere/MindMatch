@@ -1,235 +1,192 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, User } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import { useUser } from '@/hooks/useUser';
 import { signOut } from '@/lib/supabase';
-import { toast } from 'sonner';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, isLoading } = useUser();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
-  // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 10);
     };
-
+    
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navigateToSection = (sectionId: string) => {
-    setIsMobileMenuOpen(false);
-    
-    // If we're on the homepage, scroll to the section
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  const handleNavClick = (sectionId: string) => {
     if (location.pathname === '/') {
+      // If we're on the homepage, scroll to the section
       const section = document.getElementById(sectionId);
       if (section) {
         section.scrollIntoView({ behavior: 'smooth' });
       }
     } else {
-      // If we're on another page, navigate to homepage with the section
+      // If we're on another page, navigate to homepage and then scroll
       navigate('/', { state: { scrollTo: sectionId } });
     }
-  };
-
-  const handleLogout = async () => {
-    const { error } = await signOut();
-    if (error) {
-      toast.error("Failed to sign out: " + error.message);
-    } else {
-      toast.success("Signed out successfully");
-      navigate('/');
-    }
+    setIsMenuOpen(false);
   };
 
   return (
-    <nav
-      className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out py-4',
-        isScrolled 
-          ? 'bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50' 
-          : 'bg-transparent'
-      )}
+    <header 
+      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+        isScrolled ? 'bg-white/95 backdrop-blur-sm shadow-sm' : 'bg-transparent'
+      }`}
     >
-      <div className="container mx-auto px-6 md:px-12 flex items-center justify-between">
-        {/* Logo */}
-        <Link 
-          to="/" 
-          className="flex items-center space-x-2 text-2xl font-bold text-primary"
-        >
-          <span className="bg-primary text-white px-2 py-1 rounded-md">F</span>
-          <span>FresherPools</span>
-        </Link>
-
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-8">
-          <Link to="/" className="hover-underline-animation text-foreground/80 hover:text-foreground transition-colors">
-            Home
-          </Link>
-          <button 
-            onClick={() => navigateToSection('how-it-works')}
-            className="hover-underline-animation text-foreground/80 hover:text-foreground transition-colors bg-transparent border-none cursor-pointer"
-          >
-            How It Works
-          </button>
-          <Link to="/profiles" className="hover-underline-animation text-foreground/80 hover:text-foreground transition-colors">
-            Browse Profiles
-          </Link>
-          <Link to="/post-job" className="hover-underline-animation text-foreground/80 hover:text-foreground transition-colors">
-            Post Job
-          </Link>
-          <Link to="/packages" className="hover-underline-animation text-foreground/80 hover:text-foreground transition-colors">
-            Packages
-          </Link>
-          <Link to="/ranking-explanation" className="hover-underline-animation text-foreground/80 hover:text-foreground transition-colors">
-            How Ranking Works
-          </Link>
-        </div>
-
-        {/* Auth Buttons - Desktop */}
-        <div className="hidden md:flex items-center space-x-4">
-          {isLoading ? (
-            <div className="w-24 h-10 bg-muted animate-pulse rounded-md"></div>
-          ) : user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <User size={16} />
-                  <span>{user.name ? user.name.split(' ')[0] : 'Account'}</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/dashboard')}>
-                  Dashboard
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate(`/profile/${user.id}/${user.user_type}`)}>
-                  Profile
-                </DropdownMenuItem>
-                {user.user_type === 'employer' && (
-                  <DropdownMenuItem onClick={() => navigate('/post-job')}>
-                    Post a Job
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  Sign out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <>
-              <Button variant="outline" asChild>
-                <Link to="/login">Sign In</Link>
-              </Button>
-              <Button asChild>
-                <Link to="/register">Sign Up</Link>
-              </Button>
-            </>
-          )}
-        </div>
-
-        {/* Mobile Menu Button */}
-        <button 
-          className="md:hidden text-foreground"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      {/* Mobile Navigation */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 top-[72px] z-40 bg-white/95 backdrop-blur-md animate-fade-in">
-          <div className="flex flex-col items-center py-8 space-y-6">
-            <Link 
-              to="/" 
-              className="text-lg font-medium text-foreground/80 hover:text-foreground transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Home
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center space-x-2">
+              <span className="text-2xl font-bold text-primary">TalentMatch</span>
             </Link>
-            <button
-              onClick={() => navigateToSection('how-it-works')}
-              className="text-lg font-medium text-foreground/80 hover:text-foreground transition-colors bg-transparent border-none cursor-pointer"
+          </div>
+          
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <button 
+              onClick={() => handleNavClick('how-it-works')}
+              className="text-gray-600 hover:text-primary transition-colors"
             >
               How It Works
             </button>
+            <button 
+              onClick={() => handleNavClick('ranking-system')}
+              className="text-gray-600 hover:text-primary transition-colors"
+            >
+              Ranking System
+            </button>
+            <Link to="/profiles" className="text-gray-600 hover:text-primary transition-colors">
+              Browse Profiles
+            </Link>
+            {user ? (
+              <>
+                <Link to="/dashboard" className="text-gray-600 hover:text-primary transition-colors">
+                  Dashboard
+                </Link>
+                {user.user_type === 'employer' && (
+                  <Link to="/post-job" className="text-gray-600 hover:text-primary transition-colors">
+                    Post a Job
+                  </Link>
+                )}
+                <Button 
+                  variant="ghost" 
+                  onClick={handleLogout}
+                  className="text-gray-600 hover:text-primary transition-colors"
+                >
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <div className="flex items-center space-x-4">
+                <Link to="/login">
+                  <Button variant="outline">Login</Button>
+                </Link>
+                <Link to="/register">
+                  <Button>Sign Up</Button>
+                </Link>
+              </div>
+            )}
+          </nav>
+          
+          {/* Mobile menu button */}
+          <button 
+            className="md:hidden text-gray-600"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? (
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-6 w-6">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-6 w-6">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
+        </div>
+        
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <nav className="md:hidden mt-4 pb-4 space-y-3">
+            <button 
+              onClick={() => handleNavClick('how-it-works')}
+              className="block w-full text-left py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
+            >
+              How It Works
+            </button>
+            <button 
+              onClick={() => handleNavClick('ranking-system')}
+              className="block w-full text-left py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
+            >
+              Ranking System
+            </button>
             <Link 
               to="/profiles" 
-              className="text-lg font-medium text-foreground/80 hover:text-foreground transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
+              className="block py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
+              onClick={() => setIsMenuOpen(false)}
             >
               Browse Profiles
             </Link>
-            <Link 
-              to="/post-job" 
-              className="text-lg font-medium text-foreground/80 hover:text-foreground transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Post Job
-            </Link>
-            <Link 
-              to="/packages" 
-              className="text-lg font-medium text-foreground/80 hover:text-foreground transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Packages
-            </Link>
-            <Link 
-              to="/ranking-explanation" 
-              className="text-lg font-medium text-foreground/80 hover:text-foreground transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              How Ranking Works
-            </Link>
-            
-            <div className="flex flex-col w-full items-center space-y-4 mt-4 px-12">
-              {user ? (
-                <>
-                  <Button onClick={() => { navigate('/dashboard'); setIsMobileMenuOpen(false); }} className="w-full">
-                    Dashboard
-                  </Button>
-                  <Button variant="outline" onClick={handleLogout} className="w-full">
-                    Sign Out
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button variant="outline" className="w-full" asChild>
-                    <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>Sign In</Link>
-                  </Button>
-                  <Button className="w-full" asChild>
-                    <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}>Sign Up</Link>
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-    </nav>
+            {user ? (
+              <>
+                <Link 
+                  to="/dashboard" 
+                  className="block py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                {user.user_type === 'employer' && (
+                  <Link 
+                    to="/post-job" 
+                    className="block py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Post a Job
+                  </Link>
+                )}
+                <button 
+                  onClick={handleLogout}
+                  className="block w-full text-left py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <div className="space-y-2 pt-2">
+                <Link 
+                  to="/login" 
+                  className="block"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Button variant="outline" className="w-full">Login</Button>
+                </Link>
+                <Link 
+                  to="/register" 
+                  className="block"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Button className="w-full">Sign Up</Button>
+                </Link>
+              </div>
+            )}
+          </nav>
+        )}
+      </div>
+    </header>
   );
 };
 

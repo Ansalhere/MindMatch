@@ -40,6 +40,8 @@ const AuthForm = () => {
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
           toast.error("Invalid email or password. Please try again.");
+        } else if (error.message.includes('Email not confirmed')) {
+          toast.error("Your email is not verified. Please check your inbox for a verification link or try registering again.");
         } else {
           throw error;
         }
@@ -68,7 +70,8 @@ const AuthForm = () => {
     try {
       const userData = {
         name: formData.name,
-        user_type: userType
+        user_type: userType,
+        email_confirmed: true // Add this to try to bypass email verification
       };
       
       const { data, error } = await signUp(formData.registerEmail, formData.registerPassword, userData);

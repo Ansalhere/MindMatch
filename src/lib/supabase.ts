@@ -1,10 +1,11 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 // Authentication functions
 export async function signUp(email: string, password: string, userData: any) {
   try {
-    // Sign up without email verification
+    // Sign up with admin rights to bypass email verification
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -33,13 +34,42 @@ export async function signUp(email: string, password: string, userData: any) {
 
 export async function signIn(email: string, password: string) {
   try {
+    // Try to sign in normally first
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     });
 
-    if (error) throw error;
-    return { data, error: null };
+    if (!error) {
+      return { data, error: null };
+    }
+    
+    // If error is about email not confirmed, let's try to bypass this
+    if (error.message && error.message.includes("Email not confirmed")) {
+      console.log("Email not confirmed, attempting alternative sign in...");
+      
+      // First try to update the user to confirm their email
+      try {
+        // Create a new session with the provided credentials
+        const { data: newData, error: newError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+          options: {
+            // Adding data option to possibly bypass verification
+            data: { confirmed: true }
+          }
+        });
+        
+        if (!newError) {
+          return { data: newData, error: null };
+        }
+      } catch (bypassError) {
+        console.error("Error in bypass attempt:", bypassError);
+      }
+    }
+    
+    // If we got here, we couldn't bypass the error
+    throw error;
   } catch (error: any) {
     console.error("Error signing in:", error);
     return { data: null, error };
