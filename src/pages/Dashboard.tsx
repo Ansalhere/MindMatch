@@ -21,7 +21,8 @@ import {
   Plus,
   Filter,
   ArrowUpDown,
-  Star
+  Star,
+  Loader2
 } from 'lucide-react';
 import { toast } from "sonner";
 import { sampleCandidates, sampleEmployers } from '../data/sampleProfiles';
@@ -41,10 +42,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getEmployerJobs } from '@/lib/supabase';
-import { Loader2 } from "@/components/ui/loader";
+import { useUser } from '@/hooks/useUser';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { user } = useUser();
   const [userType, setUserType] = useState("candidate");
   const [userData, setUserData] = useState<any>(null);
   const [employerJobs, setEmployerJobs] = useState<any[]>([]);
@@ -715,3 +717,4 @@ const EmployerDashboard = ({
 };
 
 export default Dashboard;
+

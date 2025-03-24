@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,15 @@ const employerFields = [
   { name: 'website', label: 'Company Website', type: 'url', required: false },
 ];
 
+// Define the type for form values
+interface FormValues {
+  company?: string;
+  industry?: string;
+  size?: string;
+  website?: string;
+  [key: string]: string | undefined;
+}
+
 const AuthForm = () => {
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState('');
@@ -33,7 +43,7 @@ const AuthForm = () => {
   const [userType, setUserType] = useState<'candidate' | 'employer'>('candidate');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [formValues, setFormValues] = useState({});
+  const [formValues, setFormValues] = useState<FormValues>({});
   const navigate = useNavigate();
 
   // Modify to include employer fields
