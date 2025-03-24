@@ -12,6 +12,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { getJobs, applyForJob } from '@/lib/supabase';
 import { useUser } from '@/hooks/useUser';
+import { Loader } from '@/components/ui/loader';
 
 const Jobs = () => {
   const [jobs, setJobs] = useState<any[]>([]);
@@ -157,7 +158,7 @@ const Jobs = () => {
         <div className="space-y-4">
           {loading ? (
             <div className="text-center py-10">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
+              <Loader size={32} className="mx-auto mb-2" />
               <p>Loading jobs...</p>
             </div>
           ) : filteredJobs.length === 0 ? (

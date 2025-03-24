@@ -193,7 +193,7 @@ export async function getUserCertifications(userId: string) {
 
 export async function getJobs() {
   try {
-    console.log("Fetching jobs from database");
+    console.log("Starting getJobs function...");
     const { data, error } = await supabase
       .from('jobs')
       .select('*, employer:employer_id(name, company)')
@@ -201,14 +201,14 @@ export async function getJobs() {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error("Error fetching jobs:", error);
-      throw error;
+      console.error("Supabase error fetching jobs:", error);
+      return { jobs: [], error };
     }
     
     console.log("Jobs fetched successfully:", data);
     return { jobs: data, error: null };
   } catch (error: any) {
-    console.error("Error in getJobs function:", error);
+    console.error("Exception in getJobs function:", error);
     return { jobs: [], error };
   }
 }
