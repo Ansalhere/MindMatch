@@ -55,7 +55,7 @@ const Navbar = () => {
           </div>
           
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-6">
             <button 
               onClick={() => handleNavClick('how-it-works')}
               className="text-gray-600 hover:text-primary transition-colors"
@@ -68,9 +68,22 @@ const Navbar = () => {
             >
               Ranking System
             </button>
+            <Link to="/jobs" className="text-gray-600 hover:text-primary transition-colors">
+              Browse Jobs
+            </Link>
             <Link to="/profiles" className="text-gray-600 hover:text-primary transition-colors">
               Browse Profiles
             </Link>
+            <Link to="/skills" className="text-gray-600 hover:text-primary transition-colors">
+              Skill Assessment
+            </Link>
+            <Link to="/resources" className="text-gray-600 hover:text-primary transition-colors">
+              Resources
+            </Link>
+            <Link to="/packages" className="text-gray-600 hover:text-primary transition-colors">
+              Pricing
+            </Link>
+            
             {user ? (
               <>
                 <Link to="/dashboard" className="text-gray-600 hover:text-primary transition-colors">
@@ -134,12 +147,41 @@ const Navbar = () => {
               Ranking System
             </button>
             <Link 
+              to="/jobs" 
+              className="block py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Browse Jobs
+            </Link>
+            <Link 
               to="/profiles" 
               className="block py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
               onClick={() => setIsMenuOpen(false)}
             >
               Browse Profiles
             </Link>
+            <Link 
+              to="/skills" 
+              className="block py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Skill Assessment
+            </Link>
+            <Link 
+              to="/resources" 
+              className="block py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Resources
+            </Link>
+            <Link 
+              to="/packages" 
+              className="block py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Pricing
+            </Link>
+            
             {user ? (
               <>
                 <Link 

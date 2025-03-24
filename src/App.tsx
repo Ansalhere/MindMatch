@@ -16,6 +16,15 @@ import PostJob from "./pages/PostJob";
 import AddSkill from "./pages/AddSkill";
 import RankingExplanationPage from "./pages/RankingExplanation";
 import { AuthProvider } from "./hooks/useUser";
+import Jobs from "./pages/Jobs";
+import Skills from "./pages/Skills";
+import Career from "./pages/Career";
+import SuccessStories from "./pages/SuccessStories";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Pricing from "./pages/Pricing";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 
 const queryClient = new QueryClient();
 
@@ -38,7 +47,15 @@ const App = () => (
             <Route path="/post-job" element={<PostJob />} />
             <Route path="/add-skill" element={<AddSkill />} />
             <Route path="/ranking-explanation" element={<RankingExplanationPage />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="/jobs" element={<Jobs />} />
+            <Route path="/skills" element={<Skills />} />
+            <Route path="/resources" element={<Career />} />
+            <Route path="/success-stories" element={<SuccessStories />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

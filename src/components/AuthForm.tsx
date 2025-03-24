@@ -47,7 +47,14 @@ const AuthForm = () => {
         }
       } else {
         toast.success("Login successful!");
-        navigate('/dashboard');
+        // Check user type and redirect accordingly
+        const userType = data?.user?.user_metadata?.user_type;
+        if (userType === 'employer') {
+          navigate('/dashboard');
+        } else {
+          // Default to jobs page for candidates
+          navigate('/jobs');
+        }
       }
     } catch (error: any) {
       console.error("Login error:", error);
@@ -79,7 +86,14 @@ const AuthForm = () => {
       if (error) throw error;
       
       toast.success("Registration successful! You are now logged in.");
-      navigate('/dashboard');
+      
+      // Check user type and redirect accordingly
+      if (userType === 'employer') {
+        navigate('/dashboard');
+      } else {
+        // Default to jobs page for candidates
+        navigate('/jobs');
+      }
     } catch (error: any) {
       console.error("Registration error:", error);
       if (error.message.includes("User already registered")) {
