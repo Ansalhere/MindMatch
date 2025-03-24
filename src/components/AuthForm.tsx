@@ -1,278 +1,255 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { User, Building, Loader2 } from 'lucide-react';
 import { toast } from "sonner";
-import { Eye, EyeOff, CheckCircle } from 'lucide-react';
-import LoginCredentials from './LoginCredentials';
-import { signIn, signUp } from '@/lib/supabase';
+import { signUp, signIn } from '@/lib/supabase';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+
+// Add additional fields for employer signup
+const employerFields = [
+  { name: 'company', label: 'Company Name', type: 'text', required: true },
+  { name: 'industry', label: 'Industry', type: 'text', required: true },
+  { name: 'size', label: 'Company Size', type: 'select', options: ['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+'], required: true },
+  { name: 'website', label: 'Company Website', type: 'url', required: false },
+];
 
 const AuthForm = () => {
-  const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
+  const [isRegister, setIsRegister] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [userType, setUserType] = useState<'candidate' | 'employer'>('candidate');
   const [isLoading, setIsLoading] = useState(false);
-  const [userType, setUserType] = useState("candidate");
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    name: '',
-    registerEmail: '',
-    registerPassword: ''
-  });
+  const [error, setError] = useState<string | null>(null);
+  const [formValues, setFormValues] = useState({});
+  const navigate = useNavigate();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    setFormData(prev => ({ ...prev, [id]: value }));
-  };
-
-  const handleLogin = async (e: React.FormEvent) => {
+  // Modify to include employer fields
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
     
     try {
-      const { data, error } = await signIn(formData.email, formData.password);
-      
-      if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-          toast.error("Invalid email or password. Please try again.");
-        } else if (error.message.includes('Email not confirmed')) {
-          toast.error("Your email is not verified. Please check your inbox for a verification link or try registering again.");
-        } else {
-          throw error;
-        }
-      } else {
-        toast.success("Login successful!");
-        // Check user type and redirect accordingly
-        const userType = data?.user?.user_metadata?.user_type;
-        if (userType === 'employer') {
+      if (isRegister) {
+        // Prepare user metadata with conditional employer fields
+        const userData = {
+          name,
+          user_type: userType,
+          ...(userType === 'employer' && {
+            company: formValues.company || '',
+            industry: formValues.industry || '',
+            size: formValues.size || '',
+            website: formValues.website || '',
+          })
+        };
+        
+        const { data, error } = await signUp(email, password, userData);
+        
+        if (error) throw error;
+        
+        if (data) {
+          toast.success("Successfully signed up!");
           navigate('/dashboard');
-        } else {
-          // Default to jobs page for candidates
-          navigate('/jobs');
+        }
+      } else {
+        const { data, error } = await signIn(email, password);
+        
+        if (error) throw error;
+        
+        if (data) {
+          toast.success("Successfully logged in!");
+          navigate('/dashboard');
         }
       }
-    } catch (error: any) {
-      console.error("Login error:", error);
-      toast.error(error.message || "Login failed. Please check your credentials.");
+    } catch (err: any) {
+      console.error('Authentication error:', err);
+      setError(err.message || 'An error occurred');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (formData.registerPassword.length < 6) {
-      toast.error("Password must be at least 6 characters long");
-      return;
-    }
-    
-    setIsLoading(true);
-    
-    try {
-      const userData = {
-        name: formData.name,
-        user_type: userType,
-        email_confirmed: true // Add this to try to bypass email verification
-      };
-      
-      const { data, error } = await signUp(formData.registerEmail, formData.registerPassword, userData);
-      
-      if (error) throw error;
-      
-      toast.success("Registration successful! You are now logged in.");
-      
-      // Check user type and redirect accordingly
-      if (userType === 'employer') {
-        navigate('/dashboard');
-      } else {
-        // Default to jobs page for candidates
-        navigate('/jobs');
-      }
-    } catch (error: any) {
-      console.error("Registration error:", error);
-      if (error.message.includes("User already registered")) {
-        toast.error("Email already registered. Try logging in instead.");
-      } else {
-        toast.error(error.message || "Registration failed. Please try again.");
-      }
-    } finally {
-      setIsLoading(false);
-    }
+  const handleEmployerFieldChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormValues(prev => ({ ...prev, [name]: value }));
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card className="border-none shadow-lg">
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="register">Register</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="login">
-              <form onSubmit={handleLogin}>
-                <CardHeader>
-                  <CardTitle className="text-2xl text-center">Welcome back</CardTitle>
-                  <CardDescription className="text-center">
-                    Enter your credentials to access your account
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input 
-                      id="email" 
-                      type="email" 
-                      placeholder="name@example.com" 
-                      required 
-                      value={formData.email}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="password">Password</Label>
-                      <a href="#" className="text-xs text-primary hover:underline">
-                        Forgot password?
-                      </a>
-                    </div>
-                    <div className="relative">
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      
+      <main className="flex-grow container mx-auto px-4 py-8">
+        <div className="max-w-md mx-auto">
+          <Card>
+            <CardHeader>
+              <CardTitle>{isRegister ? 'Create an Account' : 'Log In'}</CardTitle>
+              <CardDescription>
+                {isRegister 
+                  ? 'Sign up to find jobs or candidates' 
+                  : 'Welcome back! Log in to continue'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {isRegister && (
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="name">Full Name</Label>
                       <Input 
-                        id="password" 
-                        type={showPassword ? "text" : "password"} 
-                        placeholder="••••••••" 
-                        required 
-                        value={formData.password}
-                        onChange={handleInputChange}
+                        id="name" 
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
                       />
-                      <button 
-                        type="button"
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                      </button>
                     </div>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button className="w-full" type="submit" disabled={isLoading}>
-                    {isLoading ? "Signing in..." : "Sign In"}
-                  </Button>
-                </CardFooter>
-              </form>
-            </TabsContent>
-            
-            <TabsContent value="register">
-              <form onSubmit={handleRegister}>
-                <CardHeader>
-                  <CardTitle className="text-2xl text-center">Create an account</CardTitle>
-                  <CardDescription className="text-center">
-                    Enter your details to get started
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="registerEmail">Email</Label>
-                    <Input 
-                      id="registerEmail" 
-                      type="email" 
-                      placeholder="name@example.com" 
-                      required 
-                      value={formData.registerEmail}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
-                    <Input 
-                      id="name" 
-                      type="text" 
-                      placeholder="John Doe" 
-                      required 
-                      value={formData.name}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="registerPassword">Password</Label>
-                    <div className="relative">
-                      <Input 
-                        id="registerPassword" 
-                        type={showPassword ? "text" : "password"} 
-                        placeholder="••••••••" 
-                        required 
-                        value={formData.registerPassword}
-                        onChange={handleInputChange}
-                      />
-                      <button 
-                        type="button"
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                      </button>
+                    
+                    <div>
+                      <Label>Account Type</Label>
+                      <div className="grid grid-cols-2 gap-4 mt-2">
+                        <Button 
+                          type="button"
+                          variant={userType === 'candidate' ? 'default' : 'outline'}
+                          className="w-full"
+                          onClick={() => setUserType('candidate')}
+                        >
+                          <User className="h-4 w-4 mr-2" />
+                          Candidate
+                        </Button>
+                        <Button 
+                          type="button"
+                          variant={userType === 'employer' ? 'default' : 'outline'}
+                          className="w-full"
+                          onClick={() => setUserType('employer')}
+                        >
+                          <Building className="h-4 w-4 mr-2" />
+                          Employer
+                        </Button>
+                      </div>
                     </div>
-                    <ul className="mt-2 space-y-1">
-                      <li className={`text-xs flex items-center ${formData.registerPassword.length >= 6 ? 'text-green-500' : 'text-muted-foreground'}`}>
-                        <CheckCircle size={12} className="mr-1" />
-                        At least 6 characters
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>I am a</Label>
-                    <RadioGroup 
-                      defaultValue="candidate" 
-                      className="flex gap-4" 
-                      onValueChange={setUserType}
-                      value={userType}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="candidate" id="candidate" />
-                        <Label htmlFor="candidate" className="cursor-pointer">Candidate</Label>
+                    
+                    {/* Show employer fields if employer is selected */}
+                    {isRegister && userType === 'employer' && (
+                      <div className="space-y-4 border rounded-md p-4 bg-secondary/20">
+                        <h3 className="font-medium">Company Information</h3>
+                        {employerFields.map(field => (
+                          <div key={field.name}>
+                            <Label htmlFor={field.name}>{field.label}{field.required && ' *'}</Label>
+                            {field.type === 'select' ? (
+                              <Select 
+                                onValueChange={(value) => setFormValues(prev => ({ ...prev, [field.name]: value }))}
+                                required={field.required}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder={`Select ${field.label}`} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {field.options?.map(option => (
+                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              <Input
+                                id={field.name}
+                                type={field.type}
+                                onChange={handleEmployerFieldChange}
+                                required={field.required}
+                              />
+                            )}
+                          </div>
+                        ))}
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="employer" id="employer" />
-                        <Label htmlFor="employer" className="cursor-pointer">Employer</Label>
-                      </div>
-                    </RadioGroup>
+                    )}
                   </div>
-                </CardContent>
-                <CardFooter className="flex-col space-y-4">
-                  <Button className="w-full" type="submit" disabled={isLoading}>
-                    {isLoading ? "Creating account..." : "Create Account"}
-                  </Button>
-                  <p className="text-xs text-center text-muted-foreground">
-                    By creating an account, you agree to our{" "}
-                    <a href="#" className="text-primary hover:underline">
-                      Terms of Service
-                    </a>{" "}
-                    and{" "}
-                    <a href="#" className="text-primary hover:underline">
-                      Privacy Policy
-                    </a>
-                  </p>
-                </CardFooter>
+                )}
+                
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input 
+                    id="email" 
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="password">Password</Label>
+                  <Input 
+                    id="password" 
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                {error && (
+                  <div className="text-sm text-red-500">{error}</div>
+                )}
+                
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      {isRegister ? 'Creating Account...' : 'Logging In...'}
+                    </>
+                  ) : (
+                    isRegister ? 'Create Account' : 'Log In'
+                  )}
+                </Button>
+                
+                <div className="text-center text-sm">
+                  {isRegister ? (
+                    <>
+                      Already have an account?{' '}
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto" 
+                        onClick={() => {setIsRegister(false); setError(null);}}
+                      >
+                        Log In
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      Don't have an account?{' '}
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto" 
+                        onClick={() => {setIsRegister(true); setError(null);}}
+                      >
+                        Sign Up
+                      </Button>
+                    </>
+                  )}
+                </div>
               </form>
-            </TabsContent>
-          </Tabs>
-        </Card>
-        
-        <div className="flex items-center">
-          <LoginCredentials />
+            </CardContent>
+          </Card>
         </div>
-      </div>
+      </main>
+      
+      <Footer />
     </div>
   );
 };

@@ -40,12 +40,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getEmployerJobs } from '@/lib/supabase';
+import { Loader2 } from "@/components/ui/loader";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [userType, setUserType] = useState("candidate");
   const [userData, setUserData] = useState<any>(null);
-  
+  const [employerJobs, setEmployerJobs] = useState<any[]>([]);
+  const [loadingJobs, setLoadingJobs] = useState(false);
+
   useEffect(() => {
     const storedUserType = localStorage.getItem('userType');
     const storedUserId = localStorage.getItem('userId');
@@ -62,11 +66,29 @@ const Dashboard = () => {
         const employer = sampleEmployers.find(e => e.id === storedUserId);
         if (employer) {
           setUserData(employer);
+          if (user && user.id) {
+            fetchEmployerJobs(user.id);
+          }
         }
       }
     }
-  }, []);
-  
+  }, [user]);
+
+  const fetchEmployerJobs = async (employerId: string) => {
+    try {
+      setLoadingJobs(true);
+      const { jobs, error } = await getEmployerJobs(employerId);
+      
+      if (error) throw error;
+      
+      setEmployerJobs(jobs || []);
+    } catch (error) {
+      console.error("Error fetching employer jobs:", error);
+    } finally {
+      setLoadingJobs(false);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('userType');
     localStorage.removeItem('userId');
@@ -86,6 +108,10 @@ const Dashboard = () => {
     navigate('/add-skill');
   };
 
+  const handleViewJobs = () => {
+    navigate('/jobs');
+  };
+
   return (
     <div className="container mx-auto px-6 py-8">
       <div className="flex justify-between items-center mb-8">
@@ -98,6 +124,12 @@ const Dashboard = () => {
           )}
         </div>
         <div className="flex items-center gap-3">
+          {userType === "candidate" && (
+            <Button variant="outline" onClick={handleViewJobs}>
+              <Briefcase className="h-4 w-4 mr-2" />
+              Browse Jobs
+            </Button>
+          )}
           <Button variant="outline" onClick={handleViewAllProfiles}>
             <Users className="h-4 w-4 mr-2" />
             Browse Profiles
@@ -121,7 +153,11 @@ const Dashboard = () => {
       ) : userType === "candidate" ? (
         <CandidateDashboard userData={userData} />
       ) : (
-        <EmployerDashboard userData={userData} />
+        <EmployerDashboard 
+          userData={userData} 
+          realJobs={employerJobs} 
+          loadingJobs={loadingJobs} 
+        />
       )}
       
       <div className="mt-8 text-center">
@@ -288,9 +324,24 @@ const CandidateDashboard = ({ userData }: { userData: any }) => {
   );
 };
 
-const EmployerDashboard = ({ userData }: { userData: any }) => {
+const EmployerDashboard = ({ 
+  userData, 
+  realJobs = [], 
+  loadingJobs = false 
+}: { 
+  userData: any, 
+  realJobs?: any[], 
+  loadingJobs?: boolean 
+}) => {
   const [rankFilter, setRankFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("highest");
+  const navigate = useNavigate();
+  
+  const jobsToDisplay = realJobs.length > 0 ? realJobs : userData.jobs;
+  
+  const totalApplications = realJobs.reduce((total: number, job: any) => {
+    return total + (job.applications ? job.applications.length : 0);
+  }, 0);
   
   const applicants = [
     {
@@ -385,8 +436,10 @@ const EmployerDashboard = ({ userData }: { userData: any }) => {
           </CardHeader>
           <CardContent>
             <div className="flex justify-between items-end mb-2">
-              <span className="text-2xl font-bold">{userData.jobs.length}</span>
-              <Button variant="ghost" size="sm" className="h-8 text-xs">Post New Job</Button>
+              <span className="text-2xl font-bold">{jobsToDisplay.length}</span>
+              <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => navigate('/post-job')}>
+                Post New Job
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -398,11 +451,11 @@ const EmployerDashboard = ({ userData }: { userData: any }) => {
           <CardContent>
             <div className="flex justify-between items-end mb-2">
               <span className="text-2xl font-bold">
-                {userData.jobs.reduce((total: number, job: any) => total + job.applicants, 0)}
+                {realJobs.length > 0 ? totalApplications : userData.jobs.reduce((total: number, job: any) => total + job.applicants, 0)}
               </span>
               <div className="text-xs text-emerald-600 flex items-center">
                 <ChevronUp className="h-4 w-4 mr-1" />
-                <span>12 today</span>
+                <span>Recent Activity</span>
               </div>
             </div>
           </CardContent>
@@ -414,12 +467,12 @@ const EmployerDashboard = ({ userData }: { userData: any }) => {
           </CardHeader>
           <CardContent>
             <div className="flex justify-between items-end mb-2">
-              <span className="text-2xl font-bold">{userData.rating.overall}/5</span>
+              <span className="text-2xl font-bold">{userData.rating?.overall || "N/A"}/5</span>
               <div className="text-xs text-orange-600 flex items-center">
                 <span>Top Employer</span>
               </div>
             </div>
-            <Progress value={userData.rating.overall * 20} className="h-2 bg-orange-100">
+            <Progress value={(userData.rating?.overall || 0) * 20} className="h-2 bg-orange-100">
               <div className="bg-orange-500 h-full rounded-full" />
             </Progress>
           </CardContent>
@@ -472,59 +525,115 @@ const EmployerDashboard = ({ userData }: { userData: any }) => {
                 </div>
                 
                 <Badge variant="outline" className="ml-auto">
-                  {filteredApplicants.length} candidates
+                  {realJobs.length > 0 ? totalApplications : filteredApplicants.length} candidates
                 </Badge>
               </div>
               
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Candidate</TableHead>
-                    <TableHead>Position</TableHead>
-                    <TableHead className="text-center">Match</TableHead>
-                    <TableHead className="text-center">Ranking</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sortedApplicants.map((applicant) => (
-                    <TableRow key={applicant.id}>
-                      <TableCell className="font-medium">{applicant.name}</TableCell>
-                      <TableCell>{applicant.position}</TableCell>
-                      <TableCell className="text-center">
-                        <Badge className={`${
-                          applicant.matchScore >= 95 ? 'bg-green-100 text-green-800' : 
-                          applicant.matchScore >= 85 ? 'bg-blue-100 text-blue-800' : 
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {applicant.matchScore}%
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col items-center">
-                          <div className="flex items-center text-amber-500">
-                            <Trophy className="h-4 w-4 mr-1" />
-                            <span className="font-semibold">#{applicant.ranking.position}</span>
-                          </div>
-                          <span className="text-xs text-muted-foreground">
-                            Top {Math.round((applicant.ranking.position / applicant.ranking.total) * 100)}%
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button size="sm" variant="outline">
-                            <X className="h-4 w-4 mr-1" /> Reject
-                          </Button>
-                          <Button size="sm">
-                            <CheckCircle className="h-4 w-4 mr-1" /> Shortlist
-                          </Button>
-                        </div>
-                      </TableCell>
+              {loadingJobs ? (
+                <div className="flex flex-col items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
+                  <p>Loading applicants...</p>
+                </div>
+              ) : realJobs.length > 0 && realJobs.some(job => job.applications && job.applications.length > 0) ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Candidate</TableHead>
+                      <TableHead>Position</TableHead>
+                      <TableHead className="text-center">Status</TableHead>
+                      <TableHead className="text-center">Ranking</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {realJobs.flatMap(job => 
+                      job.applications ? job.applications.map((app: any) => (
+                        <TableRow key={app.id}>
+                          <TableCell className="font-medium">{app.candidate?.name || "Unknown"}</TableCell>
+                          <TableCell>{job.title}</TableCell>
+                          <TableCell className="text-center">
+                            <Badge className={`${
+                              app.status === 'accepted' ? 'bg-green-100 text-green-800' : 
+                              app.status === 'rejected' ? 'bg-red-100 text-red-800' : 
+                              'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-col items-center">
+                              <div className="flex items-center text-amber-500">
+                                <Trophy className="h-4 w-4 mr-1" />
+                                <span className="font-semibold">{app.candidate?.rank_score || "N/A"}</span>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button size="sm" variant="outline">
+                                <X className="h-4 w-4 mr-1" /> Reject
+                              </Button>
+                              <Button size="sm">
+                                <CheckCircle className="h-4 w-4 mr-1" /> Shortlist
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )) : []
+                    )}
+                  </TableBody>
+                </Table>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Candidate</TableHead>
+                      <TableHead>Position</TableHead>
+                      <TableHead className="text-center">Match</TableHead>
+                      <TableHead className="text-center">Ranking</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedApplicants.map((applicant) => (
+                      <TableRow key={applicant.id}>
+                        <TableCell className="font-medium">{applicant.name}</TableCell>
+                        <TableCell>{applicant.position}</TableCell>
+                        <TableCell className="text-center">
+                          <Badge className={`${
+                            applicant.matchScore >= 95 ? 'bg-green-100 text-green-800' : 
+                            applicant.matchScore >= 85 ? 'bg-blue-100 text-blue-800' : 
+                            'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {applicant.matchScore}%
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col items-center">
+                            <div className="flex items-center text-amber-500">
+                              <Trophy className="h-4 w-4 mr-1" />
+                              <span className="font-semibold">#{applicant.ranking.position}</span>
+                            </div>
+                            <span className="text-xs text-muted-foreground">
+                              Top {Math.round((applicant.ranking.position / applicant.ranking.total) * 100)}%
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button size="sm" variant="outline">
+                              <X className="h-4 w-4 mr-1" /> Reject
+                            </Button>
+                            <Button size="sm">
+                              <CheckCircle className="h-4 w-4 mr-1" /> Shortlist
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -536,39 +645,67 @@ const EmployerDashboard = ({ userData }: { userData: any }) => {
               <CardDescription>Latest job openings</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {userData.jobs.map((job: any, index: number) => (
-                  <div key={index} className="p-3 border rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-medium">{job.title}</h3>
-                      <span className="text-xs text-white bg-green-500 px-2 py-0.5 rounded-full">Active</span>
+              {loadingJobs ? (
+                <div className="flex flex-col items-center justify-center py-4">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
+                  <p className="text-sm">Loading job posts...</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {jobsToDisplay.length > 0 ? (
+                    <>
+                      {jobsToDisplay.map((job: any, index: number) => (
+                        <div key={job.id || index} className="p-3 border rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-medium">{job.title}</h3>
+                            <span className="text-xs text-white bg-green-500 px-2 py-0.5 rounded-full">
+                              {job.is_active ? "Active" : "Closed"}
+                            </span>
+                          </div>
+                          <div className="flex items-center text-sm text-muted-foreground mt-1 mb-2">
+                            <Briefcase className="h-3 w-3 mr-1" />
+                            <span>{job.job_type}</span>
+                            <span className="mx-2">•</span>
+                            <Clock className="h-3 w-3 mr-1" />
+                            <span>
+                              Posted {job.created_at 
+                                ? new Date(job.created_at).toLocaleDateString() 
+                                : job.posted || 'Recently'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <div className="text-sm">
+                              <span className="font-medium">
+                                {job.applications ? job.applications.length : job.applicants || 0}
+                              </span>
+                              <span className="text-muted-foreground"> applications</span>
+                            </div>
+                            {job.applications && job.applications.some((app: any) => 
+                              app.candidate?.rank_score && app.candidate.rank_score > 80
+                            ) && (
+                              <div className="text-sm text-amber-600 flex items-center">
+                                <Trophy className="h-3 w-3 mr-1" />
+                                <span>Top ranked</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                      
+                      <Button asChild variant="outline" className="w-full mt-2">
+                        <Link to={`/profile/${userData.id}/employer`}>
+                          View Company Profile
+                        </Link>
+                      </Button>
+                    </>
+                  ) : (
+                    <div className="text-center py-6">
+                      <p className="text-muted-foreground mb-4">No job posts yet</p>
+                      <Button onClick={() => navigate('/post-job')}>Post Your First Job</Button>
                     </div>
-                    <div className="flex items-center text-sm text-muted-foreground mt-1 mb-2">
-                      <Briefcase className="h-3 w-3 mr-1" />
-                      <span>{job.type}</span>
-                      <span className="mx-2">•</span>
-                      <Clock className="h-3 w-3 mr-1" />
-                      <span>Posted {job.posted}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <div className="text-sm">
-                        <span className="font-medium">{job.applicants}</span>
-                        <span className="text-muted-foreground"> applications</span>
-                      </div>
-                      <div className="text-sm text-amber-600 flex items-center">
-                        <Trophy className="h-3 w-3 mr-1" />
-                        <span>3 top ranked</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                
-                <Button asChild variant="outline" className="w-full mt-2">
-                  <Link to={`/profile/${userData.id}/employer`}>
-                    View Company Profile
-                  </Link>
-                </Button>
-              </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

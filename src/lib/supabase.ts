@@ -193,16 +193,22 @@ export async function getUserCertifications(userId: string) {
 
 export async function getJobs() {
   try {
+    console.log("Fetching jobs from database");
     const { data, error } = await supabase
       .from('jobs')
       .select('*, employer:employer_id(name, company)')
       .eq('is_active', true)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error fetching jobs:", error);
+      throw error;
+    }
+    
+    console.log("Jobs fetched successfully:", data);
     return { jobs: data, error: null };
   } catch (error: any) {
-    console.error("Error fetching jobs:", error);
+    console.error("Error in getJobs function:", error);
     return { jobs: [], error };
   }
 }
@@ -330,5 +336,30 @@ export async function getRankingFactors(userId: string) {
       experience: [],
       error
     };
+  }
+}
+
+export async function getEmployerJobs(employerId: string) {
+  try {
+    const { data, error } = await supabase
+      .from('jobs')
+      .select(`
+        *,
+        applications:applications(
+          id,
+          candidate_id,
+          status,
+          created_at,
+          candidate:candidate_id(name, email, rank_score)
+        )
+      `)
+      .eq('employer_id', employerId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return { jobs: data, error: null };
+  } catch (error: any) {
+    console.error("Error fetching employer jobs:", error);
+    return { jobs: [], error };
   }
 }

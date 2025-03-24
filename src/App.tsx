@@ -25,6 +25,7 @@ import Contact from "./pages/Contact";
 import Pricing from "./pages/Pricing";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import Job from "./pages/Job"; // New single job page
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/add-skill" element={<AddSkill />} />
             <Route path="/ranking-explanation" element={<RankingExplanationPage />} />
             <Route path="/jobs" element={<Jobs />} />
+            <Route path="/job/:id" element={<Job />} />
             <Route path="/skills" element={<Skills />} />
             <Route path="/resources" element={<Career />} />
             <Route path="/success-stories" element={<SuccessStories />} />

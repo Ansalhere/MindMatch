@@ -6,15 +6,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, MapPin, Clock, Search, Filter, Building } from 'lucide-react';
+import { Briefcase, MapPin, Clock, Search, Filter, Building, Loader2 } from 'lucide-react';
+import { toast } from "sonner";
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { getJobs } from '@/lib/supabase';
+import { getJobs, applyForJob } from '@/lib/supabase';
 import { useUser } from '@/hooks/useUser';
 
 const Jobs = () => {
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [applyingToJob, setApplyingToJob] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterLocation, setFilterLocation] = useState('all');
@@ -28,13 +30,19 @@ const Jobs = () => {
   const fetchJobs = async () => {
     try {
       setLoading(true);
+      console.log("Fetching jobs...");
       const { jobs: fetchedJobs, error } = await getJobs();
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching jobs:", error);
+        throw error;
+      }
       
+      console.log("Jobs fetched:", fetchedJobs);
       setJobs(fetchedJobs || []);
     } catch (error) {
-      console.error("Error fetching jobs:", error);
+      console.error("Error in fetchJobs:", error);
+      toast.error("Failed to load jobs. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -45,23 +53,43 @@ const Jobs = () => {
     // Filter will happen client-side based on searchTerm, filterType, and filterLocation
   };
 
-  const handleApply = (jobId: string) => {
+  const handleApply = async (jobId: string) => {
     if (!user) {
       navigate('/login');
       return;
     }
     
-    // Redirect to job application page
-    navigate(`/job/${jobId}`);
+    try {
+      setApplyingToJob(jobId);
+      
+      const applicationData = {
+        job_id: jobId,
+        candidate_id: user.id,
+        status: 'pending',
+        candidate_note: 'Interested in this position'
+      };
+      
+      const { application, error } = await applyForJob(applicationData);
+      
+      if (error) throw error;
+      
+      toast.success("Application submitted successfully!");
+    } catch (error: any) {
+      console.error("Error applying for job:", error);
+      toast.error("Failed to apply: " + error.message);
+    } finally {
+      setApplyingToJob(null);
+    }
   };
 
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = job.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           job.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          job.employer?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+                          job.employer?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          job.employer?.company?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesType = filterType === 'all' || job.job_type === filterType;
-    const matchesLocation = filterLocation === 'all' || job.location === filterLocation;
+    const matchesType = filterType === 'all' || job.job_type?.toLowerCase() === filterType;
+    const matchesLocation = filterLocation === 'all' || job.location?.toLowerCase() === filterLocation;
     
     return matchesSearch && matchesType && matchesLocation;
   });
@@ -129,6 +157,7 @@ const Jobs = () => {
         <div className="space-y-4">
           {loading ? (
             <div className="text-center py-10">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
               <p>Loading jobs...</p>
             </div>
           ) : filteredJobs.length === 0 ? (
@@ -148,7 +177,7 @@ const Jobs = () => {
                         <h3 className="text-lg font-semibold">{job.title}</h3>
                         <div className="flex items-center text-muted-foreground mt-1">
                           <Building className="h-4 w-4 mr-1" />
-                          <span>{job.employer?.name || job.employer?.company || 'Unknown Company'}</span>
+                          <span>{job.employer?.company || job.employer?.name || 'Unknown Company'}</span>
                         </div>
                       </div>
                       <Badge className="mt-2 md:mt-0 w-fit" variant="secondary">
@@ -172,18 +201,30 @@ const Jobs = () => {
                     </p>
                     
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {job.skills && job.skills.map((skill: string, index: number) => (
+                      {job.required_skills && job.required_skills.map((skill: string, index: number) => (
                         <Badge key={index} variant="outline">{skill}</Badge>
                       ))}
-                      {(!job.skills || job.skills.length === 0) && (
+                      {(!job.required_skills || job.required_skills.length === 0) && (
                         <Badge variant="outline">No specific skills required</Badge>
                       )}
                     </div>
                     
                     <div className="flex justify-end">
-                      <Button onClick={() => handleApply(job.id)}>
-                        <Briefcase className="h-4 w-4 mr-2" />
-                        Apply Now
+                      <Button 
+                        onClick={() => handleApply(job.id)} 
+                        disabled={applyingToJob === job.id}
+                      >
+                        {applyingToJob === job.id ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Applying...
+                          </>
+                        ) : (
+                          <>
+                            <Briefcase className="h-4 w-4 mr-2" />
+                            Apply Now
+                          </>
+                        )}
                       </Button>
                     </div>
                   </div>
