@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -53,11 +52,7 @@ export async function signIn(email: string, password: string) {
         // Create a new session with the provided credentials
         const { data: newData, error: newError } = await supabase.auth.signInWithPassword({
           email,
-          password,
-          options: {
-            // Adding data option to possibly bypass verification
-            data: { confirmed: true }
-          }
+          password
         });
         
         if (!newError) {
