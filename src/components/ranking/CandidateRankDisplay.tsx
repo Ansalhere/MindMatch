@@ -11,6 +11,7 @@ interface CandidateRankDisplayProps {
   totalCandidates?: number;
   compact?: boolean;
   showExplanationLink?: boolean;
+  showDetailedScore?: boolean; // Added new prop
 }
 
 const CandidateRankDisplay = ({
@@ -18,7 +19,8 @@ const CandidateRankDisplay = ({
   rankPosition,
   totalCandidates = 1000,
   compact = false,
-  showExplanationLink = true
+  showExplanationLink = true,
+  showDetailedScore = false // Added default value
 }: CandidateRankDisplayProps) => {
   
   const getTierLabel = (score: number) => {
