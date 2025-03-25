@@ -196,7 +196,7 @@ export async function getJobs() {
     console.log("Starting getJobs function...");
     const { data, error } = await supabase
       .from('jobs')
-      .select('*, employer:employer_id(name, company)')
+      .select('*, employer:employer_id(*)')
       .eq('is_active', true)
       .order('created_at', { ascending: false });
 
@@ -227,6 +227,8 @@ export async function createJob(jobData: any) {
       is_active: true
     };
 
+    console.log("Creating job with data:", newJobData);
+
     const { data, error } = await supabase
       .from('jobs')
       .insert(newJobData)
@@ -234,7 +236,10 @@ export async function createJob(jobData: any) {
       .single();
 
     if (error) throw error;
+    
+    console.log("Job created successfully:", data);
     toast.success("Job posted successfully!");
+    
     return { job: data, error: null };
   } catch (error: any) {
     console.error("Error creating job:", error);
@@ -245,6 +250,23 @@ export async function createJob(jobData: any) {
 
 export async function applyForJob(applicationData: any) {
   try {
+    console.log("Applying for job with data:", applicationData);
+    
+    // Check if user has already applied
+    const { data: existingApplications, error: checkError } = await supabase
+      .from('applications')
+      .select('id')
+      .match({ 
+        job_id: applicationData.job_id,
+        candidate_id: applicationData.candidate_id
+      });
+      
+    if (checkError) throw checkError;
+    
+    if (existingApplications && existingApplications.length > 0) {
+      throw new Error("You have already applied for this job");
+    }
+    
     const { data, error } = await supabase
       .from('applications')
       .insert(applicationData)
@@ -252,7 +274,10 @@ export async function applyForJob(applicationData: any) {
       .single();
 
     if (error) throw error;
+    
+    console.log("Application submitted successfully:", data);
     toast.success("Application submitted successfully!");
+    
     return { application: data, error: null };
   } catch (error: any) {
     console.error("Error applying for job:", error);
@@ -277,6 +302,8 @@ export async function getUserApplications(userId: string) {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
+    
+    console.log("User applications fetched:", data);
     return { applications: data, error: null };
   } catch (error: any) {
     console.error("Error fetching user applications:", error);

@@ -2,8 +2,9 @@
 import { ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { ChevronUp } from 'lucide-react';
+import { ChevronUp, Info } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface StatCardProps {
   title: string;
@@ -14,6 +15,7 @@ interface StatCardProps {
   bgColor?: string;
   buttonText?: string;
   onButtonClick?: () => void;
+  tooltip?: string;
 }
 
 const StatCard = ({
@@ -25,11 +27,26 @@ const StatCard = ({
   bgColor = "bg-primary/5",
   buttonText,
   onButtonClick,
+  tooltip,
 }: StatCardProps) => {
   return (
     <Card className={bgColor}>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+          {tooltip && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-4 w-4 text-muted-foreground/70" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs">{tooltip}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         <div className="flex justify-between items-end mb-2">

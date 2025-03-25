@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, MapPin, Clock, Search, Filter, Building, Loader2 } from 'lucide-react';
+import { Briefcase, MapPin, Clock, Search, Filter, Building, Loader2, Trophy } from 'lucide-react';
 import { toast } from "sonner";
 import { getJobs, applyForJob } from '@/lib/supabase';
 import { useUser } from '@/hooks/useUser';
@@ -21,7 +21,7 @@ const Jobs = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterLocation, setFilterLocation] = useState('all');
-  const { user } = useUser();
+  const { user, isLoading } = useUser();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -56,7 +56,13 @@ const Jobs = () => {
 
   const handleApply = async (jobId: string) => {
     if (!user) {
-      navigate('/login');
+      // Redirect to login page with return URL
+      navigate('/login', { state: { returnUrl: `/jobs` } });
+      return;
+    }
+    
+    if (user.user_type !== 'candidate') {
+      toast.error("Only candidates can apply for jobs. Please log in as a candidate.");
       return;
     }
     
@@ -89,12 +95,12 @@ const Jobs = () => {
 
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = job.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          job.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          job.employer?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          job.employer?.company?.toLowerCase().includes(searchTerm.toLowerCase());
+                         job.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         job.employer?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         job.employer?.company?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesType = filterType === 'all' || job.job_type?.toLowerCase() === filterType;
-    const matchesLocation = filterLocation === 'all' || job.location?.toLowerCase() === filterLocation;
+    const matchesType = filterType === 'all' || job.job_type?.toLowerCase() === filterType.toLowerCase();
+    const matchesLocation = filterLocation === 'all' || job.location?.toLowerCase().includes(filterLocation.toLowerCase());
     
     return matchesSearch && matchesType && matchesLocation;
   });
@@ -108,7 +114,7 @@ const Jobs = () => {
         <div className="text-center mb-10">
           <h1 className="text-3xl font-bold mb-2">Find Your Perfect Job</h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Browse through thousands of opportunities to find the perfect job for your skills and experience
+            Browse through opportunities to find the perfect job for your skills and experience
           </p>
         </div>
         
@@ -216,7 +222,8 @@ const Jobs = () => {
                         
                         {job.min_rank_requirement > 0 && (
                           <div className="flex items-center mb-4 text-sm">
-                            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 flex items-center gap-1">
+                              <Trophy className="h-3 w-3" />
                               Minimum Rank: {job.min_rank_requirement}
                             </Badge>
                             {user && user.rank_score < job.min_rank_requirement && (
@@ -237,7 +244,7 @@ const Jobs = () => {
                           
                           <Button 
                             onClick={() => handleApply(job.id)} 
-                            disabled={applyingToJob === job.id}
+                            disabled={applyingToJob === job.id || (user?.user_type === 'employer')}
                           >
                             {applyingToJob === job.id ? (
                               <>
@@ -247,7 +254,7 @@ const Jobs = () => {
                             ) : (
                               <>
                                 <Briefcase className="h-4 w-4 mr-2" />
-                                Apply Now
+                                {user?.user_type === 'employer' ? 'Employers Cannot Apply' : 'Apply Now'}
                               </>
                             )}
                           </Button>
@@ -260,7 +267,7 @@ const Jobs = () => {
             </div>
           </div>
           
-          {user && user.user_type === 'candidate' && (
+          {user && user.user_type === 'candidate' ? (
             <div>
               <Card className="sticky top-20">
                 <CardHeader>
@@ -272,7 +279,7 @@ const Jobs = () => {
                 <CardContent>
                   <CandidateRankDisplay 
                     rankScore={user.rank_score || 0}
-                    rankPosition={Math.floor(Math.random() * 1000) + 1} // In a real app, this would come from the backend
+                    rankPosition={Math.floor((user.rank_score || 50) / 100 * 5000) + 1} 
                     totalCandidates={5000}
                   />
                   
@@ -281,7 +288,7 @@ const Jobs = () => {
                     <div className="bg-muted/30 p-3 rounded-lg">
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Total Applications</span>
-                        <Badge variant="outline">{10}</Badge> {/* This would come from real data */}
+                        <Badge variant="outline">{user.applications?.length || 0}</Badge>
                       </div>
                     </div>
                     
@@ -291,6 +298,42 @@ const Jobs = () => {
                       </Button>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Job Seeker?</CardTitle>
+                  <CardDescription>
+                    Join now to apply for jobs and track your applications
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Create a candidate account to unlock:
+                  </p>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-center gap-2">
+                      <Badge variant="outline" className="h-6 w-6 flex items-center justify-center p-0 rounded-full">1</Badge>
+                      <span>Job applications</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Badge variant="outline" className="h-6 w-6 flex items-center justify-center p-0 rounded-full">2</Badge>
+                      <span>Candidate ranking</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Badge variant="outline" className="h-6 w-6 flex items-center justify-center p-0 rounded-full">3</Badge>
+                      <span>Application tracking</span>
+                    </li>
+                  </ul>
+                  <Button 
+                    className="w-full mt-2" 
+                    onClick={() => navigate('/register')}
+                  >
+                    Register as a Candidate
+                  </Button>
                 </CardContent>
               </Card>
             </div>

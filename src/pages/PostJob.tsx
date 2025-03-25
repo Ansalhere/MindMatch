@@ -15,13 +15,24 @@ const PostJob = () => {
   const { user } = useUser();
 
   // Redirect if not logged in or not an employer
-  if (!user) {
+  if (user === null) {
+    // If still loading, show loading state
+    if (isSubmitting) {
+      return (
+        <Layout>
+          <div className="container mx-auto px-6 py-12 text-center">
+            <p>Loading...</p>
+          </div>
+        </Layout>
+      );
+    }
+    
     toast.error("You must be logged in to post a job");
     navigate('/login');
     return null;
   }
 
-  if (user.user_type !== 'employer') {
+  if (user && user.user_type !== 'employer') {
     toast.error("Only employers can post jobs");
     navigate('/dashboard');
     return null;
@@ -31,6 +42,8 @@ const PostJob = () => {
     setIsSubmitting(true);
     
     try {
+      console.log("Submitting job data:", formData);
+      
       // Transform form data to match the database schema
       const jobPostData = {
         title: formData.jobTitle,
