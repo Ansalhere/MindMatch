@@ -7,6 +7,7 @@ import { ArrowLeft } from 'lucide-react';
 import { toast } from "sonner";
 import { createJob } from '@/lib/supabase';
 import { useUser } from '@/hooks/useUser';
+import Layout from '@/components/Layout';
 
 const PostJob = () => {
   const navigate = useNavigate();
@@ -58,25 +59,27 @@ const PostJob = () => {
   };
 
   return (
-    <div className="container mx-auto px-6 py-12">
-      <Button 
-        variant="outline" 
-        onClick={() => navigate(-1)} 
-        className="mb-6"
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back
-      </Button>
-      
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold mb-2">Post a New Job</h1>
-        <p className="text-muted-foreground mb-8">
-          Find the best candidates by posting your job requirements
-        </p>
+    <Layout>
+      <div className="container mx-auto px-6 py-12">
+        <Button 
+          variant="outline" 
+          onClick={() => navigate(-1)} 
+          className="mb-6"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
         
-        <PostJobForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+        <div className="max-w-3xl mx-auto">
+          <h1 className="text-3xl font-bold mb-2">Post a New Job</h1>
+          <p className="text-muted-foreground mb-8">
+            Find the best candidates by posting your job requirements
+          </p>
+          
+          <PostJobForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

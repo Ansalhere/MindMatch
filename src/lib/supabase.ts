@@ -347,10 +347,10 @@ export async function getEmployerJobs(employerId: string) {
         *,
         applications:applications(
           id,
-          candidate_id,
           status,
+          candidate_id,
           created_at,
-          candidate:candidate_id(name, email, rank_score)
+          candidate_note
         )
       `)
       .eq('employer_id', employerId)
@@ -361,5 +361,60 @@ export async function getEmployerJobs(employerId: string) {
   } catch (error: any) {
     console.error("Error fetching employer jobs:", error);
     return { jobs: [], error };
+  }
+}
+
+export async function updateApplicationStatus(applicationId: string, status: 'accepted' | 'rejected') {
+  try {
+    console.log(`Updating application ${applicationId} status to ${status}`);
+    
+    const { data, error } = await supabase
+      .from('applications')
+      .update({ status })
+      .eq('id', applicationId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating application status:", error);
+      throw error;
+    }
+    
+    return { application: data, error: null };
+  } catch (error: any) {
+    console.error("Exception in updateApplicationStatus function:", error);
+    return { application: null, error };
+  }
+}
+
+export async function getJobById(jobId: string) {
+  try {
+    console.log(`Fetching job with ID: ${jobId}`);
+    const { data, error } = await supabase
+      .from('jobs')
+      .select(`
+        *,
+        employer:employer_id(*),
+        applications(
+          id,
+          status,
+          candidate_id,
+          created_at,
+          candidate_note
+        )
+      `)
+      .eq('id', jobId)
+      .single();
+
+    if (error) {
+      console.error("Error fetching job by ID:", error);
+      throw error;
+    }
+    
+    console.log("Job fetched successfully:", data);
+    return { job: data, error: null };
+  } catch (error: any) {
+    console.error("Exception in getJobById function:", error);
+    return { job: null, error };
   }
 }

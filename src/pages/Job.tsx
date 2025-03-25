@@ -1,58 +1,66 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle, 
+  CardDescription 
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Briefcase, Building, MapPin, Clock, Calendar, DollarSign, Trophy, Loader2 } from 'lucide-react';
+import { 
+  Briefcase, 
+  MapPin, 
+  Calendar, 
+  Building, 
+  Loader2,
+  Clock,
+  Users,
+  DollarSign
+} from 'lucide-react';
 import { toast } from "sonner";
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import { applyForJob } from '@/lib/supabase';
+import { getJobById, applyForJob } from '@/lib/supabase';
 import { useUser } from '@/hooks/useUser';
-import { jobs as sampleJobs } from '../data/sampleJobs';
+import Layout from '@/components/Layout';
+import CandidateRankDisplay from '@/components/ranking/CandidateRankDisplay';
 
 const Job = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useUser();
   const [job, setJob] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState(false);
-  const [note, setNote] = useState('');
+  const [alreadyApplied, setAlreadyApplied] = useState(false);
 
   useEffect(() => {
-    fetchJob();
+    if (id) {
+      fetchJob(id);
+    }
   }, [id]);
 
-  const fetchJob = async () => {
+  const fetchJob = async (jobId: string) => {
     try {
       setLoading(true);
+      const { job: fetchedJob, error } = await getJobById(jobId);
       
-      // In a real scenario, fetch from API 
-      // For now, we'll use the sample data
-      setTimeout(() => {
-        const foundJob = sampleJobs.find(j => j.id === id) || {
-          id,
-          title: "Software Developer",
-          company: "TechCorp",
-          location: "San Francisco, CA",
-          job_type: "Full-time",
-          description: "We are looking for a skilled software developer to join our team...",
-          required_skills: ["JavaScript", "React", "Node.js"],
-          salary_min: 90000,
-          salary_max: 120000,
-          posted_date: "2023-10-01",
-          closing_date: "2023-11-01"
-        };
-        
-        setJob(foundJob);
-        setLoading(false);
-      }, 500);
-    } catch (error) {
+      if (error) throw error;
+      
+      setJob(fetchedJob);
+      
+      // Check if user has already applied
+      if (user && fetchedJob.applications) {
+        const userApplication = fetchedJob.applications.find(
+          (app: any) => app.candidate_id === user.id
+        );
+        setAlreadyApplied(!!userApplication);
+      }
+    } catch (error: any) {
       console.error("Error fetching job:", error);
-      toast.error("Failed to load job details");
+      toast.error("Failed to load job details. Please try again later.");
+    } finally {
       setLoading(false);
     }
   };
@@ -70,15 +78,15 @@ const Job = () => {
         job_id: id,
         candidate_id: user.id,
         status: 'pending',
-        candidate_note: note || 'Interested in this position'
+        candidate_note: 'I am interested in this position and believe my skills are a good match.'
       };
       
-      const { application, error } = await applyForJob(applicationData);
+      const { error } = await applyForJob(applicationData);
       
       if (error) throw error;
       
       toast.success("Application submitted successfully!");
-      navigate('/dashboard');
+      setAlreadyApplied(true);
     } catch (error: any) {
       console.error("Error applying for job:", error);
       toast.error("Failed to apply: " + error.message);
@@ -87,152 +95,157 @@ const Job = () => {
     }
   };
 
-  return (
-    <div className="flex flex-col min-h-screen">
-      <Navbar />
-      
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <Button 
-          variant="outline" 
-          onClick={() => navigate(-1)} 
-          className="mb-6"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Jobs
-        </Button>
-        
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin mb-4" />
-            <p>Loading job details...</p>
+  if (loading) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-12">
+          <div className="flex flex-col items-center justify-center min-h-[50vh]">
+            <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+            <p className="text-lg text-muted-foreground">Loading job details...</p>
           </div>
-        ) : job ? (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-2xl">{job.title}</CardTitle>
-                      <div className="flex items-center text-muted-foreground mt-1">
-                        <Building className="h-4 w-4 mr-1" />
-                        <span>{job.employer?.company || job.company || 'Unknown Company'}</span>
-                      </div>
-                    </div>
-                    <Badge>{job.job_type}</Badge>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!job) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-12">
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <h2 className="text-2xl font-bold mb-2">Job Not Found</h2>
+              <p className="text-muted-foreground mb-6">The job you're looking for doesn't exist or has been removed.</p>
+              <Button onClick={() => navigate('/jobs')}>Browse All Jobs</Button>
+            </CardContent>
+          </Card>
+        </div>
+      </Layout>
+    );
+  }
+
+  const formatSalary = () => {
+    if (job.salary_min && job.salary_max) {
+      return `$${job.salary_min.toLocaleString()} - $${job.salary_max.toLocaleString()}`;
+    } else if (job.salary_min) {
+      return `$${job.salary_min.toLocaleString()}+`;
+    } else if (job.salary_max) {
+      return `Up to $${job.salary_max.toLocaleString()}`;
+    }
+    return "Not disclosed";
+  };
+
+  const requiresRanking = job.min_rank_requirement && job.min_rank_requirement > 0;
+  const userMeetsRankRequirement = user && user.rank_score >= (job.min_rank_requirement || 0);
+  const showRankWarning = requiresRanking && user && !userMeetsRankRequirement;
+
+  return (
+    <Layout>
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-4xl mx-auto">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/jobs')} 
+            className="mb-6"
+          >
+            <Briefcase className="h-4 w-4 mr-2" />
+            Back to Jobs
+          </Button>
+          
+          <Card className="mb-8">
+            <CardHeader className="pb-3">
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="text-2xl mb-1">{job.title}</CardTitle>
+                  <div className="flex items-center text-muted-foreground">
+                    <Building className="h-4 w-4 mr-1" />
+                    <span>
+                      {job.employer?.company || job.employer?.name || 'Unknown Company'}
+                    </span>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex items-center text-muted-foreground">
-                      <MapPin className="h-4 w-4 mr-2" />
-                      <span>{job.location}</span>
-                    </div>
-                    <div className="flex items-center text-muted-foreground">
-                      <Clock className="h-4 w-4 mr-2" />
-                      <span>Posted {job.posted_date ? new Date(job.posted_date).toLocaleDateString() : 'Recently'}</span>
-                    </div>
-                    {job.closing_date && (
-                      <div className="flex items-center text-muted-foreground">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        <span>Closes {new Date(job.closing_date).toLocaleDateString()}</span>
-                      </div>
-                    )}
-                    {(job.salary_min || job.salary_max) && (
-                      <div className="flex items-center text-muted-foreground">
-                        <DollarSign className="h-4 w-4 mr-2" />
-                        <span>
-                          {job.salary_min && job.salary_max 
-                            ? `$${job.salary_min.toLocaleString()} - $${job.salary_max.toLocaleString()}`
-                            : job.salary_min 
-                              ? `From $${job.salary_min.toLocaleString()}`
-                              : `Up to $${job.salary_max.toLocaleString()}`
-                          }
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Job Description</h3>
-                    <div className="text-muted-foreground whitespace-pre-line">
-                      {job.description}
-                    </div>
-                  </div>
-                  
-                  {job.required_skills && job.required_skills.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-semibold mb-2">Required Skills</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {job.required_skills.map((skill: string, index: number) => (
-                          <Badge key={index} variant="secondary">{skill}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {job.requirements && (
-                    <div>
-                      <h3 className="text-lg font-semibold mb-2">Requirements</h3>
-                      <div className="text-muted-foreground whitespace-pre-line">
-                        {job.requirements}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {job.benefits && (
-                    <div>
-                      <h3 className="text-lg font-semibold mb-2">Benefits</h3>
-                      <div className="text-muted-foreground whitespace-pre-line">
-                        {job.benefits}
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+                <Badge className="px-3 py-1">
+                  {job.job_type || 'Full-time'}
+                </Badge>
+              </div>
+            </CardHeader>
             
-            <div>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Apply for this Position</CardTitle>
-                  <CardDescription>Share why you're a good fit</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {job.min_rank_requirement && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-md p-3 flex items-start">
-                      <Trophy className="h-5 w-5 text-amber-500 mr-2 mt-0.5" />
-                      <div>
-                        <p className="font-medium text-amber-800">Rank Requirement</p>
-                        <p className="text-sm text-amber-700">
-                          This job requires a minimum rank score of {job.min_rank_requirement}.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                
-                  <div>
-                    <label htmlFor="note" className="block text-sm font-medium mb-1">
-                      Add a note (optional)
-                    </label>
-                    <Textarea
-                      id="note"
-                      placeholder="Why are you interested in this position?"
-                      rows={5}
-                      value={note}
-                      onChange={(e) => setNote(e.target.value)}
-                    />
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex items-center text-muted-foreground">
+                  <MapPin className="h-4 w-4 mr-2" />
+                  <span>{job.location || 'Remote'}</span>
+                </div>
+                <div className="flex items-center text-muted-foreground">
+                  <Clock className="h-4 w-4 mr-2" />
+                  <span>Posted {job.created_at ? new Date(job.created_at).toLocaleDateString() : 'Recently'}</span>
+                </div>
+                {job.closing_date && (
+                  <div className="flex items-center text-muted-foreground">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    <span>Closes on {new Date(job.closing_date).toLocaleDateString()}</span>
                   </div>
-                  
+                )}
+                <div className="flex items-center text-muted-foreground">
+                  <DollarSign className="h-4 w-4 mr-2" />
+                  <span>{formatSalary()}</span>
+                </div>
+              </div>
+              
+              {requiresRanking && (
+                <div className={`p-3 rounded-md ${showRankWarning ? 'bg-amber-50 border border-amber-200' : 'bg-blue-50 border border-blue-200'}`}>
+                  <div className="flex items-center">
+                    <Users className={`h-4 w-4 mr-2 ${showRankWarning ? 'text-amber-500' : 'text-blue-500'}`} />
+                    <span className="font-medium">
+                      {showRankWarning 
+                        ? 'Rank Requirement Not Met' 
+                        : 'Rank Requirement Met'}
+                    </span>
+                  </div>
+                  <p className="text-sm mt-1">
+                    This position requires a minimum rank score of <strong>{job.min_rank_requirement}</strong>.
+                    {user ? (
+                      showRankWarning
+                        ? ` Your current rank (${user.rank_score}) doesn't meet this requirement, but you can still apply.`
+                        : ` Your current rank (${user.rank_score}) meets this requirement!`
+                    ) : ' Sign in to see if you meet this requirement.'}
+                  </p>
+                </div>
+              )}
+              
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Job Description</h3>
+                <div className="text-muted-foreground whitespace-pre-line">
+                  {job.description}
+                </div>
+              </div>
+              
+              {job.required_skills && job.required_skills.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Required Skills</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {job.required_skills.map((skill: string, index: number) => (
+                      <Badge key={index} variant="secondary">{skill}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex justify-end pt-4">
+                {alreadyApplied ? (
+                  <Badge variant="outline" className="py-3 px-6 text-base">
+                    Already Applied
+                  </Badge>
+                ) : (
                   <Button 
+                    size="lg"
                     onClick={handleApply} 
-                    className="w-full" 
                     disabled={applying}
                   >
                     {applying ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Submitting Application...
+                        Applying...
                       </>
                     ) : (
                       <>
@@ -241,47 +254,31 @@ const Job = () => {
                       </>
                     )}
                   </Button>
-                  
-                  <p className="text-xs text-muted-foreground text-center">
-                    Your profile and skills will be shared with the employer.
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card className="mt-4">
-                <CardHeader>
-                  <CardTitle>About the Company</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center mb-4">
-                    <div className="h-12 w-12 bg-secondary flex items-center justify-center rounded-full mr-3">
-                      <Building className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">{job.employer?.company || job.company || 'Unknown Company'}</h3>
-                      <p className="text-sm text-muted-foreground">{job.industry || 'Technology'}</p>
-                    </div>
-                  </div>
-                  
-                  <Button variant="outline" className="w-full">
-                    View Company Profile
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        ) : (
-          <Card>
-            <CardContent className="py-10 text-center">
-              <p className="mb-4">Job not found or has been removed.</p>
-              <Button onClick={() => navigate('/jobs')}>Browse All Jobs</Button>
+                )}
+              </div>
             </CardContent>
           </Card>
-        )}
-      </main>
-      
-      <Footer />
-    </div>
+          
+          {user && user.user_type === 'candidate' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Your Ranking</CardTitle>
+                <CardDescription>
+                  How you compare to other candidates for this role
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <CandidateRankDisplay 
+                  rankScore={user.rank_score || 0} 
+                  rankPosition={Math.floor(Math.random() * 1000) + 1} // This would come from actual data
+                  totalCandidates={5000}
+                />
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    </Layout>
   );
 };
 
