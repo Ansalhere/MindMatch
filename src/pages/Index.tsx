@@ -5,23 +5,25 @@ import Layout from '@/components/Layout';
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
 import RankingShowcase from '@/components/RankingShowcase';
-import { HowItWorksSection } from '@/components/sections/HowItWorksSection';
-import { StatsSection } from '@/components/sections/StatsSection';
-import { TestimonialsSection } from '@/components/sections/TestimonialsSection';
-import { CTASection } from '@/components/sections/CTASection';
+import HowItWorksSection from '@/components/sections/HowItWorksSection';
+import StatsSection from '@/components/sections/StatsSection';
+import TestimonialsSection from '@/components/sections/TestimonialsSection';
+import CTASection from '@/components/sections/CTASection';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, MapPin, Building, Loader2 } from 'lucide-react';
+import { Briefcase, MapPin, Building } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { getJobs } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { Loader } from '@/components/ui/loader';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
 const Index = () => {
   const navigate = useNavigate();
   const [featuredJobs, setFeaturedJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const isVisible = useScrollAnimation();
   
   useEffect(() => {
     fetchJobs();
@@ -121,11 +123,11 @@ const Index = () => {
       </section>
       
       <Features />
-      <RankingShowcase />
-      <HowItWorksSection />
-      <StatsSection />
-      <TestimonialsSection />
-      <CTASection />
+      <RankingShowcase isVisible={isVisible.ranking} />
+      <HowItWorksSection isVisible={isVisible.howItWorks} />
+      <StatsSection isVisible={isVisible.stats} />
+      <TestimonialsSection isVisible={isVisible.testimonials} />
+      <CTASection isVisible={isVisible.cta} />
     </Layout>
   );
 };

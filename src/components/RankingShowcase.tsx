@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 
-interface RankingShowcaseProps {
+export interface RankingShowcaseProps {
   isVisible: boolean;
 }
 
