@@ -1,5 +1,5 @@
 
-import { Trophy, Star, Award, TrendingUp } from 'lucide-react';
+import { Trophy, Star, Award, TrendingUp, Info } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Link } from 'react-router-dom';
@@ -24,12 +24,12 @@ const CandidateRankDisplay = ({
 }: CandidateRankDisplayProps) => {
   
   const getTierLabel = (score: number) => {
-    if (score >= 90) return { label: 'Elite', color: 'text-purple-600' };
-    if (score >= 80) return { label: 'Expert', color: 'text-indigo-600' };
-    if (score >= 70) return { label: 'Advanced', color: 'text-blue-600' };
-    if (score >= 60) return { label: 'Intermediate', color: 'text-teal-600' };
-    if (score >= 50) return { label: 'Developing', color: 'text-green-600' };
-    return { label: 'Beginner', color: 'text-orange-600' };
+    if (score >= 90) return { label: 'Elite', color: 'text-purple-600', description: 'Top tier professionals with exceptional skills and experience' };
+    if (score >= 80) return { label: 'Expert', color: 'text-indigo-600', description: 'Highly qualified professionals with proven expertise' };
+    if (score >= 70) return { label: 'Advanced', color: 'text-blue-600', description: 'Skilled candidates with significant experience' };
+    if (score >= 60) return { label: 'Intermediate', color: 'text-teal-600', description: 'Competent professionals with moderate experience' };
+    if (score >= 50) return { label: 'Developing', color: 'text-green-600', description: 'Growing professionals with foundational skills' };
+    return { label: 'Beginner', color: 'text-orange-600', description: 'Entry-level candidates building their skillset' };
   };
 
   const tier = getTierLabel(rankScore);
@@ -76,6 +76,51 @@ const CandidateRankDisplay = ({
             <span>Ranking position: <strong>#{rankPosition}</strong></span>
           </div>
           <span className="text-muted-foreground">Top {rankPercentile}%</span>
+        </div>
+      )}
+
+      {showDetailedScore && (
+        <div className="mt-4 space-y-3 bg-white p-3 rounded-md border">
+          <h4 className="text-sm font-medium flex items-center">
+            <Info className="h-4 w-4 mr-1 text-blue-500" />
+            Ranking Breakdown
+          </h4>
+          
+          <div>
+            <div className="flex justify-between text-xs mb-1">
+              <span>Skills & Expertise</span>
+              <span className="font-medium">{Math.round(rankScore * 0.4)}/40</span>
+            </div>
+            <Progress value={rankScore * 0.4 * 2.5} className="h-1.5" />
+          </div>
+          
+          <div>
+            <div className="flex justify-between text-xs mb-1">
+              <span>Experience</span>
+              <span className="font-medium">{Math.round(rankScore * 0.3)}/30</span>
+            </div>
+            <Progress value={rankScore * 0.3 * 3.33} className="h-1.5" />
+          </div>
+          
+          <div>
+            <div className="flex justify-between text-xs mb-1">
+              <span>Education & Certifications</span>
+              <span className="font-medium">{Math.round(rankScore * 0.2)}/20</span>
+            </div>
+            <Progress value={rankScore * 0.2 * 5} className="h-1.5" />
+          </div>
+          
+          <div>
+            <div className="flex justify-between text-xs mb-1">
+              <span>Profile Completeness</span>
+              <span className="font-medium">{Math.round(rankScore * 0.1)}/10</span>
+            </div>
+            <Progress value={rankScore * 0.1 * 10} className="h-1.5" />
+          </div>
+          
+          <div className="text-xs text-muted-foreground mt-2">
+            {tier.description}
+          </div>
         </div>
       )}
       

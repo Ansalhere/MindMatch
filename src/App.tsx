@@ -25,7 +25,8 @@ import Contact from "./pages/Contact";
 import Pricing from "./pages/Pricing";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
-import Job from "./pages/Job"; // New single job page
+import Job from "./pages/Job";
+import Admin from "./pages/Admin"; // Added Admin page
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ const App = () => (
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/admin" element={<Admin />} /> {/* Added Admin route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

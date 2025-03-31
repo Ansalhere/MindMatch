@@ -194,19 +194,47 @@ export async function getUserCertifications(userId: string) {
 export async function getJobs() {
   try {
     console.log("Starting getJobs function...");
-    const { data, error } = await supabase
+    // Use a more robust query that doesn't rely on nested relations which might be causing issues
+    const { data: jobsData, error: jobsError } = await supabase
       .from('jobs')
-      .select('*, employer:employer_id(*)')
+      .select('*')
       .eq('is_active', true)
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error("Supabase error fetching jobs:", error);
-      return { jobs: [], error };
+    if (jobsError) {
+      console.error("Error fetching jobs:", jobsError);
+      return { jobs: [], error: jobsError };
+    }
+
+    // Now fetch the employers separately
+    const employerIds = jobsData.map(job => job.employer_id).filter(Boolean);
+    
+    if (employerIds.length > 0) {
+      const { data: employersData, error: employersError } = await supabase
+        .from('users')
+        .select('id, name, company')
+        .in('id', employerIds);
+
+      if (!employersError && employersData) {
+        // Create a map of employer data for quick lookup
+        const employersMap = employersData.reduce((map: Record<string, any>, employer) => {
+          map[employer.id] = employer;
+          return map;
+        }, {});
+
+        // Join the employer data with the jobs
+        const jobsWithEmployers = jobsData.map(job => ({
+          ...job,
+          employer: employersMap[job.employer_id] || null
+        }));
+        
+        console.log("Jobs fetched successfully with employers:", jobsWithEmployers);
+        return { jobs: jobsWithEmployers, error: null };
+      }
     }
     
-    console.log("Jobs fetched successfully:", data);
-    return { jobs: data, error: null };
+    console.log("Jobs fetched successfully:", jobsData);
+    return { jobs: jobsData, error: null };
   } catch (error: any) {
     console.error("Exception in getJobs function:", error);
     return { jobs: [], error };

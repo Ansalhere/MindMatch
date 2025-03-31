@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, MapPin, Clock, Search, Filter, Building, Loader2, Trophy } from 'lucide-react';
+import { Briefcase, MapPin, Clock, Search, Filter, Building, Loader2, Trophy, Info } from 'lucide-react';
 import { toast } from "sonner";
 import { getJobs, applyForJob } from '@/lib/supabase';
 import { useUser } from '@/hooks/useUser';
@@ -281,6 +281,7 @@ const Jobs = () => {
                     rankScore={user.rank_score || 0}
                     rankPosition={Math.floor((user.rank_score || 50) / 100 * 5000) + 1} 
                     totalCandidates={5000}
+                    showDetailedScore={true}
                   />
                   
                   <div className="mt-6 space-y-4">
