@@ -10,14 +10,15 @@ import StatsSection from '@/components/sections/StatsSection';
 import TestimonialsSection from '@/components/sections/TestimonialsSection';
 import CTASection from '@/components/sections/CTASection';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, MapPin, Building } from 'lucide-react';
+import { Briefcase, MapPin, Building, Clock, Users, Star, Award, TrendingUp } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { getJobs } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { Loader } from '@/components/ui/loader';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -73,29 +74,49 @@ const Index = () => {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 {featuredJobs.map((job) => (
-                  <Card key={job.id} className="hover:shadow-md transition-shadow">
+                  <Card key={job.id} className="hover:shadow-md transition-shadow border-l-4 border-l-primary">
                     <CardHeader className="pb-2">
                       <div className="flex justify-between items-start">
                         <div>
-                          <CardTitle>{job.title}</CardTitle>
+                          <CardTitle className="text-xl font-bold text-gray-800">{job.title}</CardTitle>
                           <CardDescription className="flex items-center mt-1">
                             <Building className="h-3 w-3 mr-1" />
                             <span>{job.employer?.company || job.employer?.name || 'Unknown Company'}</span>
                           </CardDescription>
                         </div>
-                        <Badge>{job.job_type || 'Full-time'}</Badge>
+                        <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-none">
+                          {job.job_type || 'Full-time'}
+                        </Badge>
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex items-center text-muted-foreground text-sm mb-4">
-                        <MapPin className="h-4 w-4 mr-1" />
-                        <span>{job.location || 'Remote'}</span>
+                      <div className="grid grid-cols-2 gap-2 mb-4">
+                        <div className="flex items-center text-muted-foreground text-sm">
+                          <MapPin className="h-4 w-4 mr-1" />
+                          <span>{job.location || 'Remote'}</span>
+                        </div>
+                        <div className="flex items-center text-muted-foreground text-sm">
+                          <Clock className="h-4 w-4 mr-1" />
+                          <span>Posted {job.created_at ? new Date(job.created_at).toLocaleDateString() : 'Recently'}</span>
+                        </div>
                       </div>
                       
                       <p className="text-sm line-clamp-2 mb-4">
                         {job.description || 'No description provided.'}
                       </p>
                       
+                      {job.required_skills && job.required_skills.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-4">
+                          {job.required_skills.slice(0, 3).map((skill: string, index: number) => (
+                            <Badge key={index} variant="outline" className="bg-slate-50">{skill}</Badge>
+                          ))}
+                          {job.required_skills.length > 3 && (
+                            <Badge variant="outline" className="bg-slate-50">+{job.required_skills.length - 3} more</Badge>
+                          )}
+                        </div>
+                      )}
+                    </CardContent>
+                    <CardFooter className="border-t bg-slate-50/50 pt-4">
                       <Button 
                         className="w-full flex items-center justify-center gap-2" 
                         onClick={() => navigate(`/job/${job.id}`)}
@@ -103,7 +124,7 @@ const Index = () => {
                         <Briefcase className="h-4 w-4" />
                         View Details
                       </Button>
-                    </CardContent>
+                    </CardFooter>
                   </Card>
                 ))}
               </div>
@@ -113,6 +134,7 @@ const Index = () => {
                   variant="outline" 
                   size="lg"
                   onClick={() => navigate('/jobs')}
+                  className="hover:bg-primary hover:text-white transition-colors"
                 >
                   View All Jobs
                 </Button>
