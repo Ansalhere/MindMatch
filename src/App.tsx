@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
@@ -26,7 +26,7 @@ import Pricing from "./pages/Pricing";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Job from "./pages/Job";
-import Admin from "./pages/Admin"; // Added Admin page
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -36,33 +36,31 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner position="top-center" closeButton theme="light" className="font-sans" />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/register" element={<AuthForm />} />
-            <Route path="/login" element={<AuthForm />} />
-            <Route path="/profile/:id/:type" element={<Profile />} />
-            <Route path="/candidate/:id" element={<CandidateDetails />} />
-            <Route path="/profiles" element={<Profiles />} />
-            <Route path="/packages" element={<Packages />} />
-            <Route path="/post-job" element={<PostJob />} />
-            <Route path="/add-skill" element={<AddSkill />} />
-            <Route path="/ranking-explanation" element={<RankingExplanationPage />} />
-            <Route path="/jobs" element={<Jobs />} />
-            <Route path="/job/:id" element={<Job />} />
-            <Route path="/skills" element={<Skills />} />
-            <Route path="/resources" element={<Career />} />
-            <Route path="/success-stories" element={<SuccessStories />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/admin" element={<Admin />} /> {/* Added Admin route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/register" element={<AuthForm />} />
+          <Route path="/login" element={<AuthForm />} />
+          <Route path="/profile/:id/:type" element={<Profile />} />
+          <Route path="/candidate/:id" element={<CandidateDetails />} />
+          <Route path="/profiles" element={<Profiles />} />
+          <Route path="/packages" element={<Packages />} />
+          <Route path="/post-job" element={<PostJob />} />
+          <Route path="/add-skill" element={<AddSkill />} />
+          <Route path="/ranking-explanation" element={<RankingExplanationPage />} />
+          <Route path="/jobs" element={<Jobs />} />
+          <Route path="/job/:id" element={<Job />} />
+          <Route path="/skills" element={<Skills />} />
+          <Route path="/resources" element={<Career />} />
+          <Route path="/success-stories" element={<SuccessStories />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
