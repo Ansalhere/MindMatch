@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -225,13 +224,7 @@ export async function getJobs() {
           .select('id, name, company')
           .in('id', employerIds);
 
-        if (employersError) {
-          console.error("Error fetching employers:", employersError);
-          // Continue with the jobs data we have
-          return { jobs: jobsData, error: null };
-        }
-
-        if (employersData && employersData.length > 0) {
+        if (!employersError && employersData && employersData.length > 0) {
           // Create a map of employer data for quick lookup
           const employersMap = employersData.reduce((map: Record<string, any>, employer) => {
             map[employer.id] = employer;
@@ -249,8 +242,6 @@ export async function getJobs() {
         }
       } catch (employerError) {
         console.error("Error processing employer data:", employerError);
-        // Continue with the jobs data we have
-        return { jobs: jobsData, error: null };
       }
     }
     
@@ -466,29 +457,59 @@ export async function updateApplicationStatus(applicationId: string, status: 'ac
 export async function getJobById(jobId: string) {
   try {
     console.log(`Fetching job with ID: ${jobId}`);
-    const { data, error } = await supabase
+    
+    // First get the job data
+    const { data: jobData, error: jobError } = await supabase
       .from('jobs')
-      .select(`
-        *,
-        employer:employer_id(*),
-        applications(
+      .select('*')
+      .eq('id', jobId)
+      .single();
+
+    if (jobError) {
+      console.error("Error fetching job by ID:", jobError);
+      throw jobError;
+    }
+    
+    // Get employer data if we have an employer_id
+    if (jobData && jobData.employer_id) {
+      try {
+        const { data: employerData } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', jobData.employer_id)
+          .single();
+          
+        if (employerData) {
+          jobData.employer = employerData;
+        }
+      } catch (employerError) {
+        console.warn("Could not fetch employer data:", employerError);
+      }
+    }
+    
+    // Get applications data
+    try {
+      const { data: applicationsData } = await supabase
+        .from('applications')
+        .select(`
           id,
           status,
           candidate_id,
           created_at,
           candidate_note
-        )
-      `)
-      .eq('id', jobId)
-      .single();
-
-    if (error) {
-      console.error("Error fetching job by ID:", error);
-      throw error;
+        `)
+        .eq('job_id', jobId);
+        
+      if (applicationsData) {
+        jobData.applications = applicationsData;
+      }
+    } catch (applicationsError) {
+      console.warn("Could not fetch applications:", applicationsError);
+      jobData.applications = [];
     }
     
-    console.log("Job fetched successfully:", data);
-    return { job: data, error: null };
+    console.log("Job fetched successfully:", jobData);
+    return { job: jobData, error: null };
   } catch (error: any) {
     console.error("Exception in getJobById function:", error);
     return { job: null, error };

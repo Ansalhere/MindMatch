@@ -35,6 +35,9 @@ const Navbar = () => {
         return;
       }
       
+      localStorage.removeItem('userType');
+      localStorage.removeItem('userId');
+      
       // Force refresh user state
       await refreshUser();
       

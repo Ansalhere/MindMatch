@@ -49,13 +49,15 @@ const PostJob = () => {
         title: formData.jobTitle,
         description: formData.description,
         job_type: formData.jobType,
-        location: formData.location,
-        required_skills: formData.requiredSkills,
+        location: formData.location || 'Remote',
+        required_skills: formData.requiredSkills || [],
         closing_date: formData.deadline,
-        salary_min: formData.salary?.min || null,
-        salary_max: formData.salary?.max || null,
+        salary_min: formData.salary?.min ? parseInt(formData.salary.min) : null,
+        salary_max: formData.salary?.max ? parseInt(formData.salary.max) : null,
         min_rank_requirement: formData.rankRestriction ? formData.minRank : null
       };
+      
+      console.log("Formatted job data for DB:", jobPostData);
       
       const result = await createJob(jobPostData);
       

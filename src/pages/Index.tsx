@@ -145,7 +145,9 @@ const Index = () => {
       </section>
       
       <Features />
-      <RankingShowcase isVisible={isVisible.ranking} />
+      <div className="bg-white w-full">
+        <RankingShowcase isVisible={isVisible.ranking} />
+      </div>
       <HowItWorksSection isVisible={isVisible.howItWorks} />
       <StatsSection isVisible={isVisible.stats} />
       <TestimonialsSection isVisible={isVisible.testimonials} />

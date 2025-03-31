@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,7 +29,7 @@ interface PostJobFormProps {
 const PostJobForm = ({ onSubmit, isSubmitting }: PostJobFormProps) => {
   const [jobTitle, setJobTitle] = useState("");
   const [department, setDepartment] = useState("");
-  const [jobType, setJobType] = useState("");
+  const [jobType, setJobType] = useState("full-time");
   const [workLocation, setWorkLocation] = useState("");
   const [location, setLocation] = useState("");
   const [deadline, setDeadline] = useState("");
