@@ -6,17 +6,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, MapPin, Clock, Search, Filter, Building, Loader2, Trophy, Info } from 'lucide-react';
+import { Briefcase, MapPin, Clock, Search, Filter, Building, Loader2, Trophy, Info, AlertTriangle } from 'lucide-react';
 import { toast } from "sonner";
 import { getJobs, applyForJob } from '@/lib/supabase';
 import { useUser } from '@/hooks/useUser';
 import { Loader } from '@/components/ui/loader';
 import Layout from '@/components/Layout';
 import CandidateRankDisplay from '@/components/ranking/CandidateRankDisplay';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Jobs = () => {
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [applyingToJob, setApplyingToJob] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
@@ -31,22 +33,36 @@ const Jobs = () => {
   const fetchJobs = async () => {
     try {
       setLoading(true);
+      setError(null);
       console.log("Fetching jobs...");
+      
       const { jobs: fetchedJobs, error } = await getJobs();
       
       if (error) {
         console.error("Error fetching jobs:", error);
-        throw error;
+        setError("Failed to load jobs. Please try again later.");
+        toast.error("Failed to load jobs");
+        return;
       }
       
-      console.log("Jobs fetched:", fetchedJobs);
+      console.log("Jobs fetched:", fetchedJobs?.length || 0);
+      
+      if (!fetchedJobs || fetchedJobs.length === 0) {
+        console.log("No jobs returned from API");
+      }
+      
       setJobs(fetchedJobs || []);
     } catch (error) {
-      console.error("Error in fetchJobs:", error);
-      toast.error("Failed to load jobs. Please try again later.");
+      console.error("Exception in fetchJobs:", error);
+      setError("An unexpected error occurred. Please try again later.");
+      toast.error("Failed to load jobs");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRefresh = () => {
+    fetchJobs();
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -171,6 +187,15 @@ const Jobs = () => {
                   <Loader size={32} className="mx-auto mb-2" />
                   <p>Loading jobs...</p>
                 </div>
+              ) : error ? (
+                <Card>
+                  <CardContent className="flex flex-col items-center py-10">
+                    <AlertTriangle className="h-12 w-12 text-amber-500 mb-4" />
+                    <p className="text-lg font-medium mb-2">Failed to load jobs</p>
+                    <p className="text-muted-foreground mb-4">{error}</p>
+                    <Button onClick={handleRefresh}>Retry</Button>
+                  </CardContent>
+                </Card>
               ) : filteredJobs.length === 0 ? (
                 <Card>
                   <CardContent className="flex flex-col items-center py-10">
@@ -263,6 +288,14 @@ const Jobs = () => {
                     </CardContent>
                   </Card>
                 ))
+              )}
+              
+              {!loading && !error && jobs.length > 0 && filteredJobs.length === 0 && (
+                <Alert>
+                  <AlertDescription>
+                    No jobs match your current filters. Try adjusting your search criteria.
+                  </AlertDescription>
+                </Alert>
               )}
             </div>
           </div>

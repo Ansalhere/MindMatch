@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -194,7 +195,8 @@ export async function getUserCertifications(userId: string) {
 export async function getJobs() {
   try {
     console.log("Starting getJobs function...");
-    // Use a more robust query that doesn't rely on nested relations which might be causing issues
+    
+    // First, fetch jobs without any joins to simplify the query
     const { data: jobsData, error: jobsError } = await supabase
       .from('jobs')
       .select('*')
@@ -205,35 +207,54 @@ export async function getJobs() {
       console.error("Error fetching jobs:", jobsError);
       return { jobs: [], error: jobsError };
     }
+    
+    console.log("Jobs fetched successfully, count:", jobsData?.length || 0);
+
+    // If no jobs were found, just return the empty array
+    if (!jobsData || jobsData.length === 0) {
+      return { jobs: [], error: null };
+    }
 
     // Now fetch the employers separately
     const employerIds = jobsData.map(job => job.employer_id).filter(Boolean);
     
     if (employerIds.length > 0) {
-      const { data: employersData, error: employersError } = await supabase
-        .from('users')
-        .select('id, name, company')
-        .in('id', employerIds);
+      try {
+        const { data: employersData, error: employersError } = await supabase
+          .from('users')
+          .select('id, name, company')
+          .in('id', employerIds);
 
-      if (!employersError && employersData) {
-        // Create a map of employer data for quick lookup
-        const employersMap = employersData.reduce((map: Record<string, any>, employer) => {
-          map[employer.id] = employer;
-          return map;
-        }, {});
+        if (employersError) {
+          console.error("Error fetching employers:", employersError);
+          // Continue with the jobs data we have
+          return { jobs: jobsData, error: null };
+        }
 
-        // Join the employer data with the jobs
-        const jobsWithEmployers = jobsData.map(job => ({
-          ...job,
-          employer: employersMap[job.employer_id] || null
-        }));
-        
-        console.log("Jobs fetched successfully with employers:", jobsWithEmployers);
-        return { jobs: jobsWithEmployers, error: null };
+        if (employersData && employersData.length > 0) {
+          // Create a map of employer data for quick lookup
+          const employersMap = employersData.reduce((map: Record<string, any>, employer) => {
+            map[employer.id] = employer;
+            return map;
+          }, {});
+
+          // Join the employer data with the jobs
+          const jobsWithEmployers = jobsData.map(job => ({
+            ...job,
+            employer: employersMap[job.employer_id] || null
+          }));
+          
+          console.log("Jobs enriched with employer data:", jobsWithEmployers.length);
+          return { jobs: jobsWithEmployers, error: null };
+        }
+      } catch (employerError) {
+        console.error("Error processing employer data:", employerError);
+        // Continue with the jobs data we have
+        return { jobs: jobsData, error: null };
       }
     }
     
-    console.log("Jobs fetched successfully:", jobsData);
+    console.log("Returning jobs without employer data:", jobsData.length);
     return { jobs: jobsData, error: null };
   } catch (error: any) {
     console.error("Exception in getJobs function:", error);

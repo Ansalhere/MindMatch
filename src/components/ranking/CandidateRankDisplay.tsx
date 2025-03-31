@@ -1,137 +1,100 @@
 
-import { Trophy, Star, Award, TrendingUp, Info } from 'lucide-react';
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import React from 'react';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
+import { Trophy, Info } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-interface CandidateRankDisplayProps {
+export interface CandidateRankDisplayProps {
   rankScore: number;
-  rankPosition?: number;
-  totalCandidates?: number;
-  compact?: boolean;
-  showExplanationLink?: boolean;
-  showDetailedScore?: boolean; // Added new prop
+  rankPosition: number;
+  totalCandidates: number;
+  showDetailedScore?: boolean;
 }
 
-const CandidateRankDisplay = ({
-  rankScore = 0,
+const CandidateRankDisplay: React.FC<CandidateRankDisplayProps> = ({
+  rankScore,
   rankPosition,
-  totalCandidates = 1000,
-  compact = false,
-  showExplanationLink = true,
-  showDetailedScore = false // Added default value
-}: CandidateRankDisplayProps) => {
+  totalCandidates,
+  showDetailedScore = false
+}) => {
+  // Calculate percentile (higher is better)
+  const percentile = Math.round((1 - (rankPosition / totalCandidates)) * 100);
   
-  const getTierLabel = (score: number) => {
-    if (score >= 90) return { label: 'Elite', color: 'text-purple-600', description: 'Top tier professionals with exceptional skills and experience' };
-    if (score >= 80) return { label: 'Expert', color: 'text-indigo-600', description: 'Highly qualified professionals with proven expertise' };
-    if (score >= 70) return { label: 'Advanced', color: 'text-blue-600', description: 'Skilled candidates with significant experience' };
-    if (score >= 60) return { label: 'Intermediate', color: 'text-teal-600', description: 'Competent professionals with moderate experience' };
-    if (score >= 50) return { label: 'Developing', color: 'text-green-600', description: 'Growing professionals with foundational skills' };
-    return { label: 'Beginner', color: 'text-orange-600', description: 'Entry-level candidates building their skillset' };
+  // Calculate color based on score
+  const getColor = (score: number) => {
+    if (score >= 80) return '#22c55e'; // Green
+    if (score >= 60) return '#3b82f6'; // Blue
+    if (score >= 40) return '#f59e0b'; // Amber
+    return '#ef4444'; // Red
   };
-
-  const tier = getTierLabel(rankScore);
-  const rankPercentile = rankPosition ? Math.round((rankPosition / totalCandidates) * 100) : null;
   
-  if (compact) {
-    return (
-      <div className="flex items-center gap-1">
-        <Trophy className="h-4 w-4 text-amber-500" />
-        <span className="font-semibold">{rankScore}</span>
-        {rankPosition && (
-          <span className="text-xs text-muted-foreground">
-            (#{rankPosition})
-          </span>
-        )}
-      </div>
-    );
-  }
-
+  // Skills proficiency rating based on score
+  const getSkillLevel = (score: number) => {
+    if (score >= 80) return 'Expert';
+    if (score >= 60) return 'Advanced';
+    if (score >= 40) return 'Intermediate';
+    return 'Beginner';
+  };
+  
+  // Rank tier calculation
+  const rankTiers = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
+  const rankTierIndex = Math.min(Math.floor(rankScore / 20), 4);
+  const rankTier = rankTiers[rankTierIndex];
+  
   return (
-    <div className="bg-muted/30 p-4 rounded-lg">
-      <div className="flex justify-between items-center mb-2">
-        <div className="flex items-center">
-          <Trophy className="h-5 w-5 text-amber-500 mr-2" />
-          <h3 className="font-medium">Rank Score</h3>
+    <div className="relative">
+      <div className="flex flex-col items-center mb-4">
+        <div className="w-28 h-28 mb-3">
+          <CircularProgressbar
+            value={rankScore}
+            maxValue={100}
+            text={`${rankScore}`}
+            styles={buildStyles({
+              textSize: '24px',
+              pathColor: getColor(rankScore),
+              textColor: getColor(rankScore),
+              trailColor: '#e5e7eb',
+            })}
+          />
         </div>
-        <Badge className={`${tier.color} bg-white border`}>
-          {tier.label} Tier
-        </Badge>
-      </div>
-      
-      <div className="mb-3">
-        <div className="flex justify-between text-sm mb-1">
-          <span className="text-muted-foreground">Overall Score</span>
-          <span className="font-bold text-lg">{rankScore}/100</span>
-        </div>
-        <Progress value={rankScore} className="h-2" />
-      </div>
-      
-      {rankPosition && (
-        <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center">
-            <TrendingUp className="h-4 w-4 mr-1 text-primary" />
-            <span>Ranking position: <strong>#{rankPosition}</strong></span>
+        
+        <div className="text-center">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <Trophy className="h-4 w-4 text-amber-500" />
+            <span className="text-base font-medium">{rankTier} Tier</span>
           </div>
-          <span className="text-muted-foreground">Top {rankPercentile}%</span>
+          <div className="text-sm text-muted-foreground">
+            Top {percentile}% ({rankPosition} of {totalCandidates})
+          </div>
         </div>
-      )}
-
+      </div>
+      
       {showDetailedScore && (
-        <div className="mt-4 space-y-3 bg-white p-3 rounded-md border">
-          <h4 className="text-sm font-medium flex items-center">
-            <Info className="h-4 w-4 mr-1 text-blue-500" />
-            Ranking Breakdown
-          </h4>
+        <div className="space-y-3 mt-6">
+          <h3 className="text-sm font-medium flex items-center gap-2">
+            Rank Score Breakdown
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Info className="h-4 w-4 text-muted-foreground" />
+                </TooltipTrigger>
+                <TooltipContent className="w-64">
+                  <p>Your rank score is calculated based on your skills, experience, education, and certifications.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </h3>
           
           <div>
-            <div className="flex justify-between text-xs mb-1">
-              <span>Skills & Expertise</span>
-              <span className="font-medium">{Math.round(rankScore * 0.4)}/40</span>
+            <div className="flex justify-between text-sm mb-1">
+              <span>Skills proficiency</span>
+              <Badge variant="outline">{getSkillLevel(rankScore)}</Badge>
             </div>
-            <Progress value={rankScore * 0.4 * 2.5} className="h-1.5" />
+            <Progress value={rankScore} className="h-1.5" />
           </div>
-          
-          <div>
-            <div className="flex justify-between text-xs mb-1">
-              <span>Experience</span>
-              <span className="font-medium">{Math.round(rankScore * 0.3)}/30</span>
-            </div>
-            <Progress value={rankScore * 0.3 * 3.33} className="h-1.5" />
-          </div>
-          
-          <div>
-            <div className="flex justify-between text-xs mb-1">
-              <span>Education & Certifications</span>
-              <span className="font-medium">{Math.round(rankScore * 0.2)}/20</span>
-            </div>
-            <Progress value={rankScore * 0.2 * 5} className="h-1.5" />
-          </div>
-          
-          <div>
-            <div className="flex justify-between text-xs mb-1">
-              <span>Profile Completeness</span>
-              <span className="font-medium">{Math.round(rankScore * 0.1)}/10</span>
-            </div>
-            <Progress value={rankScore * 0.1 * 10} className="h-1.5" />
-          </div>
-          
-          <div className="text-xs text-muted-foreground mt-2">
-            {tier.description}
-          </div>
-        </div>
-      )}
-      
-      {showExplanationLink && (
-        <div className="mt-3 text-center">
-          <Button variant="link" size="sm" asChild>
-            <Link to="/ranking-explanation">
-              <Award className="h-3 w-3 mr-1" />
-              How is this calculated?
-            </Link>
-          </Button>
         </div>
       )}
     </div>
