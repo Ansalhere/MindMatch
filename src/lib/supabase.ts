@@ -5,19 +5,17 @@ import { toast } from "sonner";
 // Authentication functions
 export async function signUp(email: string, password: string, userData: any) {
   try {
-    // Sign up with admin rights to bypass email verification
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: userData,
-        emailRedirectTo: null // Explicitly set to null to avoid email verification
+        emailRedirectTo: null
       }
     });
 
     if (error) throw error;
     
-    // Immediately sign in the user
     const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password
@@ -34,7 +32,6 @@ export async function signUp(email: string, password: string, userData: any) {
 
 export async function signIn(email: string, password: string) {
   try {
-    // Try to sign in normally first
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
@@ -44,13 +41,10 @@ export async function signIn(email: string, password: string) {
       return { data, error: null };
     }
     
-    // If error is about email not confirmed, let's try to bypass this
     if (error.message && error.message.includes("Email not confirmed")) {
       console.log("Email not confirmed, attempting alternative sign in...");
       
-      // First try to update the user to confirm their email
       try {
-        // Create a new session with the provided credentials
         const { data: newData, error: newError } = await supabase.auth.signInWithPassword({
           email,
           password
@@ -64,7 +58,6 @@ export async function signIn(email: string, password: string) {
       }
     }
     
-    // If we got here, we couldn't bypass the error
     throw error;
   } catch (error: any) {
     console.error("Error signing in:", error);
@@ -192,35 +185,10 @@ export async function getUserCertifications(userId: string) {
   }
 }
 
-// Type definition for Job with additional properties
-interface JobWithEmployer {
-  id: string;
-  title: string;
-  description: string;
-  job_type: string;
-  location: string;
-  required_skills: string[];
-  closing_date: string;
-  salary_min: number;
-  salary_max: number;
-  min_rank_requirement: number;
-  min_experience: number;
-  employer_id: string;
-  created_at: string;
-  is_active: boolean;
-  employer?: {
-    id: string;
-    name: string;
-    company: string;
-  };
-  applications?: any[];
-}
-
 export async function getJobs() {
   try {
     console.log("Starting getJobs function...");
     
-    // First, fetch jobs without any joins to simplify the query
     const { data: jobsData, error: jobsError } = await supabase
       .from('jobs')
       .select('*')
@@ -234,12 +202,10 @@ export async function getJobs() {
     
     console.log("Jobs fetched successfully, count:", jobsData?.length || 0);
 
-    // If no jobs were found, just return the empty array
     if (!jobsData || jobsData.length === 0) {
       return { jobs: [], error: null };
     }
 
-    // Now fetch the employers separately
     const employerIds = jobsData.map(job => job.employer_id).filter(Boolean);
     
     if (employerIds.length > 0) {
@@ -250,14 +216,12 @@ export async function getJobs() {
           .in('id', employerIds);
 
         if (!employersError && employersData && employersData.length > 0) {
-          // Create a map of employer data for quick lookup
           const employersMap = employersData.reduce((map: Record<string, any>, employer) => {
             map[employer.id] = employer;
             return map;
           }, {});
 
-          // Join the employer data with the jobs
-          const jobsWithEmployers: JobWithEmployer[] = jobsData.map(job => ({
+          const jobsWithEmployers = jobsData.map(job => ({
             ...job,
             employer: employersMap[job.employer_id] || null
           }));
@@ -271,7 +235,7 @@ export async function getJobs() {
     }
     
     console.log("Returning jobs without employer data:", jobsData.length);
-    return { jobs: jobsData as JobWithEmployer[], error: null };
+    return { jobs: jobsData, error: null };
   } catch (error: any) {
     console.error("Exception in getJobs function:", error);
     return { jobs: [], error };
@@ -280,11 +244,9 @@ export async function getJobs() {
 
 export async function createJob(jobData: any) {
   try {
-    // Get current user to set as employer_id
     const { user } = await getCurrentUser();
     if (!user) throw new Error("You must be logged in to post a job");
 
-    // Prepare job data with employer ID
     const newJobData = {
       ...jobData,
       employer_id: user.id,
@@ -317,7 +279,6 @@ export async function applyForJob(applicationData: any) {
   try {
     console.log("Applying for job with data:", applicationData);
     
-    // Check if user has already applied
     const { data: existingApplications, error: checkError } = await supabase
       .from('applications')
       .select('id')
@@ -378,7 +339,6 @@ export async function getUserApplications(userId: string) {
 
 export async function calculateUserRank(userId: string) {
   try {
-    // Try to use the edge function first
     try {
       const response = await supabase.functions.invoke('rank-calculator', {
         body: { userId }
@@ -389,10 +349,8 @@ export async function calculateUserRank(userId: string) {
       }
     } catch (edgeFunctionError) {
       console.log("Edge function failed, falling back to RPC:", edgeFunctionError);
-      // Fall back to RPC if edge function fails
     }
     
-    // Fall back to direct RPC call
     const { data, error } = await supabase.rpc('calculate_candidate_rank', { user_id: userId });
     
     if (error) throw error;
@@ -483,7 +441,6 @@ export async function getJobById(jobId: string) {
   try {
     console.log(`Fetching job with ID: ${jobId}`);
     
-    // First get the job data
     const { data: jobData, error: jobError } = await supabase
       .from('jobs')
       .select('*')
@@ -495,14 +452,12 @@ export async function getJobById(jobId: string) {
       throw jobError;
     }
     
-    // Create a properly typed job object
-    let jobWithDetails: JobWithEmployer = {
+    let jobWithDetails: any = {
       ...jobData,
       employer: undefined,
       applications: []
     };
     
-    // Get employer data if we have an employer_id
     if (jobData && jobData.employer_id) {
       try {
         const { data: employerData } = await supabase
@@ -519,7 +474,6 @@ export async function getJobById(jobId: string) {
       }
     }
     
-    // Get applications data
     try {
       const { data: applicationsData } = await supabase
         .from('applications')

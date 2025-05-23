@@ -1,7 +1,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
-import { Trophy, Star, Users, Award } from 'lucide-react';
+import { Trophy, Star, Users, Award, ArrowRight, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface CTASectionProps {
   isVisible: boolean;
@@ -9,50 +10,124 @@ interface CTASectionProps {
 
 const CTASection = ({ isVisible }: CTASectionProps) => {
   return (
-    <section id="cta" className="py-24 bg-primary text-white">
-      <div className="container mx-auto px-6">
-        <div className={`max-w-3xl mx-auto text-center transition-all duration-1000 ${
-          isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-        }`}>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Ready to Boost Your Career With RankMe?
+    <section id="cta" className="py-24 bg-gradient-to-br from-primary via-primary/95 to-primary/90 text-white relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 bg-black/10"></div>
+      <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
+      <div className="absolute bottom-20 right-20 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+      
+      <div className="container mx-auto px-6 relative z-10">
+        <motion.div 
+          initial={{ opacity: 0, y: 50 }}
+          animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+          transition={{ duration: 0.8 }}
+          className="max-w-4xl mx-auto text-center"
+        >
+          <div className="inline-flex items-center px-4 py-2 bg-white/20 rounded-full backdrop-blur-sm mb-6">
+            <Sparkles className="h-4 w-4 mr-2" />
+            <span className="text-sm font-medium">AI-Powered Career Advancement</span>
+          </div>
+          
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+            Ready to Accelerate Your Career With{' '}
+            <span className="bg-gradient-to-r from-yellow-300 to-yellow-100 bg-clip-text text-transparent">
+              RankMe.AI
+            </span>
+            ?
           </h2>
-          <p className="text-lg text-white/80 mb-6">
-            Join thousands of professionals already using RankMe to connect talent with opportunity based on our advanced skill-based ranking system.
+          
+          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto leading-relaxed">
+            Join thousands of professionals already using RankMe.AI to connect talent with opportunity 
+            through our revolutionary AI-powered ranking system.
           </p>
           
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-            <div className="bg-white/10 px-4 py-3 rounded-lg flex flex-col items-center">
-              <Trophy className="h-6 w-6 text-yellow-300 mb-2" />
-              <span className="text-white font-medium">Stand Out with Rankings</span>
-              <span className="text-xs text-white/70">Showcase your skills with our verified ranking system</span>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+              className="bg-white/15 backdrop-blur-sm px-6 py-4 rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-300"
+            >
+              <Trophy className="h-8 w-8 text-yellow-300 mb-3 mx-auto" />
+              <h3 className="text-white font-semibold mb-2">Stand Out with AI Rankings</h3>
+              <p className="text-sm text-white/80">Showcase your skills with our verified AI-driven ranking system</p>
+            </motion.div>
             
-            <div className="bg-white/10 px-4 py-3 rounded-lg flex flex-col items-center">
-              <Award className="h-6 w-6 text-yellow-300 mb-2" />
-              <span className="text-white font-medium">Improve Your Score</span>
-              <span className="text-xs text-white/70">Add certifications, take assessments, update your experience</span>
-            </div>
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+              className="bg-white/15 backdrop-blur-sm px-6 py-4 rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-300"
+            >
+              <Award className="h-8 w-8 text-yellow-300 mb-3 mx-auto" />
+              <h3 className="text-white font-semibold mb-2">Improve Your Score</h3>
+              <p className="text-sm text-white/80">Add certifications, take assessments, update your experience</p>
+            </motion.div>
             
-            <div className="bg-white/10 px-4 py-3 rounded-lg flex flex-col items-center">
-              <Star className="h-6 w-6 text-yellow-300 mb-2" />
-              <span className="text-white font-medium">Get Discovered</span>
-              <span className="text-xs text-white/70">Top-ranked profiles get more visibility with employers</span>
-            </div>
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              transition={{ delay: 0.6, duration: 0.6 }}
+              className="bg-white/15 backdrop-blur-sm px-6 py-4 rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-300"
+            >
+              <Star className="h-8 w-8 text-yellow-300 mb-3 mx-auto" />
+              <h3 className="text-white font-semibold mb-2">Get Discovered</h3>
+              <p className="text-sm text-white/80">Top-ranked profiles get more visibility with premium employers</p>
+            </motion.div>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="text-primary px-8" asChild>
-              <Link to="/register">Sign Up Now</Link>
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          >
+            <Button 
+              size="lg" 
+              variant="secondary" 
+              className="text-primary bg-white hover:bg-white/90 px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300" 
+              asChild
+            >
+              <Link to="/register" className="flex items-center">
+                Sign Up Now
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
             </Button>
-            <Button size="lg" variant="outline" className="text-white border-white/30 hover:bg-white/10 px-8" asChild>
+            
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="text-white border-white/30 hover:bg-white/10 hover:border-white/50 px-8 py-3 text-lg backdrop-blur-sm transition-all duration-300" 
+              asChild
+            >
               <Link to="/profiles">Browse Ranked Profiles</Link>
             </Button>
-            <Button size="lg" variant="outline" className="text-white border-white/30 hover:bg-white/10 px-8" asChild>
-              <Link to="/ranking-explanation">Learn About Ranking</Link>
+            
+            <Button 
+              size="lg" 
+              variant="ghost" 
+              className="text-white hover:bg-white/10 px-8 py-3 text-lg transition-all duration-300" 
+              asChild
+            >
+              <Link to="/ranking-explanation">Learn About AI Ranking</Link>
             </Button>
-          </div>
-        </div>
+          </motion.div>
+          
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={isVisible ? { opacity: 1 } : { opacity: 0 }}
+            transition={{ delay: 1, duration: 0.6 }}
+            className="mt-12 text-center"
+          >
+            <p className="text-white/70 text-sm mb-4">Trusted by professionals at</p>
+            <div className="flex items-center justify-center space-x-8 opacity-60">
+              <div className="text-white/60 font-semibold">Google</div>
+              <div className="text-white/60 font-semibold">Microsoft</div>
+              <div className="text-white/60 font-semibold">Amazon</div>
+              <div className="text-white/60 font-semibold">Apple</div>
+            </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );
