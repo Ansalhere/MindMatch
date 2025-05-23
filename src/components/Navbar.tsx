@@ -75,7 +75,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <span className="text-2xl font-bold text-primary">TalentMatch</span>
+              <span className="text-2xl font-bold text-primary">RankMe</span>
             </Link>
           </div>
           

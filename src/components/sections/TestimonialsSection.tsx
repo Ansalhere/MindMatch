@@ -10,19 +10,19 @@ const TestimonialsSection = ({ isVisible }: TestimonialsSectionProps) => {
     {
       name: 'Sarah J.',
       role: 'Frontend Developer',
-      testimonial: 'FresherPools completely transformed my job search. Within two weeks of creating my profile, I received three interview calls and landed my dream job!',
+      testimonial: 'RankMe completely transformed my job search. My ranking helped me stand out and I landed my dream job within two weeks!',
       delay: 200
     },
     {
       name: 'David M.',
       role: 'HR Manager at TechCorp',
-      testimonial: 'As an employer, finding the right fresher talent was always challenging. FresherPools skill-based matching has saved us countless hours of screening.',
+      testimonial: 'As an employer, finding the right talent was always challenging. RankMe\'s ranking system helps us identify the best candidates instantly.',
       delay: 400
     },
     {
       name: 'Priya K.',
       role: 'Data Science Graduate',
-      testimonial: 'The skill ranking feature helped me understand which areas to improve. After enhancing those skills, my match rate improved by 45% and I got hired!',
+      testimonial: 'The ranking feature helped me understand which areas to improve. After enhancing my skills, my rank improved and I got hired!',
       delay: 600
     }
   ];
@@ -39,7 +39,7 @@ const TestimonialsSection = ({ isVisible }: TestimonialsSectionProps) => {
           <p className={`text-lg text-muted-foreground transition-all duration-700 delay-100 ${
             isVisible ? 'opacity-100' : 'opacity-0 translate-y-10'
           }`}>
-            Don&apos;t just take our word for it. Here&apos;s what freshers and employers have to say about FresherPools.
+            Don&apos;t just take our word for it. Here&apos;s what candidates and employers have to say about RankMe.
           </p>
         </div>
         

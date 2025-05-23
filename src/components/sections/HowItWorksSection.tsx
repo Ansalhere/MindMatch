@@ -24,14 +24,14 @@ const HowItWorksSection = ({ isVisible }: HowItWorksSectionProps) => {
     },
     {
       step: '02',
-      title: 'AI Matches You',
-      description: 'Our algorithm analyzes your profile and matches you with the most suitable job opportunities.',
+      title: 'Get Ranked',
+      description: 'Our intelligent system analyzes your profile and assigns you a rank based on your skills and qualifications.',
       delay: 400
     },
     {
       step: '03',
       title: 'Apply & Connect',
-      description: 'Apply to jobs with a single click and connect directly with interested employers.',
+      description: 'Apply to jobs with a single click and let employers discover you through our ranking system.',
       delay: 600
     }
   ];
@@ -43,12 +43,12 @@ const HowItWorksSection = ({ isVisible }: HowItWorksSectionProps) => {
           <h2 className={`text-3xl md:text-4xl font-bold mb-6 transition-all duration-700 ${
             isVisible ? 'opacity-100' : 'opacity-0 translate-y-10'
           }`}>
-            How <span className="text-primary">FresherPools</span> Works
+            How <span className="text-primary">RankMe</span> Works
           </h2>
           <p className={`text-lg text-muted-foreground transition-all duration-700 delay-100 ${
             isVisible ? 'opacity-100' : 'opacity-0 translate-y-10'
           }`}>
-            Our AI-powered platform makes it easy to connect freshers with the perfect job opportunities in just a few simple steps.
+            Our ranking-powered platform makes it easy to connect talent with the perfect job opportunities in just a few simple steps.
           </p>
         </div>
         

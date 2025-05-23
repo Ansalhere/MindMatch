@@ -48,13 +48,17 @@ const PostJob = () => {
       const jobPostData = {
         title: formData.jobTitle,
         description: formData.description,
-        job_type: formData.jobType,
+        job_type: formData.jobType === 'full-time' ? 'full_time' : 
+                  formData.jobType === 'part-time' ? 'part_time' : 
+                  formData.jobType === 'contract' ? 'contract' : 
+                  formData.jobType === 'internship' ? 'internship' : 'full_time',
         location: formData.location || 'Remote',
         required_skills: formData.requiredSkills || [],
         closing_date: formData.deadline,
         salary_min: formData.salary?.min ? parseInt(formData.salary.min) : null,
         salary_max: formData.salary?.max ? parseInt(formData.salary.max) : null,
-        min_rank_requirement: formData.rankRestriction ? formData.minRank : null
+        min_rank_requirement: formData.rankRestriction ? formData.minRank : 0,
+        min_experience: formData.minExperience || 0
       };
       
       console.log("Formatted job data for DB:", jobPostData);
@@ -86,9 +90,9 @@ const PostJob = () => {
         </Button>
         
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-3xl font-bold mb-2">Post a New Job</h1>
+          <h1 className="text-3xl font-bold mb-2">Post a New Job on RankMe</h1>
           <p className="text-muted-foreground mb-8">
-            Find the best candidates by posting your job requirements
+            Find the best ranked candidates by posting your job requirements
           </p>
           
           <PostJobForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />

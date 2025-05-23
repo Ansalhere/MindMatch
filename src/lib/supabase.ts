@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -191,6 +192,30 @@ export async function getUserCertifications(userId: string) {
   }
 }
 
+// Type definition for Job with additional properties
+interface JobWithEmployer {
+  id: string;
+  title: string;
+  description: string;
+  job_type: string;
+  location: string;
+  required_skills: string[];
+  closing_date: string;
+  salary_min: number;
+  salary_max: number;
+  min_rank_requirement: number;
+  min_experience: number;
+  employer_id: string;
+  created_at: string;
+  is_active: boolean;
+  employer?: {
+    id: string;
+    name: string;
+    company: string;
+  };
+  applications?: any[];
+}
+
 export async function getJobs() {
   try {
     console.log("Starting getJobs function...");
@@ -232,7 +257,7 @@ export async function getJobs() {
           }, {});
 
           // Join the employer data with the jobs
-          const jobsWithEmployers = jobsData.map(job => ({
+          const jobsWithEmployers: JobWithEmployer[] = jobsData.map(job => ({
             ...job,
             employer: employersMap[job.employer_id] || null
           }));
@@ -246,7 +271,7 @@ export async function getJobs() {
     }
     
     console.log("Returning jobs without employer data:", jobsData.length);
-    return { jobs: jobsData, error: null };
+    return { jobs: jobsData as JobWithEmployer[], error: null };
   } catch (error: any) {
     console.error("Exception in getJobs function:", error);
     return { jobs: [], error };
@@ -470,6 +495,13 @@ export async function getJobById(jobId: string) {
       throw jobError;
     }
     
+    // Create a properly typed job object
+    let jobWithDetails: JobWithEmployer = {
+      ...jobData,
+      employer: undefined,
+      applications: []
+    };
+    
     // Get employer data if we have an employer_id
     if (jobData && jobData.employer_id) {
       try {
@@ -480,7 +512,7 @@ export async function getJobById(jobId: string) {
           .single();
           
         if (employerData) {
-          jobData.employer = employerData;
+          jobWithDetails.employer = employerData;
         }
       } catch (employerError) {
         console.warn("Could not fetch employer data:", employerError);
@@ -501,15 +533,15 @@ export async function getJobById(jobId: string) {
         .eq('job_id', jobId);
         
       if (applicationsData) {
-        jobData.applications = applicationsData;
+        jobWithDetails.applications = applicationsData;
       }
     } catch (applicationsError) {
       console.warn("Could not fetch applications:", applicationsError);
-      jobData.applications = [];
+      jobWithDetails.applications = [];
     }
     
-    console.log("Job fetched successfully:", jobData);
-    return { job: jobData, error: null };
+    console.log("Job fetched successfully:", jobWithDetails);
+    return { job: jobWithDetails, error: null };
   } catch (error: any) {
     console.error("Exception in getJobById function:", error);
     return { job: null, error };

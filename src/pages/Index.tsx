@@ -54,33 +54,33 @@ const Index = () => {
       <Hero />
       
       {/* Featured Jobs Section */}
-      <section className="py-12 bg-muted/30">
+      <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold mb-2">Featured Jobs</h2>
-            <p className="text-muted-foreground">Discover top opportunities available right now</p>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">Featured Jobs</h2>
+            <p className="text-muted-foreground">Discover top opportunities available right now on RankMe</p>
           </div>
           
           {loading ? (
-            <div className="flex justify-center py-10">
+            <div className="flex justify-center py-12">
               <Loader size={32} />
             </div>
           ) : featuredJobs.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground mb-4">No job posts available right now</p>
+            <div className="text-center py-12">
+              <p className="text-muted-foreground mb-6">No job posts available right now</p>
               <Button onClick={() => navigate('/jobs')}>Browse All Jobs</Button>
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                 {featuredJobs.map((job) => (
-                  <Card key={job.id} className="hover:shadow-md transition-shadow border-l-4 border-l-primary">
-                    <CardHeader className="pb-2">
+                  <Card key={job.id} className="hover:shadow-lg transition-all duration-300 border-l-4 border-l-primary">
+                    <CardHeader className="pb-3">
                       <div className="flex justify-between items-start">
                         <div>
                           <CardTitle className="text-xl font-bold text-gray-800">{job.title}</CardTitle>
-                          <CardDescription className="flex items-center mt-1">
-                            <Building className="h-3 w-3 mr-1" />
+                          <CardDescription className="flex items-center mt-2">
+                            <Building className="h-4 w-4 mr-1" />
                             <span>{job.employer?.company || job.employer?.name || 'Unknown Company'}</span>
                           </CardDescription>
                         </div>
@@ -90,7 +90,7 @@ const Index = () => {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-2 gap-2 mb-4">
+                      <div className="grid grid-cols-2 gap-3 mb-4">
                         <div className="flex items-center text-muted-foreground text-sm">
                           <MapPin className="h-4 w-4 mr-1" />
                           <span>{job.location || 'Remote'}</span>
@@ -145,9 +145,11 @@ const Index = () => {
       </section>
       
       <Features />
-      <div className="bg-white w-full">
+      
+      <div className="bg-white">
         <RankingShowcase isVisible={isVisible.ranking} />
       </div>
+      
       <HowItWorksSection isVisible={isVisible.howItWorks} />
       <StatsSection isVisible={isVisible.stats} />
       <TestimonialsSection isVisible={isVisible.testimonials} />

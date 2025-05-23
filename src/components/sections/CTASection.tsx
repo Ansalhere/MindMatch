@@ -15,10 +15,10 @@ const CTASection = ({ isVisible }: CTASectionProps) => {
           isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
         }`}>
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Ready to Boost Your Career With Our Ranking System?
+            Ready to Boost Your Career With RankMe?
           </h2>
           <p className="text-lg text-white/80 mb-6">
-            Join thousands of freshers and employers already using FresherPools to connect talent with opportunity based on our advanced skill-based ranking system.
+            Join thousands of professionals already using RankMe to connect talent with opportunity based on our advanced skill-based ranking system.
           </p>
           
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
