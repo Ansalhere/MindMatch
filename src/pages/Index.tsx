@@ -9,16 +9,22 @@ import TestimonialsSection from '@/components/sections/TestimonialsSection';
 import StatsSection from '@/components/sections/StatsSection';
 import CTASection from '@/components/sections/CTASection';
 import Footer from '@/components/Footer';
-import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { 
+  useStatsAnimation, 
+  useHowItWorksAnimation, 
+  useTestimonialsAnimation, 
+  useCTAAnimation, 
+  useRankingAnimation 
+} from '@/hooks/useScrollAnimation';
 
 const Index = () => {
   const [heroVisible, setHeroVisible] = useState(false);
-  const featuresVisible = useScrollAnimation();
-  const rankingVisible = useScrollAnimation();
-  const howItWorksVisible = useScrollAnimation();
-  const testimonialsVisible = useScrollAnimation();
-  const statsVisible = useScrollAnimation();
-  const ctaVisible = useScrollAnimation();
+  const featuresVisible = useStatsAnimation(); // Reuse for features
+  const rankingVisible = useRankingAnimation();
+  const howItWorksVisible = useHowItWorksAnimation();
+  const testimonialsVisible = useTestimonialsAnimation();
+  const statsVisible = useStatsAnimation();
+  const ctaVisible = useCTAAnimation();
 
   useEffect(() => {
     const timer = setTimeout(() => setHeroVisible(true), 100);
