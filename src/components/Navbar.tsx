@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useUser } from '@/hooks/useUser';
 import { signOut } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { LogOut, Menu, X } from 'lucide-react';
+import { LogOut, Menu, X, Trophy } from 'lucide-react';
 
 const Navbar = () => {
   const { user, refreshUser } = useUser();
@@ -59,87 +59,95 @@ const Navbar = () => {
         section.scrollIntoView({ behavior: 'smooth' });
       }
     } else {
-      // If we're on another page, navigate to homepage and then scroll
-      navigate('/', { state: { scrollTo: sectionId } });
+      // If we're on another page, navigate to homepage with scroll parameter
+      navigate(`/?scrollTo=${sectionId}`);
     }
     setIsMenuOpen(false);
   };
 
+  const navigationItems = [
+    { label: 'How It Works', action: () => handleNavClick('how-it-works') },
+    { label: 'Ranking System', action: () => handleNavClick('ranking-system') },
+    { label: 'Browse Jobs', to: '/jobs' },
+    { label: 'Browse Profiles', to: '/profiles' },
+    { label: 'Skill Assessment', to: '/skills' },
+    { label: 'Resources', to: '/resources' },
+    { label: 'Pricing', to: '/packages' },
+  ];
+
   return (
     <header 
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
-        isScrolled ? 'bg-white/95 backdrop-blur-sm shadow-sm' : 'bg-transparent'
+        isScrolled ? 'bg-white/95 backdrop-blur-sm shadow-sm border-b' : 'bg-transparent'
       }`}
     >
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <span className="text-2xl font-bold text-primary">RankMe</span>
+            <Link to="/" className="flex items-center space-x-2 group">
+              <Trophy className="h-8 w-8 text-primary group-hover:scale-110 transition-transform" />
+              <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                RankMe.AI
+              </span>
             </Link>
           </div>
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            <button 
-              onClick={() => handleNavClick('how-it-works')}
-              className="text-gray-600 hover:text-primary transition-colors"
-            >
-              How It Works
-            </button>
-            <button 
-              onClick={() => handleNavClick('ranking-system')}
-              className="text-gray-600 hover:text-primary transition-colors"
-            >
-              Ranking System
-            </button>
-            <Link to="/jobs" className="text-gray-600 hover:text-primary transition-colors">
-              Browse Jobs
-            </Link>
-            <Link to="/profiles" className="text-gray-600 hover:text-primary transition-colors">
-              Browse Profiles
-            </Link>
-            <Link to="/skills" className="text-gray-600 hover:text-primary transition-colors">
-              Skill Assessment
-            </Link>
-            <Link to="/resources" className="text-gray-600 hover:text-primary transition-colors">
-              Resources
-            </Link>
-            <Link to="/packages" className="text-gray-600 hover:text-primary transition-colors">
-              Pricing
-            </Link>
+            {navigationItems.map((item, index) => (
+              item.to ? (
+                <Link 
+                  key={index}
+                  to={item.to} 
+                  className="text-gray-600 hover:text-primary transition-colors font-medium"
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <button 
+                  key={index}
+                  onClick={item.action}
+                  className="text-gray-600 hover:text-primary transition-colors font-medium"
+                >
+                  {item.label}
+                </button>
+              )
+            ))}
             
             {user ? (
-              <>
-                <Link to="/dashboard" className="text-gray-600 hover:text-primary transition-colors">
+              <div className="flex items-center space-x-4">
+                <Link to="/dashboard" className="text-gray-600 hover:text-primary transition-colors font-medium">
                   Dashboard
                 </Link>
                 {user.user_type === 'employer' && (
-                  <Link to="/post-job" className="text-gray-600 hover:text-primary transition-colors">
+                  <Link to="/post-job" className="text-gray-600 hover:text-primary transition-colors font-medium">
                     Post a Job
                   </Link>
                 )}
                 <Button 
                   variant="outline" 
+                  size="sm"
                   onClick={handleLogout}
                   disabled={isLoggingOut}
-                  className="text-gray-600 hover:text-primary hover:bg-gray-50 transition-colors flex items-center gap-2"
+                  className="flex items-center gap-2"
                 >
-                  {isLoggingOut ? 'Logging out...' : (
+                  {isLoggingOut ? (
+                    <span>Logging out...</span>
+                  ) : (
                     <>
                       <LogOut className="h-4 w-4" />
                       <span>Logout</span>
                     </>
                   )}
                 </Button>
-              </>
+              </div>
             ) : (
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
                 <Link to="/login">
-                  <Button variant="outline">Login</Button>
+                  <Button variant="ghost" size="sm">Login</Button>
                 </Link>
                 <Link to="/register">
-                  <Button>Sign Up</Button>
+                  <Button size="sm">Sign Up</Button>
                 </Link>
               </div>
             )}
@@ -147,7 +155,7 @@ const Navbar = () => {
           
           {/* Mobile menu button */}
           <button 
-            className="md:hidden text-gray-600"
+            className="md:hidden p-2 text-gray-600 hover:text-primary transition-colors"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? (
@@ -160,60 +168,33 @@ const Navbar = () => {
         
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <nav className="md:hidden mt-4 pb-4 space-y-3">
-            <button 
-              onClick={() => handleNavClick('how-it-works')}
-              className="block w-full text-left py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
-            >
-              How It Works
-            </button>
-            <button 
-              onClick={() => handleNavClick('ranking-system')}
-              className="block w-full text-left py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
-            >
-              Ranking System
-            </button>
-            <Link 
-              to="/jobs" 
-              className="block py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Browse Jobs
-            </Link>
-            <Link 
-              to="/profiles" 
-              className="block py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Browse Profiles
-            </Link>
-            <Link 
-              to="/skills" 
-              className="block py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Skill Assessment
-            </Link>
-            <Link 
-              to="/resources" 
-              className="block py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Resources
-            </Link>
-            <Link 
-              to="/packages" 
-              className="block py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Pricing
-            </Link>
+          <nav className="md:hidden mt-4 pb-4 space-y-2 border-t pt-4">
+            {navigationItems.map((item, index) => (
+              item.to ? (
+                <Link 
+                  key={index}
+                  to={item.to} 
+                  className="block py-2 px-4 text-gray-600 hover:bg-gray-100 hover:text-primary rounded-md transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <button 
+                  key={index}
+                  onClick={item.action}
+                  className="block w-full text-left py-2 px-4 text-gray-600 hover:bg-gray-100 hover:text-primary rounded-md transition-colors"
+                >
+                  {item.label}
+                </button>
+              )
+            ))}
             
             {user ? (
               <>
                 <Link 
                   to="/dashboard" 
-                  className="block py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
+                  className="block py-2 px-4 text-gray-600 hover:bg-gray-100 hover:text-primary rounded-md transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Dashboard
@@ -221,7 +202,7 @@ const Navbar = () => {
                 {user.user_type === 'employer' && (
                   <Link 
                     to="/post-job" 
-                    className="block py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
+                    className="block py-2 px-4 text-gray-600 hover:bg-gray-100 hover:text-primary rounded-md transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Post a Job
@@ -233,7 +214,7 @@ const Navbar = () => {
                     setIsMenuOpen(false);
                   }}
                   disabled={isLoggingOut}
-                  className="flex items-center w-full text-left py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-md"
+                  className="flex items-center w-full text-left py-2 px-4 text-gray-600 hover:bg-gray-100 hover:text-primary rounded-md transition-colors"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   {isLoggingOut ? 'Logging out...' : 'Logout'}
@@ -246,7 +227,7 @@ const Navbar = () => {
                   className="block"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <Button variant="outline" className="w-full">Login</Button>
+                  <Button variant="ghost" className="w-full">Login</Button>
                 </Link>
                 <Link 
                   to="/register" 

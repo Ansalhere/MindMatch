@@ -14,12 +14,13 @@ import {
   useHowItWorksAnimation, 
   useTestimonialsAnimation, 
   useCTAAnimation, 
-  useRankingAnimation 
+  useRankingAnimation,
+  useFeaturesAnimation
 } from '@/hooks/useScrollAnimation';
 
 const Index = () => {
   const [heroVisible, setHeroVisible] = useState(false);
-  const featuresVisible = useStatsAnimation(); // Reuse for features
+  const featuresVisible = useFeaturesAnimation();
   const rankingVisible = useRankingAnimation();
   const howItWorksVisible = useHowItWorksAnimation();
   const testimonialsVisible = useTestimonialsAnimation();
@@ -31,6 +32,21 @@ const Index = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Handle scroll-to-section functionality from navigation
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const scrollTo = urlParams.get('scrollTo');
+    
+    if (scrollTo) {
+      setTimeout(() => {
+        const element = document.getElementById(scrollTo);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 500);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <motion.div
@@ -39,12 +55,24 @@ const Index = () => {
         transition={{ duration: 0.8 }}
       >
         <Hero isVisible={heroVisible} />
-        <Features isVisible={featuresVisible} />
-        <RankingShowcase isVisible={rankingVisible} />
-        <HowItWorksSection isVisible={howItWorksVisible} />
-        <StatsSection isVisible={statsVisible} />
-        <TestimonialsSection isVisible={testimonialsVisible} />
-        <CTASection isVisible={ctaVisible} />
+        <div id="features">
+          <Features isVisible={featuresVisible} />
+        </div>
+        <div id="ranking-system">
+          <RankingShowcase isVisible={rankingVisible} />
+        </div>
+        <div id="how-it-works">
+          <HowItWorksSection isVisible={howItWorksVisible} />
+        </div>
+        <div id="stats">
+          <StatsSection isVisible={statsVisible} />
+        </div>
+        <div id="testimonials">
+          <TestimonialsSection isVisible={testimonialsVisible} />
+        </div>
+        <div id="cta">
+          <CTASection isVisible={ctaVisible} />
+        </div>
         <Footer />
       </motion.div>
     </div>
