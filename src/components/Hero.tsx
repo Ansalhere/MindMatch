@@ -20,9 +20,13 @@ const Hero = () => {
             Launching Soon - Join the Waitlist
           </div>
           
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
-            AI-Powered <span className="text-primary">Job Matching</span> for Fresh Talent
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight">
+            <span className="text-blue-600">RankMe</span>
           </h1>
+          
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight leading-tight">
+            AI-Powered <span className="text-primary">Job Matching</span> for Fresh Talent
+          </h2>
           
           <p className="text-lg md:text-xl text-muted-foreground">
             Connect with employers who value your skills. FresherPools uses AI to match entry-level candidates with the perfect job opportunities.
