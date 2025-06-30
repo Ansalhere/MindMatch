@@ -13,11 +13,13 @@ import {
   useStatsAnimation, 
   useHowItWorksAnimation, 
   useTestimonialsAnimation, 
-  useCTAAnimation
+  useCTAAnimation,
+  useRankingAnimation
 } from '@/hooks/useScrollAnimation';
 
 const Index = () => {
   const [heroVisible, setHeroVisible] = useState(false);
+  const rankingVisible = useRankingAnimation();
   const howItWorksVisible = useHowItWorksAnimation();
   const testimonialsVisible = useTestimonialsAnimation();
   const statsVisible = useStatsAnimation();
@@ -55,7 +57,7 @@ const Index = () => {
           <Features />
         </div>
         <div id="ranking-system">
-          <RankingShowcase />
+          <RankingShowcase isVisible={rankingVisible} />
         </div>
         <div id="how-it-works">
           <HowItWorksSection isVisible={howItWorksVisible} />
