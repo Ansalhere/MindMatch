@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select"
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import LoginCredentials from '@/components/LoginCredentials';
 
 // Add additional fields for employer signup
 const employerFields = [
@@ -102,160 +103,170 @@ const AuthForm = () => {
       <Navbar />
       
       <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="max-w-md mx-auto">
-          <Card>
-            <CardHeader>
-              <CardTitle>{isRegister ? 'Create an Account' : 'Log In'}</CardTitle>
-              <CardDescription>
-                {isRegister 
-                  ? 'Sign up to find jobs or candidates' 
-                  : 'Welcome back! Log in to continue'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {isRegister && (
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="name">Full Name</Label>
-                      <Input 
-                        id="name" 
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label>Account Type</Label>
-                      <div className="grid grid-cols-2 gap-4 mt-2">
-                        <Button 
-                          type="button"
-                          variant={userType === 'candidate' ? 'default' : 'outline'}
-                          className="w-full"
-                          onClick={() => setUserType('candidate')}
-                        >
-                          <User className="h-4 w-4 mr-2" />
-                          Candidate
-                        </Button>
-                        <Button 
-                          type="button"
-                          variant={userType === 'employer' ? 'default' : 'outline'}
-                          className="w-full"
-                          onClick={() => setUserType('employer')}
-                        >
-                          <Building className="h-4 w-4 mr-2" />
-                          Employer
-                        </Button>
+        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+          {/* Login Form */}
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle>{isRegister ? 'Create an Account' : 'Log In to RankMe.AI'}</CardTitle>
+                <CardDescription>
+                  {isRegister 
+                    ? 'Sign up to find jobs or candidates' 
+                    : 'Welcome back! Log in to continue'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {isRegister && (
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="name">Full Name</Label>
+                        <Input 
+                          id="name" 
+                          type="text"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          required
+                        />
                       </div>
-                    </div>
-                    
-                    {/* Show employer fields if employer is selected */}
-                    {isRegister && userType === 'employer' && (
-                      <div className="space-y-4 border rounded-md p-4 bg-secondary/20">
-                        <h3 className="font-medium">Company Information</h3>
-                        {employerFields.map(field => (
-                          <div key={field.name}>
-                            <Label htmlFor={field.name}>{field.label}{field.required && ' *'}</Label>
-                            {field.type === 'select' ? (
-                              <Select 
-                                onValueChange={(value) => setFormValues(prev => ({ ...prev, [field.name]: value }))}
-                                required={field.required}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder={`Select ${field.label}`} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {field.options?.map(option => (
-                                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            ) : (
-                              <Input
-                                id={field.name}
-                                type={field.type}
-                                onChange={handleEmployerFieldChange}
-                                required={field.required}
-                              />
-                            )}
-                          </div>
-                        ))}
+                      
+                      <div>
+                        <Label>Account Type</Label>
+                        <div className="grid grid-cols-2 gap-4 mt-2">
+                          <Button 
+                            type="button"
+                            variant={userType === 'candidate' ? 'default' : 'outline'}
+                            className="w-full"
+                            onClick={() => setUserType('candidate')}
+                          >
+                            <User className="h-4 w-4 mr-2" />
+                            Candidate
+                          </Button>
+                          <Button 
+                            type="button"
+                            variant={userType === 'employer' ? 'default' : 'outline'}
+                            className="w-full"
+                            onClick={() => setUserType('employer')}
+                          >
+                            <Building className="h-4 w-4 mr-2" />
+                            Employer
+                          </Button>
+                        </div>
                       </div>
+                      
+                      {/* Show employer fields if employer is selected */}
+                      {isRegister && userType === 'employer' && (
+                        <div className="space-y-4 border rounded-md p-4 bg-secondary/20">
+                          <h3 className="font-medium">Company Information</h3>
+                          {employerFields.map(field => (
+                            <div key={field.name}>
+                              <Label htmlFor={field.name}>{field.label}{field.required && ' *'}</Label>
+                              {field.type === 'select' ? (
+                                <Select 
+                                  onValueChange={(value) => setFormValues(prev => ({ ...prev, [field.name]: value }))}
+                                  required={field.required}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder={`Select ${field.label}`} />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {field.options?.map(option => (
+                                      <SelectItem key={option} value={option}>{option}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              ) : (
+                                <Input
+                                  id={field.name}
+                                  type={field.type}
+                                  onChange={handleEmployerFieldChange}
+                                  required={field.required}
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input 
+                      id="email" 
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="password">Password</Label>
+                    <Input 
+                      id="password" 
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  {error && (
+                    <div className="text-sm text-red-500">{error}</div>
+                  )}
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        {isRegister ? 'Creating Account...' : 'Logging In...'}
+                      </>
+                    ) : (
+                      isRegister ? 'Create Account' : 'Log In'
+                    )}
+                  </Button>
+                  
+                  <div className="text-center text-sm">
+                    {isRegister ? (
+                      <>
+                        Already have an account?{' '}
+                        <Button 
+                          variant="link" 
+                          className="p-0 h-auto" 
+                          onClick={() => {setIsRegister(false); setError(null);}}
+                        >
+                          Log In
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        Don't have an account?{' '}
+                        <Button 
+                          variant="link" 
+                          className="p-0 h-auto" 
+                          onClick={() => {setIsRegister(true); setError(null);}}
+                        >
+                          Sign Up
+                        </Button>
+                      </>
                     )}
                   </div>
-                )}
-                
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input 
-                    id="email" 
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="password">Password</Label>
-                  <Input 
-                    id="password" 
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-                
-                {error && (
-                  <div className="text-sm text-red-500">{error}</div>
-                )}
-                
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      {isRegister ? 'Creating Account...' : 'Logging In...'}
-                    </>
-                  ) : (
-                    isRegister ? 'Create Account' : 'Log In'
-                  )}
-                </Button>
-                
-                <div className="text-center text-sm">
-                  {isRegister ? (
-                    <>
-                      Already have an account?{' '}
-                      <Button 
-                        variant="link" 
-                        className="p-0 h-auto" 
-                        onClick={() => {setIsRegister(false); setError(null);}}
-                      >
-                        Log In
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      Don't have an account?{' '}
-                      <Button 
-                        variant="link" 
-                        className="p-0 h-auto" 
-                        onClick={() => {setIsRegister(true); setError(null);}}
-                      >
-                        Sign Up
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </form>
-            </CardContent>
-          </Card>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Demo Credentials */}
+          {!isRegister && (
+            <div>
+              <LoginCredentials />
+            </div>
+          )}
         </div>
       </main>
       

@@ -39,7 +39,9 @@ const Index = () => {
       setTimeout(() => {
         const element = document.getElementById(scrollTo);
         if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Clean up URL after scrolling
+          window.history.replaceState({}, '', window.location.pathname);
         }
       }, 500);
     }

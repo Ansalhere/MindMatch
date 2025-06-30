@@ -21,7 +21,7 @@ const Hero = () => {
           </div>
           
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight">
-            <span className="text-blue-600">RankMe</span>
+            <span className="text-blue-600">RankMe.AI</span>
           </h1>
           
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight leading-tight">
@@ -29,7 +29,7 @@ const Hero = () => {
           </h2>
           
           <p className="text-lg md:text-xl text-muted-foreground">
-            Connect with employers who value your skills. FresherPools uses AI to match entry-level candidates with the perfect job opportunities.
+            Connect with employers who value your skills. RankMe.AI uses AI to match entry-level candidates with the perfect job opportunities.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
@@ -39,8 +39,8 @@ const Hero = () => {
               </Link>
             </Button>
             <Button size="lg" variant="outline" className="px-8 py-6 text-base rounded-xl" asChild>
-              <Link to="/how-it-works">
-                How It Works
+              <Link to="/login">
+                Login to Demo
               </Link>
             </Button>
           </div>
