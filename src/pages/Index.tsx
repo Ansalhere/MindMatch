@@ -14,13 +14,11 @@ import {
   useHowItWorksAnimation, 
   useTestimonialsAnimation, 
   useCTAAnimation, 
-  useRankingAnimation,
-  useFeaturesAnimation
+  useRankingAnimation
 } from '@/hooks/useScrollAnimation';
 
 const Index = () => {
   const [heroVisible, setHeroVisible] = useState(false);
-  const featuresVisible = useFeaturesAnimation();
   const rankingVisible = useRankingAnimation();
   const howItWorksVisible = useHowItWorksAnimation();
   const testimonialsVisible = useTestimonialsAnimation();
@@ -54,9 +52,9 @@ const Index = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
       >
-        <Hero isVisible={heroVisible} />
+        <Hero />
         <div id="features">
-          <Features isVisible={featuresVisible} />
+          <Features />
         </div>
         <div id="ranking-system">
           <RankingShowcase isVisible={rankingVisible} />
