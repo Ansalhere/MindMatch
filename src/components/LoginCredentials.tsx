@@ -24,7 +24,7 @@ import {
   TabsTrigger 
 } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, AlertCircle } from 'lucide-react';
 import { toast } from "sonner";
 import { sampleLogins } from '../data/sampleProfiles';
 
@@ -44,9 +44,12 @@ const LoginCredentials = () => {
   return (
     <Card className="border-2 border-primary/20">
       <CardHeader className="bg-primary/5">
-        <CardTitle>Sample Login Credentials</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <AlertCircle className="h-5 w-5 text-amber-500" />
+          Demo Login Credentials
+        </CardTitle>
         <CardDescription>
-          Use these credentials to test the login functionality
+          <strong>Note:</strong> These demo accounts need to be created first. Use the "Sign Up" option to create these accounts, then use these credentials to login.
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
@@ -133,7 +136,15 @@ const LoginCredentials = () => {
       </CardContent>
       <CardFooter className="bg-primary/5 border-t">
         <div className="text-sm text-muted-foreground">
-          <span className="font-medium">Note:</span> In a production environment, passwords would be securely hashed and never stored in plain text.
+          <div className="flex items-center gap-2 mb-2">
+            <AlertCircle className="h-4 w-4 text-amber-500" />
+            <span className="font-medium">Important:</span>
+          </div>
+          <ol className="list-decimal list-inside space-y-1 ml-6">
+            <li>First, create these demo accounts using the "Sign Up" button</li>
+            <li>Then use these credentials to login and test the application</li>
+            <li>In production, passwords would be securely hashed and never stored in plain text</li>
+          </ol>
         </div>
       </CardFooter>
     </Card>
