@@ -36,28 +36,99 @@ import {
   Book,
   CheckCircle
 } from 'lucide-react';
-import { sampleCandidates, sampleEmployers } from '../data/sampleProfiles';
+import { 
+  getUserProfile, 
+  getUserSkills, 
+  getUserExperience, 
+  getUserEducation, 
+  getUserCertifications, 
+  getUserApplications,
+  calculateUserRank,
+  getEmployerJobs 
+} from '@/lib/supabase';
 
 const Profile = () => {
   const { id, type = 'candidate' } = useParams();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    // In a real app, you would fetch profile data from an API
-    // For now, we're using the sample data
-    if (type === 'candidate') {
-      const candidate = sampleCandidates.find(c => c.id === id);
-      if (candidate) {
-        setProfile(candidate);
+    const fetchProfile = async () => {
+      if (!id) return;
+      
+      try {
+        setLoading(true);
+        
+        // Get user profile
+        const { profile: userProfile, error: profileError } = await getUserProfile(id);
+        if (profileError) throw profileError;
+        
+        if (!userProfile) {
+          setProfile(null);
+          return;
+        }
+        
+        if (type === 'candidate') {
+          // Fetch candidate-specific data
+          const [skillsResult, experienceResult, educationResult, certificationsResult, applicationsResult] = await Promise.all([
+            getUserSkills(id),
+            getUserExperience(id),
+            getUserEducation(id),
+            getUserCertifications(id),
+            getUserApplications(id)
+          ]);
+          
+          // Calculate rank
+          const { rank } = await calculateUserRank(id);
+          
+          setProfile({
+            ...userProfile,
+            skills: skillsResult.skills || [],
+            experience: experienceResult.experiences || [],
+            education: educationResult.education || [],
+            certifications: certificationsResult.certifications || [],
+            applications: applicationsResult.applications || [],
+            ranking: {
+              overall: Math.round(rank || 0),
+              position: Math.floor(Math.random() * 500) + 1, // Mock position
+              total: 5000 // Mock total
+            }
+          });
+        } else if (type === 'employer') {
+          // Fetch employer-specific data
+          const { jobs } = await getEmployerJobs(id);
+          
+          setProfile({
+            ...userProfile,
+            jobs: jobs || [],
+            rating: {
+              overall: 4.5,
+              environment: 5,
+              growth: 4,
+              worklife: 4
+            },
+            culture: ['Remote-friendly', 'Professional development', 'Health benefits']
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        setProfile(null);
+      } finally {
+        setLoading(false);
       }
-    } else if (type === 'employer') {
-      const employer = sampleEmployers.find(e => e.id === id);
-      if (employer) {
-        setProfile(employer);
-      }
-    }
+    };
+    
+    fetchProfile();
   }, [id, type]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto py-12 px-6 text-center">
+        <div className="text-lg">Loading profile...</div>
+      </div>
+    );
+  }
 
   if (!profile) {
     return (
@@ -102,8 +173,8 @@ const CandidateProfile = ({ profile }: { profile: any }) => {
           <CardTitle>{profile.name}</CardTitle>
           <CardDescription>{profile.title}</CardDescription>
           <div className="flex justify-center mt-3 gap-2">
-            {profile.skills.slice(0, 3).map((skill: string, index: number) => (
-              <Badge key={index} variant="secondary">{skill}</Badge>
+            {profile.skills.slice(0, 3).map((skill: any, index: number) => (
+              <Badge key={index} variant="secondary">{skill.name}</Badge>
             ))}
           </div>
         </CardHeader>
@@ -121,13 +192,15 @@ const CandidateProfile = ({ profile }: { profile: any }) => {
               <Phone className="h-4 w-4 text-muted-foreground" />
               <span>{profile.phone}</span>
             </div>
-            <div className="flex items-center gap-3">
-              <GraduationCap className="h-4 w-4 text-muted-foreground" />
-              <span>{profile.education}</span>
-            </div>
+            {profile.education && profile.education.length > 0 && (
+              <div className="flex items-center gap-3">
+                <GraduationCap className="h-4 w-4 text-muted-foreground" />
+                <span>{profile.education[0].degree} from {profile.education[0].institution}</span>
+              </div>
+            )}
             <div className="flex items-center gap-3">
               <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span>Available {profile.availability}</span>
+              <span>Available immediately</span>
             </div>
             <div className="border-t pt-4 mt-4">
               <h3 className="font-semibold mb-3 flex items-center">
@@ -144,7 +217,7 @@ const CandidateProfile = ({ profile }: { profile: any }) => {
                   #{profile.ranking.position} <span className="text-sm font-normal text-muted-foreground ml-2">of {profile.ranking.total} candidates</span>
                 </div>
                 <div className="text-xs text-muted-foreground mt-1">
-                  Top {Math.round((profile.ranking.position / profile.ranking.total) * 100)}% in {profile.skills[0]}
+                  Top {Math.round((profile.ranking.position / profile.ranking.total) * 100)}% in {profile.skills[0]?.name || 'Skills'}
                 </div>
               </div>
             </div>
@@ -161,46 +234,54 @@ const CandidateProfile = ({ profile }: { profile: any }) => {
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {profile.skillRankings.map((skill: any, index: number) => (
+              {profile.skills.map((skill: any, index: number) => (
                 <div key={index} className="space-y-2">
                   <div className="flex justify-between">
                     <div className="flex items-center">
-                      {skill.name === 'React.js' && <Code className="h-4 w-4 mr-2 text-primary" />}
-                      {skill.name === 'TypeScript' && <Laptop className="h-4 w-4 mr-2 text-primary" />}
-                      {skill.name === 'UI/UX' && <Book className="h-4 w-4 mr-2 text-primary" />}
+                      <Code className="h-4 w-4 mr-2 text-primary" />
                       <span className="text-sm font-medium">{skill.name}</span>
                     </div>
-                    <span className="text-sm font-medium">{skill.score}%</span>
+                    <span className="text-sm font-medium">Level {skill.level}/5</span>
                   </div>
-                  <Progress value={skill.score} className="h-1.5" />
+                  <Progress value={skill.level * 20} className="h-1.5" />
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Ranking: #{skill.ranking} of {skill.total}</span>
-                    <span>Top {Math.round((skill.ranking / skill.total) * 100)}%</span>
+                    <span>Experience: {skill.experience_years} years</span>
+                    <span>{skill.is_verified ? 'Verified' : 'Self-reported'}</span>
                   </div>
                 </div>
               ))}
+              {profile.skills.length === 0 && (
+                <p className="text-muted-foreground text-center py-4">No skills added yet</p>
+              )}
             </div>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader>
-            <CardTitle>Project Experience</CardTitle>
-            <CardDescription>Academic and personal projects</CardDescription>
+            <CardTitle>Work Experience</CardTitle>
+            <CardDescription>Professional experience</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {profile.projects.map((project: any, index: number) => (
+              {profile.experience.map((exp: any, index: number) => (
                 <div key={index} className="border-b last:border-0 pb-4 last:pb-0">
-                  <h3 className="font-semibold">{project.name}</h3>
+                  <h3 className="font-semibold">{exp.role}</h3>
+                  <p className="text-sm text-muted-foreground">{exp.company}</p>
                   <div className="flex gap-2 mb-2 mt-1">
-                    {project.technologies.map((tech: string, i: number) => (
-                      <Badge key={i} variant="outline">{tech}</Badge>
-                    ))}
+                    <Badge variant="outline">
+                      {new Date(exp.start_date).getFullYear()} - {exp.is_current ? 'Present' : new Date(exp.end_date).getFullYear()}
+                    </Badge>
+                    {exp.location && <Badge variant="outline">{exp.location}</Badge>}
                   </div>
-                  <p className="text-sm text-muted-foreground">{project.description}</p>
+                  {exp.description && (
+                    <p className="text-sm text-muted-foreground">{exp.description}</p>
+                  )}
                 </div>
               ))}
+              {profile.experience.length === 0 && (
+                <p className="text-muted-foreground text-center py-4">No work experience added yet</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -214,8 +295,8 @@ const CandidateProfile = ({ profile }: { profile: any }) => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Position</TableHead>
+                  <TableHead>Job Title</TableHead>
+                  <TableHead>Location</TableHead>
                   <TableHead>Applied</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
@@ -223,14 +304,14 @@ const CandidateProfile = ({ profile }: { profile: any }) => {
               <TableBody>
                 {profile.applications.map((app: any, index: number) => (
                   <TableRow key={index}>
-                    <TableCell className="font-medium">{app.company}</TableCell>
-                    <TableCell>{app.position}</TableCell>
-                    <TableCell>{app.date}</TableCell>
+                    <TableCell className="font-medium">{app.job?.title || 'N/A'}</TableCell>
+                    <TableCell>{app.job?.location || 'N/A'}</TableCell>
+                    <TableCell>{new Date(app.created_at).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <Badge
                         variant={
-                          app.status === 'Accepted' ? 'default' :
-                          app.status === 'Pending' ? 'secondary' :
+                          app.status === 'accepted' ? 'default' :
+                          app.status === 'pending' ? 'secondary' :
                           'outline'
                         }
                       >
@@ -239,6 +320,13 @@ const CandidateProfile = ({ profile }: { profile: any }) => {
                     </TableCell>
                   </TableRow>
                 ))}
+                {profile.applications.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-muted-foreground py-4">
+                      No applications yet
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </CardContent>
