@@ -4,8 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Briefcase, Users, Plus, Loader2 } from 'lucide-react';
 import { toast } from "sonner";
-import { sampleCandidates, sampleEmployers } from '../data/sampleProfiles';
-import { getEmployerJobs } from '@/lib/supabase';
+import { getEmployerJobs, signOut } from '@/lib/supabase';
 import { useUser } from '@/hooks/useUser';
 import Layout from '@/components/Layout';
 import CandidateDashboard from '@/components/dashboard/CandidateDashboard';
@@ -14,33 +13,21 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user } = useUser();
-  const [userType, setUserType] = useState("candidate");
-  const [userData, setUserData] = useState<any>(null);
+  const { user, profile, isLoading } = useUser();
   const [employerJobs, setEmployerJobs] = useState<any[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(false);
 
+  // Redirect to login if not authenticated
   useEffect(() => {
-    const storedUserType = localStorage.getItem('userType');
-    const storedUserId = localStorage.getItem('userId');
-    
-    if (storedUserType) {
-      setUserType(storedUserType);
-      
-      if (storedUserType === 'candidate' && storedUserId) {
-        const candidate = sampleCandidates.find(c => c.id === storedUserId);
-        if (candidate) {
-          setUserData(candidate);
-        }
-      } else if (storedUserType === 'employer' && storedUserId) {
-        const employer = sampleEmployers.find(e => e.id === storedUserId);
-        if (employer) {
-          setUserData(employer);
-          if (user && user.id) {
-            fetchEmployerJobs(user.id);
-          }
-        }
-      }
+    if (!isLoading && !user) {
+      navigate('/auth');
+    }
+  }, [user, isLoading, navigate]);
+
+  // Fetch employer jobs if user is an employer
+  useEffect(() => {
+    if (user && user.user_type === 'employer') {
+      fetchEmployerJobs(user.id);
     }
   }, [user]);
 
@@ -59,11 +46,15 @@ const Dashboard = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('userType');
-    localStorage.removeItem('userId');
-    toast.success("Logged out successfully");
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast.success("Logged out successfully");
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error("Error logging out");
+    }
   };
 
   const handleViewAllProfiles = () => {
@@ -82,7 +73,8 @@ const Dashboard = () => {
     navigate('/jobs');
   };
 
-  if (loadingJobs) {
+  // Show loading spinner while checking auth status
+  if (isLoading) {
     return (
       <Layout>
         <div className="container mx-auto px-6 py-12 flex items-center justify-center">
@@ -95,20 +87,23 @@ const Dashboard = () => {
     );
   }
 
+  // If not authenticated, this will be handled by the useEffect redirect
+  if (!user) {
+    return null;
+  }
+
   return (
     <Layout>
       <div className="container mx-auto px-6 py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold">Dashboard</h1>
-            {userData && (
-              <p className="text-muted-foreground">
-                Welcome back, {userType === 'candidate' ? userData.name : userData.company}
-              </p>
-            )}
+            <p className="text-muted-foreground">
+              Welcome back, {user.user_type === 'candidate' ? user.name : user.company}
+            </p>
           </div>
           <div className="flex items-center gap-3">
-            {userType === "candidate" && (
+            {user.user_type === "candidate" && (
               <Button variant="outline" onClick={handleViewJobs}>
                 <Briefcase className="h-4 w-4 mr-2" />
                 Browse Jobs
@@ -118,27 +113,18 @@ const Dashboard = () => {
               <Users className="h-4 w-4 mr-2" />
               Browse Profiles
             </Button>
-            <Button onClick={userType === "candidate" ? handleAddSkill : handlePostJob}>
+            <Button onClick={user.user_type === "candidate" ? handleAddSkill : handlePostJob}>
               <Plus className="h-4 w-4 mr-2" />
-              {userType === "candidate" ? "Add Skill" : "Post Job"}
+              {user.user_type === "candidate" ? "Add Skill" : "Post Job"}
             </Button>
           </div>
         </div>
         
-        {!userData ? (
-          <div className="text-center py-12">
-            <Card>
-              <CardContent className="pt-6 pb-6">
-                <p className="mb-4">Please log in to view your dashboard</p>
-                <Button onClick={() => navigate('/')}>Go to Login</Button>
-              </CardContent>
-            </Card>
-          </div>
-        ) : userType === "candidate" ? (
-          <CandidateDashboard userData={userData} />
+        {user.user_type === "candidate" ? (
+          <CandidateDashboard userData={user} />
         ) : (
           <EmployerDashboard 
-            userData={userData} 
+            userData={user} 
             realJobs={employerJobs} 
             loadingJobs={loadingJobs} 
           />
