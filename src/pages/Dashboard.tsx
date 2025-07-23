@@ -92,6 +92,32 @@ const Dashboard = () => {
     return null;
   }
 
+  // Create mock userData structure for dashboard components
+  const mockUserData = user.user_type === 'candidate' ? {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    ranking: {
+      overall: 75,
+      position: 234,
+      total: 1250
+    },
+    applications: [
+      { id: '1', company: 'TechCorp', position: 'Developer', status: 'pending' },
+      { id: '2', company: 'DataTech', position: 'Analyst', status: 'accepted' }
+    ]
+  } : {
+    id: user.id,
+    company: user.company || 'Sample Company',
+    email: user.email,
+    size: user.size || '51-200',
+    rating: { overall: 4.2 },
+    jobs: [
+      { id: '1', title: 'Software Developer', applicants: 12, status: 'active' },
+      { id: '2', title: 'Data Analyst', applicants: 8, status: 'active' }
+    ]
+  };
+
   return (
     <Layout>
       <div className="container mx-auto px-6 py-8">
@@ -121,10 +147,10 @@ const Dashboard = () => {
         </div>
         
         {user.user_type === "candidate" ? (
-          <CandidateDashboard userData={user} />
+          <CandidateDashboard userData={mockUserData} />
         ) : (
           <EmployerDashboard 
-            userData={user} 
+            userData={mockUserData} 
             realJobs={employerJobs} 
             loadingJobs={loadingJobs} 
           />
