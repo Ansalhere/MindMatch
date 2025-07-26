@@ -1,6 +1,7 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,13 +9,15 @@ import { Label } from "@/components/ui/label";
 import { User, Building, Loader2 } from 'lucide-react';
 import { toast } from "sonner";
 import { signUp, signIn } from '@/lib/supabase';
+import { authSchema, type AuthFormData, sanitizeObject } from '@/lib/validation';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import LoginCredentials from '@/components/LoginCredentials';
@@ -38,28 +41,36 @@ interface FormValues {
 
 const AuthForm = () => {
   const [isRegister, setIsRegister] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [userType, setUserType] = useState<'candidate' | 'employer'>('candidate');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formValues, setFormValues] = useState<FormValues>({});
   const navigate = useNavigate();
 
+  const form = useForm<AuthFormData>({
+    resolver: zodResolver(authSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      name: '',
+      user_type: 'candidate',
+    },
+  });
+
   // Modify to include employer fields
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (data: AuthFormData) => {
     setIsLoading(true);
     setError(null);
     
     try {
+      // Sanitize input data
+      const sanitizedData = sanitizeObject(data) as AuthFormData;
+      
       if (isRegister) {
         // Prepare user metadata with conditional employer fields
         const userData = {
-          name,
-          user_type: userType,
-          ...(userType === 'employer' && {
+          name: sanitizedData.name,
+          user_type: sanitizedData.user_type,
+          ...(sanitizedData.user_type === 'employer' && {
             company: formValues.company || '',
             industry: formValues.industry || '',
             size: formValues.size || '',
@@ -67,20 +78,20 @@ const AuthForm = () => {
           })
         };
         
-        const { data, error } = await signUp(email, password, userData);
+        const { data: signUpData, error } = await signUp(sanitizedData.email, sanitizedData.password, userData);
         
         if (error) throw error;
         
-        if (data) {
+        if (signUpData) {
           toast.success("Successfully signed up!");
           navigate('/dashboard');
         }
       } else {
-        const { data, error } = await signIn(email, password);
+        const { data: signInData, error } = await signIn(sanitizedData.email, sanitizedData.password);
         
         if (error) throw error;
         
-        if (data) {
+        if (signInData) {
           toast.success("Successfully logged in!");
           navigate('/dashboard');
         }
@@ -116,147 +127,163 @@ const AuthForm = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {isRegister && (
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="name">Full Name</Label>
-                        <Input 
-                          id="name" 
-                          type="text"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          required
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                    {isRegister && (
+                      <div className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Full Name</FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </div>
-                      
-                      <div>
-                        <Label>Account Type</Label>
-                        <div className="grid grid-cols-2 gap-4 mt-2">
-                          <Button 
-                            type="button"
-                            variant={userType === 'candidate' ? 'default' : 'outline'}
-                            className="w-full"
-                            onClick={() => setUserType('candidate')}
-                          >
-                            <User className="h-4 w-4 mr-2" />
-                            Candidate
-                          </Button>
-                          <Button 
-                            type="button"
-                            variant={userType === 'employer' ? 'default' : 'outline'}
-                            className="w-full"
-                            onClick={() => setUserType('employer')}
-                          >
-                            <Building className="h-4 w-4 mr-2" />
-                            Employer
-                          </Button>
+                        
+                        <div>
+                          <Label>Account Type</Label>
+                          <div className="grid grid-cols-2 gap-4 mt-2">
+                            <Button 
+                              type="button"
+                              variant={form.watch('user_type') === 'candidate' ? 'default' : 'outline'}
+                              className="w-full"
+                              onClick={() => form.setValue('user_type', 'candidate')}
+                            >
+                              <User className="h-4 w-4 mr-2" />
+                              Candidate
+                            </Button>
+                            <Button 
+                              type="button"
+                              variant={form.watch('user_type') === 'employer' ? 'default' : 'outline'}
+                              className="w-full"
+                              onClick={() => form.setValue('user_type', 'employer')}
+                            >
+                              <Building className="h-4 w-4 mr-2" />
+                              Employer
+                            </Button>
+                          </div>
                         </div>
+                        
+                        {/* Show employer fields if employer is selected */}
+                        {isRegister && form.watch('user_type') === 'employer' && (
+                          <div className="space-y-4 border rounded-md p-4 bg-secondary/20">
+                            <h3 className="font-medium">Company Information</h3>
+                            {employerFields.map(field => (
+                              <div key={field.name}>
+                                <Label htmlFor={field.name}>{field.label}{field.required && ' *'}</Label>
+                                {field.type === 'select' ? (
+                                  <Select 
+                                    onValueChange={(value) => setFormValues(prev => ({ ...prev, [field.name]: value }))}
+                                    required={field.required}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder={`Select ${field.label}`} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {field.options?.map(option => (
+                                        <SelectItem key={option} value={option}>{option}</SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                ) : (
+                                  <Input
+                                    id={field.name}
+                                    type={field.type}
+                                    onChange={handleEmployerFieldChange}
+                                    required={field.required}
+                                  />
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      
-                      {/* Show employer fields if employer is selected */}
-                      {isRegister && userType === 'employer' && (
-                        <div className="space-y-4 border rounded-md p-4 bg-secondary/20">
-                          <h3 className="font-medium">Company Information</h3>
-                          {employerFields.map(field => (
-                            <div key={field.name}>
-                              <Label htmlFor={field.name}>{field.label}{field.required && ' *'}</Label>
-                              {field.type === 'select' ? (
-                                <Select 
-                                  onValueChange={(value) => setFormValues(prev => ({ ...prev, [field.name]: value }))}
-                                  required={field.required}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder={`Select ${field.label}`} />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {field.options?.map(option => (
-                                      <SelectItem key={option} value={option}>{option}</SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              ) : (
-                                <Input
-                                  id={field.name}
-                                  type={field.type}
-                                  onChange={handleEmployerFieldChange}
-                                  required={field.required}
-                                />
-                              )}
+                    )}
+                    
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input type="email" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                          {isRegister && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              Password must contain at least 8 characters, including uppercase, lowercase, number, and special character
                             </div>
-                          ))}
-                        </div>
+                          )}
+                        </FormItem>
+                      )}
+                    />
+                    
+                    {error && (
+                      <div className="text-sm text-red-500">{error}</div>
+                    )}
+                    
+                    <Button 
+                      type="submit" 
+                      className="w-full" 
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          {isRegister ? 'Creating Account...' : 'Logging In...'}
+                        </>
+                      ) : (
+                        isRegister ? 'Create Account' : 'Log In'
+                      )}
+                    </Button>
+                    
+                    <div className="text-center text-sm">
+                      {isRegister ? (
+                        <>
+                          Already have an account?{' '}
+                          <Button 
+                            variant="link" 
+                            className="p-0 h-auto" 
+                            onClick={() => {setIsRegister(false); setError(null);}}
+                          >
+                            Log In
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          Don't have an account?{' '}
+                          <Button 
+                            variant="link" 
+                            className="p-0 h-auto" 
+                            onClick={() => {setIsRegister(true); setError(null);}}
+                          >
+                            Sign Up
+                          </Button>
+                        </>
                       )}
                     </div>
-                  )}
-                  
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input 
-                      id="email" 
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="password">Password</Label>
-                    <Input 
-                      id="password" 
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  {error && (
-                    <div className="text-sm text-red-500">{error}</div>
-                  )}
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        {isRegister ? 'Creating Account...' : 'Logging In...'}
-                      </>
-                    ) : (
-                      isRegister ? 'Create Account' : 'Log In'
-                    )}
-                  </Button>
-                  
-                  <div className="text-center text-sm">
-                    {isRegister ? (
-                      <>
-                        Already have an account?{' '}
-                        <Button 
-                          variant="link" 
-                          className="p-0 h-auto" 
-                          onClick={() => {setIsRegister(false); setError(null);}}
-                        >
-                          Log In
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        Don't have an account?{' '}
-                        <Button 
-                          variant="link" 
-                          className="p-0 h-auto" 
-                          onClick={() => {setIsRegister(true); setError(null);}}
-                        >
-                          Sign Up
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </form>
+                  </form>
+                </Form>
               </CardContent>
             </Card>
           </div>
