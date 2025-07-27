@@ -49,7 +49,7 @@ const LoginCredentials = () => {
           Demo Login Credentials
         </CardTitle>
         <CardDescription>
-          <strong>Note:</strong> These demo accounts need to be created first. Use the "Sign Up" option to create these accounts, then use these credentials to login.
+          Use these demo credentials to test the application. These accounts are pre-created for demonstration purposes.
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
@@ -141,8 +141,8 @@ const LoginCredentials = () => {
             <span className="font-medium">Important:</span>
           </div>
           <ol className="list-decimal list-inside space-y-1 ml-6">
-            <li>First, create these demo accounts using the "Sign Up" button</li>
-            <li>Then use these credentials to login and test the application</li>
+            <li>Use these demo credentials to test different user types</li>
+            <li>Demo accounts showcase various features and user roles</li>
             <li>In production, passwords would be securely hashed and never stored in plain text</li>
           </ol>
         </div>

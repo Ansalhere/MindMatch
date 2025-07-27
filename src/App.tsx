@@ -11,7 +11,7 @@ import Profile from "./pages/Profile";
 import CandidateDetails from "./pages/CandidateDetails";
 import Profiles from "./pages/Profiles";
 import NotFound from "./pages/NotFound";
-import AuthForm from "./components/AuthForm";
+import Auth from "./pages/Auth";
 import Packages from "./pages/Packages";
 import PostJob from "./pages/PostJob";
 import AddSkill from "./pages/AddSkill";
@@ -41,8 +41,9 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/register" element={<AuthForm />} />
-          <Route path="/login" element={<AuthForm />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/register" element={<Auth />} />
+          <Route path="/login" element={<Auth />} />
           <Route path="/profile/:id/:type" element={<Profile />} />
           <Route path="/candidate/:id" element={<CandidateDetails />} />
           <Route path="/profiles" element={<Profiles />} />

@@ -61,8 +61,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setProfile(null);
       }
     } catch (err: any) {
-      console.error('Error refreshing user:', err);
-      setError(err);
+      // Don't log session missing errors as they're expected when not logged in
+      if (err?.name !== 'AuthSessionMissingError') {
+        console.error('Error refreshing user:', err);
+        setError(err);
+      }
     } finally {
       setIsLoading(false);
     }
