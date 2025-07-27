@@ -441,16 +441,14 @@ export const sampleEmployers = [
   }
 ];
 
-// Sample login credentials - these need to be created in Supabase first
+// Sample login credentials that match the demo users created in the database
 export const sampleLogins = {
   candidates: [
-    { email: "demo@candidate.com", password: "demo123" },
-    { email: "test@candidate.com", password: "test123" },
-    { email: "sample@candidate.com", password: "sample123" }
+    { email: 'alice@example.com', password: 'demo123' },
+    { email: 'bob@example.com', password: 'demo123' }
   ],
   employers: [
-    { email: "demo@employer.com", password: "demo123" },
-    { email: "test@employer.com", password: "test123" },
-    { email: "sample@employer.com", password: "sample123" }
+    { email: 'techcorp@example.com', password: 'demo123' },
+    { email: 'innovate@example.com', password: 'demo123' }
   ]
 };
