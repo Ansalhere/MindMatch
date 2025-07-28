@@ -64,6 +64,7 @@ const AuthForm = () => {
     try {
       // Sanitize input data
       const sanitizedData = sanitizeObject(data) as AuthFormData;
+      console.log('Form submission:', { email: sanitizedData.email, isRegister });
       
       if (isRegister) {
         // Prepare user metadata with conditional employer fields

@@ -32,10 +32,13 @@ export async function signUp(email: string, password: string, userData: any) {
 
 export async function signIn(email: string, password: string) {
   try {
+    console.log('Attempting to sign in with:', email);
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     });
+
+    console.log('Sign in response:', { data: !!data, error: error?.message });
 
     if (!error) {
       return { data, error: null };
