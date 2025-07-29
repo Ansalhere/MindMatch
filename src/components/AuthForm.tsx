@@ -58,6 +58,7 @@ const AuthForm = () => {
 
   // Modify to include employer fields
   const handleSubmit = async (data: AuthFormData) => {
+    console.log('handleSubmit called with:', data);
     setIsLoading(true);
     setError(null);
     
@@ -79,27 +80,52 @@ const AuthForm = () => {
           })
         };
         
+        console.log('Attempting signup with userData:', userData);
         const { data: signUpData, error } = await signUp(sanitizedData.email, sanitizedData.password, userData);
         
-        if (error) throw error;
+        if (error) {
+          console.error('Signup error:', error);
+          throw error;
+        }
         
-        if (signUpData) {
+        if (signUpData?.user) {
+          console.log('Signup successful:', signUpData);
           toast.success("Successfully signed up!");
           navigate('/dashboard');
         }
       } else {
+        console.log('Attempting signin...');
         const { data: signInData, error } = await signIn(sanitizedData.email, sanitizedData.password);
         
-        if (error) throw error;
+        if (error) {
+          console.error('Signin error:', error);
+          throw error;
+        }
         
-        if (signInData) {
+        if (signInData?.user) {
+          console.log('Signin successful:', signInData);
           toast.success("Successfully logged in!");
           navigate('/dashboard');
         }
       }
     } catch (err: any) {
       console.error('Authentication error:', err);
-      setError(err.message || 'An error occurred');
+      let errorMessage = 'An error occurred during authentication';
+      
+      if (err.message) {
+        if (err.message.includes('Invalid login credentials')) {
+          errorMessage = 'Invalid email or password. Please check your credentials.';
+        } else if (err.message.includes('Email not confirmed')) {
+          errorMessage = 'Please check your email and confirm your account before logging in.';
+        } else if (err.message.includes('User already registered')) {
+          errorMessage = 'An account with this email already exists. Please try logging in instead.';
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

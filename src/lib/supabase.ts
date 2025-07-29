@@ -5,12 +5,14 @@ import { toast } from "sonner";
 // Authentication functions
 export async function signUp(email: string, password: string, userData: any) {
   try {
+    const redirectUrl = `${window.location.origin}/dashboard`;
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: userData,
-        emailRedirectTo: null
+        emailRedirectTo: redirectUrl
       }
     });
 
