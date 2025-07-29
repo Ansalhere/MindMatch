@@ -444,11 +444,11 @@ export const sampleEmployers = [
 // Sample login credentials that match the demo users created in the database
 export const sampleLogins = {
   candidates: [
-    { email: 'alice@example.com', password: 'demo1234' },
-    { email: 'bob@example.com', password: 'demo1234' }
+    { email: 'alice@example.com', password: 'Demo123!' },
+    { email: 'bob@example.com', password: 'Demo123!' }
   ],
   employers: [
-    { email: 'techcorp@example.com', password: 'demo1234' },
-    { email: 'innovate@example.com', password: 'demo1234' }
+    { email: 'techcorp@example.com', password: 'Demo123!' },
+    { email: 'innovate@example.com', password: 'Demo123!' }
   ]
 };
