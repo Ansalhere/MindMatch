@@ -313,17 +313,21 @@ const AuthForm = () => {
                         <>
                           Already have an account?{' '}
                            <Button 
+                             type="button"
                              variant="link" 
-                             className="p-0 h-auto" 
-                             onClick={() => {
+                             className="p-0 h-auto cursor-pointer" 
+                             onClick={(e) => {
+                               e.preventDefault();
                                setIsRegister(false); 
                                setError(null);
+                               setFormValues({});
                                form.reset({
                                  email: '',
                                  password: '',
                                  name: '',
                                  user_type: 'candidate',
                                });
+                               navigate('/auth');
                              }}
                            >
                              Log In
@@ -333,17 +337,21 @@ const AuthForm = () => {
                         <>
                           Don't have an account?{' '}
                            <Button 
+                             type="button"
                              variant="link" 
-                             className="p-0 h-auto" 
-                             onClick={() => {
+                             className="p-0 h-auto cursor-pointer" 
+                             onClick={(e) => {
+                               e.preventDefault();
                                setIsRegister(true); 
                                setError(null);
+                               setFormValues({});
                                form.reset({
                                  email: '',
                                  password: '',
                                  name: '',
                                  user_type: 'candidate',
                                });
+                               navigate('/register');
                              }}
                            >
                              Sign Up
