@@ -10,10 +10,25 @@ export const passwordSchema = z
   .regex(/[0-9]/, 'Password must contain at least one number')
   .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character');
 
-// Auth form validation
-export const authSchema = z.object({
+// Auth form validation - different schemas for login vs signup
+export const loginSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(1, 'Password is required'),
+  name: z.string().min(2, 'Name must be at least 2 characters').optional(),
+  user_type: z.enum(['candidate', 'employer']),
+});
+
+export const signupSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: passwordSchema,
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  user_type: z.enum(['candidate', 'employer']),
+});
+
+// Combined auth schema for backward compatibility
+export const authSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(1, 'Password is required'),
   name: z.string().min(2, 'Name must be at least 2 characters').optional(),
   user_type: z.enum(['candidate', 'employer']),
 });
@@ -98,6 +113,8 @@ export const sanitizeObject = (obj: Record<string, any>): Record<string, any> =>
 };
 
 export type AuthFormData = z.infer<typeof authSchema>;
+export type LoginFormData = z.infer<typeof loginSchema>;
+export type SignupFormData = z.infer<typeof signupSchema>;
 export type JobFormData = z.infer<typeof jobSchema>;
 export type SkillFormData = z.infer<typeof skillSchema>;
 export type ProfileFormData = z.infer<typeof profileSchema>;

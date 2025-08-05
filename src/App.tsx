@@ -28,6 +28,7 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Job from "./pages/Job";
 import Admin from "./pages/Admin";
+import AuthTest from "./pages/AuthTest";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +63,7 @@ const App = () => (
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/auth-test" element={<AuthTest />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </TooltipProvider>

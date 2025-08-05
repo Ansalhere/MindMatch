@@ -5,7 +5,14 @@ import { toast } from "sonner";
 // Authentication functions
 export async function signUp(email: string, password: string, userData: any) {
   try {
+    console.log('Starting signup process for:', email);
     const redirectUrl = `${window.location.origin}/dashboard`;
+    
+    // First check if user already exists
+    const { data: existingUser } = await supabase.auth.getUser();
+    if (existingUser?.user?.email === email) {
+      throw new Error('User already logged in with this email');
+    }
     
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -16,16 +23,19 @@ export async function signUp(email: string, password: string, userData: any) {
       }
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error("Signup error:", error);
+      // Handle specific error cases
+      if (error.message.includes('User already registered')) {
+        // Try to sign in instead
+        console.log('User exists, attempting sign in...');
+        return await signIn(email, password);
+      }
+      throw error;
+    }
     
-    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-    
-    if (signInError) throw signInError;
-    
-    return { data: signInData, error: null };
+    console.log('Signup successful:', data);
+    return { data, error: null };
   } catch (error: any) {
     console.error("Error signing up:", error);
     return { data: null, error };
@@ -35,35 +45,42 @@ export async function signUp(email: string, password: string, userData: any) {
 export async function signIn(email: string, password: string) {
   try {
     console.log('Attempting to sign in with:', email);
+    
+    // Clear any existing session first
+    await supabase.auth.signOut();
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     });
 
-    console.log('Sign in response:', { data: !!data, error: error?.message });
+    console.log('Sign in response:', { 
+      success: !!data?.user, 
+      error: error?.message,
+      session: !!data?.session 
+    });
 
-    if (!error) {
-      return { data, error: null };
-    }
-    
-    if (error.message && error.message.includes("Email not confirmed")) {
-      console.log("Email not confirmed, attempting alternative sign in...");
+    if (error) {
+      console.error("Sign in error:", error);
       
-      try {
-        const { data: newData, error: newError } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
-        
-        if (!newError) {
-          return { data: newData, error: null };
-        }
-      } catch (bypassError) {
-        console.error("Error in bypass attempt:", bypassError);
+      // Handle specific error cases
+      if (error.message.includes("Invalid login credentials")) {
+        throw new Error("Invalid email or password. Please check your credentials and try again.");
+      } else if (error.message.includes("Email not confirmed")) {
+        throw new Error("Please check your email and confirm your account before logging in.");
+      } else if (error.message.includes("Too many requests")) {
+        throw new Error("Too many login attempts. Please wait a moment and try again.");
       }
+      
+      throw error;
     }
     
-    throw error;
+    if (!data?.user || !data?.session) {
+      throw new Error("Login failed. Please try again.");
+    }
+    
+    console.log('Sign in successful for user:', data.user.id);
+    return { data, error: null };
   } catch (error: any) {
     console.error("Error signing in:", error);
     return { data: null, error };

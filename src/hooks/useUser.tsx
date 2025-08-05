@@ -2,6 +2,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { getCurrentUser, getUserProfile } from '@/lib/supabase';
+import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
 type User = {
   id: string;
@@ -14,14 +15,16 @@ type User = {
 type AuthContextType = {
   user: User | null;
   profile: any | null;
+  session: Session | null;
   isLoading: boolean;
   error: Error | null;
-  refreshUser: () => Promise<void>;
+  refreshUser: (currentSession?: Session | null) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   profile: null,
+  session: null,
   isLoading: true,
   error: null,
   refreshUser: async () => {},
@@ -30,62 +33,82 @@ const AuthContext = createContext<AuthContextType>({
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const refreshUser = async () => {
+  const refreshUser = async (currentSession?: Session | null) => {
     try {
-      setIsLoading(true);
       setError(null);
       
-      const { user: currentUser, error: userError } = await getCurrentUser();
-      
-      if (userError) throw userError;
-      
-      if (currentUser) {
+      if (currentSession?.user) {
+        console.log('Setting user from session:', currentSession.user.id);
         setUser({
-          id: currentUser.id,
-          email: currentUser.email || '',
-          user_type: currentUser.user_metadata?.user_type || 'candidate',
-          ...currentUser.user_metadata
+          id: currentSession.user.id,
+          email: currentSession.user.email || '',
+          user_type: currentSession.user.user_metadata?.user_type || 'candidate',
+          ...currentSession.user.user_metadata
         });
         
         // Get additional profile data from users table
-        const { profile: userProfile, error: profileError } = await getUserProfile(currentUser.id);
-        
-        if (profileError) throw profileError;
-        
-        setProfile(userProfile);
+        try {
+          const { profile: userProfile } = await getUserProfile(currentSession.user.id);
+          setProfile(userProfile);
+        } catch (profileError) {
+          console.warn('Could not fetch user profile:', profileError);
+          setProfile(null);
+        }
       } else {
+        console.log('No session, clearing user state');
         setUser(null);
         setProfile(null);
       }
     } catch (err: any) {
-      // Don't log session missing errors as they're expected when not logged in
-      if (err?.name !== 'AuthSessionMissingError') {
-        console.error('Error refreshing user:', err);
-        setError(err);
-      }
+      console.error('Error refreshing user:', err);
+      setError(err);
+      setUser(null);
+      setProfile(null);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    refreshUser();
+    let mounted = true;
     
-    // Subscribe to auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async () => {
-      refreshUser();
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log('Auth state changed:', event, !!session);
+        if (!mounted) return;
+        
+        setSession(session);
+        
+        // Use setTimeout to prevent auth state change deadlocks
+        setTimeout(() => {
+          if (mounted) {
+            refreshUser(session);
+          }
+        }, 0);
+      }
+    );
+    
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+      console.log('Initial session check:', !!session);
+      setSession(session);
+      refreshUser(session);
     });
     
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, profile, isLoading, error, refreshUser }}>
+    <AuthContext.Provider value={{ user, profile, session, isLoading, error, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

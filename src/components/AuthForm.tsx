@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { User, Building, Loader2 } from 'lucide-react';
 import { toast } from "sonner";
 import { signUp, signIn } from '@/lib/supabase';
-import { authSchema, type AuthFormData, sanitizeObject } from '@/lib/validation';
+import { authSchema, signupSchema, loginSchema, type AuthFormData, sanitizeObject } from '@/lib/validation';
 import {
   Select,
   SelectContent,
@@ -47,7 +47,7 @@ const AuthForm = () => {
   const navigate = useNavigate();
 
   const form = useForm<AuthFormData>({
-    resolver: zodResolver(authSchema),
+    resolver: zodResolver(isRegister ? signupSchema : loginSchema),
     defaultValues: {
       email: '',
       password: '',
@@ -56,7 +56,7 @@ const AuthForm = () => {
     },
   });
 
-  // Modify to include employer fields
+  // Handle form submission with proper validation
   const handleSubmit = async (data: AuthFormData) => {
     console.log('handleSubmit called with:', data);
     setIsLoading(true);
@@ -65,7 +65,29 @@ const AuthForm = () => {
     try {
       // Sanitize input data
       const sanitizedData = sanitizeObject(data) as AuthFormData;
-      console.log('Form submission:', { email: sanitizedData.email, isRegister });
+      console.log('Form submission:', { email: sanitizedData.email, isRegister, userType: sanitizedData.user_type });
+      
+      // Validate required fields
+      if (!sanitizedData.email || !sanitizedData.password) {
+        throw new Error('Email and password are required');
+      }
+      
+      if (isRegister && !sanitizedData.name) {
+        throw new Error('Name is required for registration');
+      }
+      
+      // Validate employer-specific fields if registering as employer
+      if (isRegister && sanitizedData.user_type === 'employer') {
+        if (!formValues.company?.trim()) {
+          throw new Error('Company name is required for employer registration');
+        }
+        if (!formValues.industry?.trim()) {
+          throw new Error('Industry is required for employer registration');
+        }
+        if (!formValues.size?.trim()) {
+          throw new Error('Company size is required for employer registration');
+        }
+      }
       
       if (isRegister) {
         // Prepare user metadata with conditional employer fields
@@ -73,10 +95,10 @@ const AuthForm = () => {
           name: sanitizedData.name,
           user_type: sanitizedData.user_type,
           ...(sanitizedData.user_type === 'employer' && {
-            company: formValues.company || '',
-            industry: formValues.industry || '',
-            size: formValues.size || '',
-            website: formValues.website || '',
+            company: formValues.company?.trim() || '',
+            industry: formValues.industry?.trim() || '',
+            size: formValues.size?.trim() || '',
+            website: formValues.website?.trim() || '',
           })
         };
         
@@ -90,8 +112,10 @@ const AuthForm = () => {
         
         if (signUpData?.user) {
           console.log('Signup successful:', signUpData);
-          toast.success("Successfully signed up!");
+          toast.success("Account created successfully! You can now access your dashboard.");
           navigate('/dashboard');
+        } else {
+          throw new Error('Signup failed. Please try again.');
         }
       } else {
         console.log('Attempting signin...');
@@ -102,10 +126,12 @@ const AuthForm = () => {
           throw error;
         }
         
-        if (signInData?.user) {
+        if (signInData?.user && signInData?.session) {
           console.log('Signin successful:', signInData);
-          toast.success("Successfully logged in!");
+          toast.success("Welcome back! Successfully logged in.");
           navigate('/dashboard');
+        } else {
+          throw new Error('Login failed. Please try again.');
         }
       }
     } catch (err: any) {
@@ -113,15 +139,7 @@ const AuthForm = () => {
       let errorMessage = 'An error occurred during authentication';
       
       if (err.message) {
-        if (err.message.includes('Invalid login credentials')) {
-          errorMessage = 'Invalid email or password. Please check your credentials.';
-        } else if (err.message.includes('Email not confirmed')) {
-          errorMessage = 'Please check your email and confirm your account before logging in.';
-        } else if (err.message.includes('User already registered')) {
-          errorMessage = 'An account with this email already exists. Please try logging in instead.';
-        } else {
-          errorMessage = err.message;
-        }
+        errorMessage = err.message;
       }
       
       setError(errorMessage);
@@ -288,24 +306,42 @@ const AuthForm = () => {
                       {isRegister ? (
                         <>
                           Already have an account?{' '}
-                          <Button 
-                            variant="link" 
-                            className="p-0 h-auto" 
-                            onClick={() => {setIsRegister(false); setError(null);}}
-                          >
-                            Log In
-                          </Button>
+                           <Button 
+                             variant="link" 
+                             className="p-0 h-auto" 
+                             onClick={() => {
+                               setIsRegister(false); 
+                               setError(null);
+                               form.reset({
+                                 email: '',
+                                 password: '',
+                                 name: '',
+                                 user_type: 'candidate',
+                               });
+                             }}
+                           >
+                             Log In
+                           </Button>
                         </>
                       ) : (
                         <>
                           Don't have an account?{' '}
-                          <Button 
-                            variant="link" 
-                            className="p-0 h-auto" 
-                            onClick={() => {setIsRegister(true); setError(null);}}
-                          >
-                            Sign Up
-                          </Button>
+                           <Button 
+                             variant="link" 
+                             className="p-0 h-auto" 
+                             onClick={() => {
+                               setIsRegister(true); 
+                               setError(null);
+                               form.reset({
+                                 email: '',
+                                 password: '',
+                                 name: '',
+                                 user_type: 'candidate',
+                               });
+                             }}
+                           >
+                             Sign Up
+                           </Button>
                         </>
                       )}
                     </div>
