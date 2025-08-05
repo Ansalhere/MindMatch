@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from "@/components/ui/button";
@@ -40,11 +40,17 @@ interface FormValues {
 }
 
 const AuthForm = () => {
-  const [isRegister, setIsRegister] = useState(false);
+  const location = useLocation();
+  const [isRegister, setIsRegister] = useState(location.pathname === '/register');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formValues, setFormValues] = useState<FormValues>({});
   const navigate = useNavigate();
+
+  // Update isRegister based on current route
+  useEffect(() => {
+    setIsRegister(location.pathname === '/register');
+  }, [location.pathname]);
 
   const form = useForm<AuthFormData>({
     resolver: zodResolver(isRegister ? signupSchema : loginSchema),
