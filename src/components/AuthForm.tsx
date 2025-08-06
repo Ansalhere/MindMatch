@@ -64,26 +64,41 @@ const AuthForm = () => {
 
   // Handle form submission with proper validation
   const handleSubmit = async (data: AuthFormData) => {
+    console.log('=== FORM SUBMIT START ===');
     console.log('handleSubmit called with:', data);
+    console.log('isRegister:', isRegister);
+    console.log('Current route:', location.pathname);
+    
     setIsLoading(true);
     setError(null);
     
     try {
       // Sanitize input data
       const sanitizedData = sanitizeObject(data) as AuthFormData;
-      console.log('Form submission:', { email: sanitizedData.email, isRegister, userType: sanitizedData.user_type });
+      console.log('Sanitized data:', { 
+        email: sanitizedData.email, 
+        hasPassword: !!sanitizedData.password,
+        isRegister, 
+        userType: sanitizedData.user_type 
+      });
       
       // Validate required fields
       if (!sanitizedData.email || !sanitizedData.password) {
+        console.error('Missing required fields:', { 
+          hasEmail: !!sanitizedData.email, 
+          hasPassword: !!sanitizedData.password 
+        });
         throw new Error('Email and password are required');
       }
       
       if (isRegister && !sanitizedData.name) {
+        console.error('Missing name for registration');
         throw new Error('Name is required for registration');
       }
       
       // Validate employer-specific fields if registering as employer
       if (isRegister && sanitizedData.user_type === 'employer') {
+        console.log('Validating employer fields:', formValues);
         if (!formValues.company?.trim()) {
           throw new Error('Company name is required for employer registration');
         }
@@ -108,7 +123,8 @@ const AuthForm = () => {
           })
         };
         
-        console.log('Attempting signup with userData:', userData);
+        console.log('=== ATTEMPTING SIGNUP ===');
+        console.log('Signup userData:', userData);
         const { data: signUpData, error } = await signUp(sanitizedData.email, sanitizedData.password, userData);
         
         if (error) {
@@ -121,27 +137,40 @@ const AuthForm = () => {
           toast.success("Account created successfully! You can now access your dashboard.");
           navigate('/dashboard');
         } else {
+          console.error('Signup failed - no user data returned');
           throw new Error('Signup failed. Please try again.');
         }
       } else {
-        console.log('Attempting signin...');
+        console.log('=== ATTEMPTING SIGNIN ===');
+        console.log('Signin with email:', sanitizedData.email);
         const { data: signInData, error } = await signIn(sanitizedData.email, sanitizedData.password);
         
+        console.log('Signin response:', { 
+          hasUser: !!signInData?.user, 
+          hasSession: !!signInData?.session,
+          error: error 
+        });
+        
         if (error) {
-          console.error('Signin error:', error);
+          console.error('Signin error details:', error);
           throw error;
         }
         
         if (signInData?.user && signInData?.session) {
-          console.log('Signin successful:', signInData);
+          console.log('Signin successful - redirecting to dashboard');
           toast.success("Welcome back! Successfully logged in.");
           navigate('/dashboard');
         } else {
+          console.error('Login failed - missing user or session data');
           throw new Error('Login failed. Please try again.');
         }
       }
     } catch (err: any) {
-      console.error('Authentication error:', err);
+      console.error('=== AUTHENTICATION ERROR ===');
+      console.error('Full error object:', err);
+      console.error('Error message:', err.message);
+      console.error('Error code:', err.code);
+      
       let errorMessage = 'An error occurred during authentication';
       
       if (err.message) {
@@ -151,6 +180,8 @@ const AuthForm = () => {
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
+      console.log('=== FORM SUBMIT END ===');
+      console.log('Setting loading to false');
       setIsLoading(false);
     }
   };
