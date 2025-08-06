@@ -54,6 +54,7 @@ const AuthForm = () => {
 
   const form = useForm<AuthFormData>({
     resolver: zodResolver(isRegister ? signupSchema : loginSchema),
+    mode: 'onSubmit', // Only validate on submit
     defaultValues: {
       email: '',
       password: '',
@@ -210,14 +211,7 @@ const AuthForm = () => {
               </CardHeader>
               <CardContent>
                 <Form {...form}>
-                  <form 
-                    onSubmit={(e) => {
-                      console.log('Raw form submit triggered');
-                      e.preventDefault();
-                      form.handleSubmit(handleSubmit)(e);
-                    }} 
-                    className="space-y-4"
-                  >
+                  <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                     {isRegister && (
                       <div className="space-y-4">
                         <FormField
@@ -331,20 +325,21 @@ const AuthForm = () => {
                       <div className="text-sm text-red-500">{error}</div>
                     )}
                     
-                    <Button 
-                      type="submit" 
-                      className="w-full" 
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          {isRegister ? 'Creating Account...' : 'Logging In...'}
-                        </>
-                      ) : (
-                        isRegister ? 'Create Account' : 'Log In'
-                      )}
-                    </Button>
+                     <Button 
+                       type="submit" 
+                       className="w-full" 
+                       disabled={isLoading}
+                       onClick={() => console.log('Login button clicked, form values:', form.getValues())}
+                     >
+                       {isLoading ? (
+                         <>
+                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                           {isRegister ? 'Creating Account...' : 'Logging In...'}
+                         </>
+                       ) : (
+                         isRegister ? 'Create Account' : 'Log In'
+                       )}
+                     </Button>
                     
                     <div className="text-center text-sm">
                       {isRegister ? (
