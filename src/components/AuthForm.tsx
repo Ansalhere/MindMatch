@@ -210,7 +210,14 @@ const AuthForm = () => {
               </CardHeader>
               <CardContent>
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                  <form 
+                    onSubmit={(e) => {
+                      console.log('Raw form submit triggered');
+                      e.preventDefault();
+                      form.handleSubmit(handleSubmit)(e);
+                    }} 
+                    className="space-y-4"
+                  >
                     {isRegister && (
                       <div className="space-y-4">
                         <FormField
