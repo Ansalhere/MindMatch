@@ -5,7 +5,7 @@ import AddSkillForm from '@/components/profile/AddSkillForm';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from "sonner";
-import { addUserSkill } from '@/lib/supabase';
+import { addUserSkill, addUserCertification } from '@/lib/supabase';
 import { useUser } from '@/hooks/useUser';
 
 const AddSkill = () => {
@@ -16,25 +16,57 @@ const AddSkill = () => {
   const handleSubmit = async (formData: any) => {
     if (!user) {
       toast.error("You must be logged in to add skills");
-      navigate('/login');
+      navigate('/auth');
       return;
     }
     
     setIsSubmitting(true);
     
     try {
-      const skillData = {
-        ...formData,
-        user_id: user.id
-      };
+      if (formData.type === 'skill') {
+        // Map form data to skills table schema
+        const skillData = {
+          user_id: user.id,
+          name: formData.skillName,
+          level: getProficiencyLevel(formData.proficiency),
+          experience_years: parseFloat(formData.experience),
+          verification_source: formData.details ? `User provided: ${formData.details}` : null
+        };
+        
+        await addUserSkill(skillData);
+      } else if (formData.type === 'certification') {
+        // Map form data to certifications table schema
+        const certData = {
+          user_id: user.id,
+          name: formData.certName,
+          issuer: formData.issuingOrg,
+          issue_date: formData.issueDate,
+          expiry_date: formData.expiration || null,
+          credential_id: formData.credentialID || null,
+          credential_url: formData.credentialURL || null
+        };
+        
+        await addUserCertification(certData);
+      }
       
-      await addUserSkill(skillData);
+      toast.success("Added successfully!");
       navigate('/dashboard');
     } catch (error) {
-      console.error('Error adding skill:', error);
-      toast.error("Failed to add skill. Please try again.");
+      console.error('Error adding skill/certification:', error);
+      toast.error("Failed to add. Please try again.");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Helper function to convert proficiency level to numeric value
+  const getProficiencyLevel = (proficiency: string): number => {
+    switch (proficiency) {
+      case 'beginner': return 3;
+      case 'intermediate': return 5;
+      case 'advanced': return 8;
+      case 'expert': return 10;
+      default: return 1;
     }
   };
 

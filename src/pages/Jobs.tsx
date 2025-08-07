@@ -425,7 +425,7 @@ const Jobs = () => {
                     Get Started Free
                   </Button>
                   <p className="text-xs text-center text-muted-foreground">
-                    Already have an account? <button onClick={() => navigate('/login')} className="text-primary hover:underline">Sign in</button>
+                    Already have an account? <button onClick={() => navigate('/auth')} className="text-primary hover:underline">Sign in</button>
                   </p>
                 </CardContent>
               </Card>

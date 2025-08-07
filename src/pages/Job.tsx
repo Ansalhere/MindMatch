@@ -67,7 +67,7 @@ const Job = () => {
 
   const handleApply = async () => {
     if (!user) {
-      navigate('/login');
+      navigate('/auth');
       return;
     }
     

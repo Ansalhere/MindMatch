@@ -28,7 +28,7 @@ const PostJob = () => {
     }
     
     toast.error("You must be logged in to post a job");
-    navigate('/login');
+    navigate('/auth');
     return null;
   }
 
@@ -48,17 +48,14 @@ const PostJob = () => {
       const jobPostData = {
         title: formData.jobTitle,
         description: formData.description,
-        job_type: formData.jobType === 'full-time' ? 'full_time' : 
-                  formData.jobType === 'part-time' ? 'part_time' : 
-                  formData.jobType === 'contract' ? 'contract' : 
-                  formData.jobType === 'internship' ? 'internship' : 'full_time',
+        job_type: formData.jobType, // Use the value directly as it matches database enum
         location: formData.location || 'Remote',
         required_skills: formData.requiredSkills || [],
         closing_date: formData.deadline,
         salary_min: formData.salary?.min ? parseInt(formData.salary.min) : null,
         salary_max: formData.salary?.max ? parseInt(formData.salary.max) : null,
-        min_rank_requirement: formData.rankRestriction ? formData.minRank : 0,
-        min_experience: formData.minExperience || 0
+        min_rank_requirement: formData.rankRestriction ? formData.minRank : null,
+        min_experience: formData.minExperience || null
       };
       
       console.log("Formatted job data for DB:", jobPostData);

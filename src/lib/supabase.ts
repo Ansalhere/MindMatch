@@ -162,6 +162,24 @@ export async function addUserSkill(skillData: any) {
   }
 }
 
+export async function addUserCertification(certData: any) {
+  try {
+    const { data, error } = await supabase
+      .from('certifications')
+      .insert(certData)
+      .select()
+      .single();
+
+    if (error) throw error;
+    toast.success("Certification added successfully!");
+    return { certification: data, error: null };
+  } catch (error: any) {
+    console.error("Error adding certification:", error);
+    toast.error("Failed to add certification: " + error.message);
+    return { certification: null, error };
+  }
+}
+
 export async function getUserEducation(userId: string) {
   try {
     const { data, error } = await supabase

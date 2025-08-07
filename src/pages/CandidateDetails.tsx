@@ -63,7 +63,7 @@ const CandidateDetails = () => {
   const handleAddSkill = async (formData: any) => {
     if (!user) {
       toast.error("You must be logged in to add skills");
-      navigate('/login');
+      navigate('/auth');
       return;
     }
     
