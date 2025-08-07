@@ -56,7 +56,7 @@ const AuthForm = () => {
 
   const form = useForm<AuthFormData>({
     resolver: zodResolver(isRegister ? signupSchema : loginSchema),
-    mode: 'onSubmit', // Only validate on submit
+    mode: 'onChange',
     defaultValues: {
       email: '',
       password: '',
@@ -331,7 +331,6 @@ const AuthForm = () => {
                        type="submit" 
                        className="w-full" 
                        disabled={isLoading}
-                       onClick={() => console.log('Login button clicked, form values:', form.getValues())}
                      >
                        {isLoading ? (
                          <>
