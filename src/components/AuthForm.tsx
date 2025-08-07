@@ -41,6 +41,7 @@ interface FormValues {
 
 const AuthForm = () => {
   const location = useLocation();
+  // Default to login unless explicitly on /register route
   const [isRegister, setIsRegister] = useState(location.pathname === '/register');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +50,7 @@ const AuthForm = () => {
 
   // Update isRegister based on current route
   useEffect(() => {
+    // Only set to register mode if specifically on /register route
     setIsRegister(location.pathname === '/register');
   }, [location.pathname]);
 
