@@ -14,7 +14,7 @@ export const passwordSchema = z
 export const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(1, 'Password is required'),
-  name: z.string().min(2, 'Name must be at least 2 characters').optional(),
+  name: z.string().optional(),
   user_type: z.enum(['candidate', 'employer']),
 });
 
