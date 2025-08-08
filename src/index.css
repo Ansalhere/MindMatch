@@ -150,12 +150,21 @@ html {
   transform-origin: bottom left;
 }
 
-/* Employer theme overrides: makes primary a red hue */
+/* Employer theme overrides: professional red theme */
 .theme-employer {
-  --primary: 0 84% 60%;
-  --primary-foreground: 210 40% 98%;
-  --ring: 0 84% 60%;
-  --accent: 0 30% 96%;
-  --accent-foreground: 222.2 47.4% 11.2%;
+  --primary: 0 72% 51%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 0 15% 95%;
+  --secondary-foreground: 0 10% 20%;
+  --accent: 0 20% 92%;
+  --accent-foreground: 0 15% 15%;
+  --ring: 0 72% 51%;
+  --border: 0 20% 88%;
+  --muted: 0 15% 95%;
+  --muted-foreground: 0 10% 45%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 10% 10%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 10% 10%;
 }
 

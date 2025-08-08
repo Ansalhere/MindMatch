@@ -138,7 +138,10 @@ const AuthForm = () => {
         if (signUpData?.user) {
           console.log('Signup successful:', signUpData);
           toast.success("Account created successfully! You can now access your dashboard.");
-          navigate('/dashboard');
+          // Small delay to ensure auth state is updated
+          setTimeout(() => {
+            navigate('/dashboard', { replace: true });
+          }, 100);
         } else {
           console.error('Signup failed - no user data returned');
           throw new Error('Signup failed. Please try again.');
@@ -162,7 +165,10 @@ const AuthForm = () => {
         if (signInData?.user && signInData?.session) {
           console.log('Signin successful - redirecting to dashboard');
           toast.success("Welcome back! Successfully logged in.");
-          navigate('/dashboard');
+          // Small delay to ensure auth state is updated
+          setTimeout(() => {
+            navigate('/dashboard', { replace: true });
+          }, 100);
         } else {
           console.error('Login failed - missing user or session data');
           throw new Error('Login failed. Please try again.');

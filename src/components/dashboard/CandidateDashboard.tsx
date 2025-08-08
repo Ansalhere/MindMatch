@@ -86,8 +86,86 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2">
+        <div className="md:col-span-2 space-y-6">
           <RecommendedJobs userData={userData} />
+          
+          {/* Applied Jobs Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Briefcase className="h-5 w-5 mr-2 text-primary" />
+                Your Applications
+              </CardTitle>
+              <CardDescription>
+                Track the status of your job applications
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {userData.applications && userData.applications.length > 0 ? (
+                <div className="space-y-4">
+                  {userData.applications.map((application: any) => (
+                    <div key={application.id} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h3 className="font-medium">
+                            {application.job?.title || application.position || 'Job Application'}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            {application.job?.employer?.company || application.company || 'Company Name'}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Applied: {new Date(application.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            application.status === 'accepted' 
+                              ? 'bg-green-100 text-green-700' 
+                              : application.status === 'rejected'
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-yellow-100 text-yellow-700'
+                          }`}>
+                            {application.status === 'accepted' ? 'Accepted' : 
+                             application.status === 'rejected' ? 'Rejected' : 'Pending'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {application.candidate_note && (
+                        <div className="bg-muted/30 p-3 rounded-md text-sm mb-3">
+                          <p className="italic">"{application.candidate_note}"</p>
+                        </div>
+                      )}
+                      
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => navigate(`/jobs/${application.job_id}`)}
+                        >
+                          View Job
+                        </Button>
+                        {application.job?.employer_id && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => navigate(`/profile/${application.job.employer_id}/employer`)}
+                          >
+                            View Company
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-6">
+                  <p className="text-muted-foreground mb-4">No applications yet</p>
+                  <Button onClick={() => navigate('/jobs')}>Browse Jobs</Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
         
         <div>
