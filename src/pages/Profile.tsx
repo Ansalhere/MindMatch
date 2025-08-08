@@ -108,7 +108,14 @@ const Profile = () => {
               growth: 4,
               worklife: 4
             },
-            culture: ['Remote-friendly', 'Professional development', 'Health benefits']
+            about: userProfile.company ? `${userProfile.company} is a growth-focused company committed to building great products and empowering our teams.` : 'Company information',
+            culture: ['Remote-friendly', 'Professional development', 'Health benefits'],
+            hiringProcess: [
+              { title: 'Application', description: 'Submit your resume and cover letter' },
+              { title: 'Screening', description: 'Initial screening by HR' },
+              { title: 'Interviews', description: 'Technical and culture-fit interviews' },
+              { title: 'Offer', description: 'Receive and accept your offer' },
+            ],
           });
         }
       } catch (error) {
@@ -433,7 +440,7 @@ const EmployerProfile = ({ profile }: { profile: any }) => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {profile.jobs.map((job: any, index: number) => (
+              {(profile.jobs || []).map((job: any, index: number) => (
                 <div key={index} className="border rounded-lg p-4 bg-card last:mb-0">
                   <div className="flex justify-between">
                     <div>
@@ -473,12 +480,12 @@ const EmployerProfile = ({ profile }: { profile: any }) => {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">
-              {profile.about}
+              {profile.about || 'We are a growth-focused company committed to building great products and empowering our teams.'}
             </p>
             
             <h3 className="font-semibold mt-6 mb-3">Work Culture</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {profile.culture.map((item: string, index: number) => (
+              {(profile.culture || ['Remote-friendly', 'Professional development', 'Health benefits']).map((item: string, index: number) => (
                 <div key={index} className="flex items-center gap-2 bg-secondary/20 p-2 rounded-md">
                   <CheckCircle className="h-4 w-4 text-primary" />
                   <span className="text-sm">{item}</span>
@@ -495,7 +502,12 @@ const EmployerProfile = ({ profile }: { profile: any }) => {
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {profile.hiringProcess.map((step: any, index: number) => (
+              {(profile.hiringProcess || [
+                { title: 'Application', description: 'Submit your resume and cover letter' },
+                { title: 'Screening', description: 'Initial screening by HR' },
+                { title: 'Interviews', description: 'Technical and culture-fit interviews' },
+                { title: 'Offer', description: 'Receive and accept your offer' },
+              ]).map((step: any, index: number) => (
                 <div key={index} className="flex gap-4">
                   <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold">
                     {index + 1}
