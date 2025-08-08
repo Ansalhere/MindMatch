@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
   Card, 
   CardContent, 
@@ -344,33 +344,35 @@ const EmployerProfile = ({ profile }: { profile: any }) => {
         <CardHeader className="text-center border-b pb-6">
           <div className="flex justify-center mb-4">
             <Avatar className="h-24 w-24">
-              <AvatarImage src={profile.avatar} alt={profile.company} />
-              <AvatarFallback>{profile.company.charAt(0)}</AvatarFallback>
+              <AvatarImage src={profile.avatar_url} alt={profile.company || profile.name} />
+              <AvatarFallback>{(profile.company || profile.name)?.charAt(0) || 'C'}</AvatarFallback>
             </Avatar>
           </div>
-          <CardTitle>{profile.company}</CardTitle>
-          <CardDescription>{profile.industry}</CardDescription>
+          <CardTitle>{profile.company || profile.name}</CardTitle>
+          <CardDescription>{profile.industry || 'Technology'}</CardDescription>
           <div className="flex justify-center mt-3">
-            <Badge variant="secondary">{profile.size} employees</Badge>
+            <Badge variant="secondary">{profile.size || '50-200'} employees</Badge>
           </div>
         </CardHeader>
         <CardContent className="pt-6">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span>{profile.location}</span>
+              <span>San Francisco, CA</span>
             </div>
             <div className="flex items-center gap-3">
               <Mail className="h-4 w-4 text-muted-foreground" />
               <span>{profile.email}</span>
             </div>
-            <div className="flex items-center gap-3">
-              <Building className="h-4 w-4 text-muted-foreground" />
-              <span>{profile.website}</span>
-            </div>
+            {profile.website && (
+              <div className="flex items-center gap-3">
+                <Building className="h-4 w-4 text-muted-foreground" />
+                <span>{profile.website}</span>
+              </div>
+            )}
             <div className="flex items-center gap-3">
               <Users className="h-4 w-4 text-muted-foreground" />
-              <span>{profile.founded}</span>
+              <span>Founded 2020</span>
             </div>
             
             <div className="border-t pt-4 mt-4">
@@ -436,15 +438,15 @@ const EmployerProfile = ({ profile }: { profile: any }) => {
                   <div className="flex justify-between">
                     <div>
                       <h3 className="font-semibold">{job.title}</h3>
-                      <p className="text-sm text-muted-foreground">{job.department}</p>
+                      <p className="text-sm text-muted-foreground">{job.job_type}</p>
                     </div>
                     <div className="text-sm bg-primary/10 text-primary px-2 py-1 rounded-full h-fit">
-                      {job.applicants} applicants
+                      {job.applications?.length || 0} applicants
                     </div>
                   </div>
                   <div className="flex mt-3 gap-2">
                     <div className="text-xs bg-secondary px-2 py-1 rounded-full">
-                      {job.type}
+                      {job.job_type}
                     </div>
                     <div className="text-xs bg-secondary px-2 py-1 rounded-full">
                       {job.location}
@@ -452,9 +454,11 @@ const EmployerProfile = ({ profile }: { profile: any }) => {
                   </div>
                   <div className="flex justify-between items-center mt-4">
                     <div className="text-sm text-muted-foreground">
-                      Posted {job.posted}
+                      Posted {new Date(job.created_at).toLocaleDateString()}
                     </div>
-                    <Button size="sm">View Details</Button>
+                    <Button size="sm" asChild>
+                      <Link to={`/job/${job.id}`}>View Details</Link>
+                    </Button>
                   </div>
                 </div>
               ))}

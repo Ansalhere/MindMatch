@@ -153,11 +153,9 @@ export async function addUserSkill(skillData: any) {
       .single();
 
     if (error) throw error;
-    toast.success("Skill added successfully!");
     return { skill: data, error: null };
   } catch (error: any) {
     console.error("Error adding skill:", error);
-    toast.error("Failed to add skill: " + error.message);
     return { skill: null, error };
   }
 }
@@ -171,11 +169,9 @@ export async function addUserCertification(certData: any) {
       .single();
 
     if (error) throw error;
-    toast.success("Certification added successfully!");
     return { certification: data, error: null };
   } catch (error: any) {
     console.error("Error adding certification:", error);
-    toast.error("Failed to add certification: " + error.message);
     return { certification: null, error };
   }
 }
@@ -308,12 +304,10 @@ export async function createJob(jobData: any) {
     if (error) throw error;
     
     console.log("Job created successfully:", data);
-    toast.success("Job posted successfully!");
     
     return { job: data, error: null };
   } catch (error: any) {
     console.error("Error creating job:", error);
-    toast.error("Failed to post job: " + error.message);
     return { job: null, error };
   }
 }
@@ -345,12 +339,10 @@ export async function applyForJob(applicationData: any) {
     if (error) throw error;
     
     console.log("Application submitted successfully:", data);
-    toast.success("Application submitted successfully!");
     
     return { application: data, error: null };
   } catch (error: any) {
     console.error("Error applying for job:", error);
-    toast.error("Failed to submit application: " + error.message);
     return { application: null, error };
   }
 }
