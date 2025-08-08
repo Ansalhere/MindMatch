@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Briefcase, Users, Plus, Loader2 } from 'lucide-react';
 import { toast } from "sonner";
-import { getEmployerJobs, signOut } from '@/lib/supabase';
+import { getEmployerJobs, signOut, getUserApplications } from '@/lib/supabase';
 import { useUser } from '@/hooks/useUser';
 import Layout from '@/components/Layout';
 import CandidateDashboard from '@/components/dashboard/CandidateDashboard';
@@ -16,6 +16,7 @@ const Dashboard = () => {
   const { user, profile, isLoading } = useUser();
   const [employerJobs, setEmployerJobs] = useState<any[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(false);
+  const [candidateApplications, setCandidateApplications] = useState<any[]>([]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -31,6 +32,22 @@ const Dashboard = () => {
     }
   }, [user]);
 
+  // Fetch candidate applications if user is a candidate
+  useEffect(() => {
+    if (user && user.user_type === 'candidate') {
+      fetchCandidateApplications(user.id);
+    }
+  }, [user]);
+
+  const fetchCandidateApplications = async (candidateId: string) => {
+    try {
+      const { applications, error } = await getUserApplications(candidateId);
+      if (error) throw error;
+      setCandidateApplications(applications || []);
+    } catch (error) {
+      console.error('Error fetching candidate applications:', error);
+    }
+  };
   const fetchEmployerJobs = async (employerId: string) => {
     try {
       setLoadingJobs(true);
@@ -102,10 +119,7 @@ const Dashboard = () => {
       position: 234,
       total: 1250
     },
-    applications: [
-      { id: '1', company: 'TechCorp', position: 'Developer', status: 'pending' },
-      { id: '2', company: 'DataTech', position: 'Analyst', status: 'accepted' }
-    ]
+    applications: candidateApplications,
   } : {
     id: user.id,
     company: user.company || 'Sample Company',
@@ -120,7 +134,7 @@ const Dashboard = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-6 py-8">
+      <div className={`container mx-auto px-6 py-8 ${user.user_type === 'employer' ? 'theme-employer' : ''}`}>
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold">Dashboard</h1>

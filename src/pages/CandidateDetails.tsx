@@ -53,12 +53,11 @@ const CandidateDetails = () => {
   const { user } = useUser();
   
   useEffect(() => {
-    // In a real app, you would fetch profile data from an API
-    const candidate = sampleCandidates.find(c => c.id === id);
-    if (candidate) {
-      setProfile(candidate);
+    // Redirect to the unified profile page for candidates
+    if (id) {
+      navigate(`/profile/${id}/candidate`, { replace: true });
     }
-  }, [id]);
+  }, [id, navigate]);
 
   const handleAddSkill = async (formData: any) => {
     if (!user) {

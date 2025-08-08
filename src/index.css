@@ -149,3 +149,13 @@ html {
   transform: scaleX(1);
   transform-origin: bottom left;
 }
+
+/* Employer theme overrides: makes primary a red hue */
+.theme-employer {
+  --primary: 0 84% 60%;
+  --primary-foreground: 210 40% 98%;
+  --ring: 0 84% 60%;
+  --accent: 0 30% 96%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+}
+

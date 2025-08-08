@@ -26,7 +26,7 @@ const EmployerDashboard = ({ userData, realJobs = [], loadingJobs = false }: Emp
   }, 0);
 
   const handleViewCandidateDetails = (candidateId: string) => {
-    navigate(`/candidate/${candidateId}`);
+    navigate(`/profile/${candidateId}/candidate`);
   };
 
   const handleUpdateApplicationStatus = async (applicationId: string, status: 'accepted' | 'rejected') => {
