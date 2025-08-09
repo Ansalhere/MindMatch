@@ -26,6 +26,7 @@ import { getJobById, applyForJob } from '@/lib/supabase';
 import { useUser } from '@/hooks/useUser';
 import Layout from '@/components/Layout';
 import CandidateRankDisplay from '@/components/ranking/CandidateRankDisplay';
+import { jobs as sampleJobs } from '@/data/sampleJobs';
 
 const Job = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,6 +36,7 @@ const Job = () => {
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState(false);
   const [alreadyApplied, setAlreadyApplied] = useState(false);
+  const [isSampleJob, setIsSampleJob] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -47,20 +49,42 @@ const Job = () => {
       setLoading(true);
       const { job: fetchedJob, error } = await getJobById(jobId);
       
-      if (error) throw error;
-      
-      setJob(fetchedJob);
-      
-      // Check if user has already applied
-      if (user && fetchedJob.applications) {
-        const userApplication = fetchedJob.applications.find(
-          (app: any) => app.candidate_id === user.id
-        );
-        setAlreadyApplied(!!userApplication);
+      if (!error && fetchedJob) {
+        setJob(fetchedJob);
+        // Check if user has already applied
+        if (user && fetchedJob.applications) {
+          const userApplication = fetchedJob.applications.find(
+            (app: any) => app.candidate_id === user.id
+          );
+          setAlreadyApplied(!!userApplication);
+        }
+        setIsSampleJob(false);
+        return;
       }
+      
+      // Fallback: try sample jobs
+      const sample = (sampleJobs as any[]).find((j) => j.id === jobId);
+      if (sample) {
+        setJob({
+          ...sample,
+          employer: { company: sample.company },
+          applications: []
+        });
+        setIsSampleJob(true);
+        return;
+      }
+      
+      if (error) throw error;
     } catch (error: any) {
       console.error("Error fetching job:", error);
-      toast.error("Failed to load job details. Please try again later.");
+      // Final fallback to sample if possible
+      const sample = (sampleJobs as any[]).find((j) => j.id === jobId);
+      if (sample) {
+        setJob({ ...sample, employer: { company: sample.company }, applications: [] });
+        setIsSampleJob(true);
+      } else {
+        toast.error("Failed to load job details. Please try again later.");
+      }
     } finally {
       setLoading(false);
     }
@@ -236,6 +260,10 @@ const Job = () => {
                 {alreadyApplied ? (
                   <Badge variant="outline" className="py-3 px-6 text-base">
                     Already Applied
+                  </Badge>
+                ) : isSampleJob ? (
+                  <Badge variant="secondary" className="py-3 px-6 text-base">
+                    Demo Job
                   </Badge>
                 ) : (
                   <Button 

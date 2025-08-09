@@ -51,7 +51,7 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
               rankScore={userData.ranking.overall}
               rankPosition={userData.ranking.position}
               totalCandidates={userData.ranking.total}
-              showDetailedScore={true}
+              showDetailedScore={false}
             />
           </div>
         </div>
@@ -141,7 +141,7 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => navigate(`/jobs/${application.job_id}`)}
+                          onClick={() => navigate(`/job/${application.job_id}`)}
                         >
                           View Job
                         </Button>

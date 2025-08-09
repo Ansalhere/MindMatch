@@ -39,7 +39,7 @@ const App = () => (
       <TooltipProvider>
         <SecurityHeaders />
         <Toaster />
-        <Sonner position="top-center" closeButton theme="light" className="font-sans" />
+        <Sonner position="top-center" closeButton theme="light" className="font-sans" duration={4000} />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/dashboard" element={<Dashboard />} />

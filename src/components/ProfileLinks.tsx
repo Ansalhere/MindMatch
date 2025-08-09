@@ -43,7 +43,7 @@ const ProfileLinks = ({ profileData, showViewProfile = true }: ProfileLinksProps
                 <span>Rank Score:</span>
                 <Badge variant="secondary">{user.rank_score || 0}</Badge>
               </div>
-              {user.rank_score > 80 && (
+              {user.rank_score && user.rank_score > 80 && (
                 <div className="flex items-center gap-1 text-amber-600 text-sm">
                   <Trophy className="h-3 w-3" />
                   <span>Top Ranked</span>

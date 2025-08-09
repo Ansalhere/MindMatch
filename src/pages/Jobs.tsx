@@ -14,6 +14,7 @@ import { Loader } from '@/components/ui/loader';
 import Layout from '@/components/Layout';
 import CandidateRankDisplay from '@/components/ranking/CandidateRankDisplay';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { jobs as sampleJobs } from '@/data/sampleJobs';
 
 const Jobs = () => {
   const [jobs, setJobs] = useState<any[]>([]);
@@ -61,13 +62,12 @@ const Jobs = () => {
       }
       
       console.log("Jobs fetched:", fetchedJobs?.length || 0);
-      
       if (!fetchedJobs || fetchedJobs.length === 0) {
-        console.log("No jobs returned from API");
-        setError("No jobs available at the moment. Please check back later.");
+        console.log("No jobs returned from API, using featured sample jobs");
+        setJobs(sampleJobs as any[]);
+      } else {
+        setJobs(fetchedJobs || []);
       }
-      
-      setJobs(fetchedJobs || []);
     } catch (error) {
       console.error("Exception in fetchJobs:", error);
       setError("An unexpected error occurred. Please try again later.");
@@ -151,13 +151,12 @@ const Jobs = () => {
   return (
     <Layout>
       <main className="container mx-auto px-4 py-8">
-        {/* Header Section */}
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
             Find Your Perfect Job
           </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Browse through opportunities to find the perfect job for your skills and experience
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Full-time · Part-time · Contract · Internship · Remote — opportunities worldwide
           </p>
         </div>
         
@@ -216,10 +215,10 @@ const Jobs = () => {
             <div className="space-y-6">
               {loading ? (
                 <Card>
-                  <CardContent className="flex flex-col items-center py-12">
-                    <Loader size={32} className="mx-auto mb-4" />
-                    <p className="text-lg font-medium">Loading amazing job opportunities...</p>
-                    <p className="text-muted-foreground">This may take a moment</p>
+                  <CardContent className="flex flex-col items-center py-10">
+                    <Loader size={32} className="mx-auto mb-3" />
+                    <p className="text-base font-medium">Loading jobs...</p>
+                    <p className="text-muted-foreground">Please wait</p>
                   </CardContent>
                 </Card>
               ) : error ? (
@@ -290,7 +289,7 @@ const Jobs = () => {
                               </div>
                             </div>
                             <Badge className="mt-2 md:mt-0 w-fit" variant="secondary">
-                              {job.job_type || 'Full-time'}
+                              {(job.job_type || 'Full-time').toString()}
                             </Badge>
                           </div>
                           

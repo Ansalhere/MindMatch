@@ -65,6 +65,50 @@ const Profile = () => {
         if (profileError) throw profileError;
         
         if (!userProfile) {
+          // Fallback to demo profiles if not found
+          if (type === 'candidate') {
+            try {
+              const { sampleCandidates } = await import('@/data/sampleProfiles');
+              const demo = sampleCandidates.find((c: any) => c.id === id);
+              if (demo) {
+                setProfile({
+                  ...demo,
+                  email: demo.email,
+                  phone: demo.phone,
+                  location: demo.location,
+                  skills: (demo.skills || []).map((name: string) => ({ name, level: 4, experience_years: 3, is_verified: false })),
+                  experience: [],
+                  education: [],
+                  certifications: [],
+                  applications: demo.applications?.map((a: any, idx: number) => ({
+                    id: `demo-app-${idx}`,
+                    created_at: new Date().toISOString(),
+                    status: (a.status || 'Pending').toLowerCase(),
+                    job: { title: a.position, location: demo.location }
+                  })) || [],
+                  ranking: demo.ranking
+                });
+                return;
+              }
+            } catch {}
+          } else if (type === 'employer') {
+            try {
+              const { sampleEmployers } = await import('@/data/sampleProfiles');
+              const demo = sampleEmployers.find((e: any) => e.id === id);
+              if (demo) {
+                setProfile({
+                  ...demo,
+                  avatar_url: demo.avatar,
+                  rating: demo.rating,
+                  jobs: (demo.jobs || []).map((j: any, idx: number) => ({ id: `demo-job-${idx}`, title: j.title, job_type: j.type, location: j.location, applications: new Array(j.applicants).fill(null) })),
+                  about: demo.about,
+                  culture: demo.culture,
+                  hiringProcess: demo.hiringProcess
+                });
+                return;
+              }
+            } catch {}
+          }
           setProfile(null);
           return;
         }
