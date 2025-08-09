@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AddSkillForm from '@/components/profile/AddSkillForm';
+import SkillAssessment from '@/components/skills/SkillAssessment';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from "sonner";
@@ -11,6 +12,7 @@ import { useUser } from '@/hooks/useUser';
 const AddSkill = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState<'manual' | 'assessment'>('assessment');
   const { user } = useUser();
 
   const handleSubmit = async (formData: any) => {
@@ -74,21 +76,44 @@ const AddSkill = () => {
     <div className="container mx-auto px-6 py-12">
       <Button 
         variant="outline" 
-        onClick={() => navigate(-1)} 
+        onClick={() => navigate('/dashboard')} 
         className="mb-6"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
-        Back
+        Back to Dashboard
       </Button>
       
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold mb-2">Add New Skill or Certification</h1>
-        <p className="text-muted-foreground mb-8">
-          Improve your ranking by adding new skills, certifications, or experience
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-2xl font-bold">Add Skills & Certifications</h1>
+        <p className="text-muted-foreground">
+          Add your skills and certifications to improve your ranking
         </p>
-        
-        <AddSkillForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
       </div>
+      
+      <div className="flex justify-center mb-6">
+        <div className="bg-muted p-1 rounded-lg">
+          <Button
+            variant={activeTab === 'assessment' ? 'default' : 'ghost'}
+            onClick={() => setActiveTab('assessment')}
+            className="px-6"
+          >
+            Take Assessment
+          </Button>
+          <Button
+            variant={activeTab === 'manual' ? 'default' : 'ghost'}
+            onClick={() => setActiveTab('manual')}
+            className="px-6"
+          >
+            Add Manually
+          </Button>
+        </div>
+      </div>
+      
+      {activeTab === 'assessment' ? (
+        <SkillAssessment onComplete={() => navigate('/dashboard')} />
+      ) : (
+        <AddSkillForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+      )}
     </div>
   );
 };

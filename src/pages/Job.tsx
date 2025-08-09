@@ -18,7 +18,8 @@ import {
   Loader2,
   Clock,
   Users,
-  DollarSign
+  DollarSign,
+  ArrowLeft
 } from 'lucide-react';
 import { toast } from "sonner";
 import { getJobById, applyForJob } from '@/lib/supabase';
@@ -148,7 +149,7 @@ const Job = () => {
             onClick={() => navigate('/jobs')} 
             className="mb-6"
           >
-            <Briefcase className="h-4 w-4 mr-2" />
+            <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Jobs
           </Button>
           

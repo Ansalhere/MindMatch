@@ -21,6 +21,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import LoginCredentials from '@/components/LoginCredentials';
+import DetailedSignupForm from '@/components/candidate/DetailedSignupForm';
 
 // Add additional fields for employer signup
 const employerFields = [
@@ -46,6 +47,8 @@ const AuthForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formValues, setFormValues] = useState<FormValues>({});
+  const [showDetailedForm, setShowDetailedForm] = useState(false);
+  const [basicSignupData, setBasicSignupData] = useState<any>(null);
   const navigate = useNavigate();
 
   // Update isRegister based on current route
@@ -114,6 +117,14 @@ const AuthForm = () => {
       }
       
       if (isRegister) {
+        // For candidates, show detailed form first
+        if (sanitizedData.user_type === 'candidate' && !showDetailedForm) {
+          setBasicSignupData({ email: sanitizedData.email, password: sanitizedData.password, name: sanitizedData.name, user_type: sanitizedData.user_type });
+          setShowDetailedForm(true);
+          setIsLoading(false);
+          return;
+        }
+        
         // Prepare user metadata with conditional employer fields
         const userData = {
           name: sanitizedData.name,
@@ -199,6 +210,53 @@ const AuthForm = () => {
     const { name, value } = e.target;
     setFormValues(prev => ({ ...prev, [name]: value }));
   };
+
+  const handleDetailedSignup = async (detailedData: any) => {
+    if (!basicSignupData) return;
+    
+    try {
+      setIsLoading(true);
+      
+      const userData = {
+        name: basicSignupData.name,
+        user_type: basicSignupData.user_type,
+        ...detailedData
+      };
+      
+      const { data: signUpData, error } = await signUp(basicSignupData.email, basicSignupData.password, userData);
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (signUpData?.user) {
+        toast.success("Account created successfully! You can now access your dashboard.");
+        setTimeout(() => {
+          navigate('/dashboard', { replace: true });
+        }, 100);
+      } else {
+        throw new Error('Signup failed. Please try again.');
+      }
+    } catch (error: any) {
+      console.error('Detailed signup error:', error);
+      setError(error.message);
+      toast.error(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (showDetailedForm) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Navbar />
+        <main className="flex-grow container mx-auto px-4 py-8">
+          <DetailedSignupForm onSubmit={handleDetailedSignup} isLoading={isLoading} />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen">

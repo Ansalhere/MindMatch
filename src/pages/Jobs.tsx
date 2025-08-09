@@ -6,9 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, MapPin, Clock, Search, Filter, Building, Loader2, Trophy, Info, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Briefcase, MapPin, Clock, Search, Filter, Building, Loader2, Trophy, Info, AlertTriangle, RefreshCw, CheckCircle } from 'lucide-react';
 import { toast } from "sonner";
-import { getJobs, applyForJob } from '@/lib/supabase';
+import { getJobs, applyForJob, getUserApplications } from '@/lib/supabase';
 import { useUser } from '@/hooks/useUser';
 import { Loader } from '@/components/ui/loader';
 import Layout from '@/components/Layout';
@@ -23,12 +23,28 @@ const Jobs = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterLocation, setFilterLocation] = useState('all');
+  const [userApplications, setUserApplications] = useState<any[]>([]);
   const { user, isLoading } = useUser();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchJobs();
-  }, []);
+    if (user) {
+      fetchUserApplications();
+    }
+  }, [user]);
+
+  const fetchUserApplications = async () => {
+    if (!user) return;
+    try {
+      const { applications, error } = await getUserApplications(user.id);
+      if (!error && applications) {
+        setUserApplications(applications);
+      }
+    } catch (error) {
+      console.error("Error fetching user applications:", error);
+    }
+  };
 
   const fetchJobs = async () => {
     try {
@@ -41,7 +57,6 @@ const Jobs = () => {
       if (error) {
         console.error("Error fetching jobs:", error);
         setError("Failed to load jobs. Please check your connection and try again.");
-        toast.error("Failed to load jobs");
         return;
       }
       
@@ -56,7 +71,6 @@ const Jobs = () => {
     } catch (error) {
       console.error("Exception in fetchJobs:", error);
       setError("An unexpected error occurred. Please try again later.");
-      toast.error("Failed to load jobs");
     } finally {
       setLoading(false);
     }
@@ -105,6 +119,8 @@ const Jobs = () => {
       }
       
       toast.success("Application submitted successfully!");
+      // Refresh user applications to show updated status
+      fetchUserApplications();
     } catch (error: any) {
       console.error("Error applying for job:", error);
       toast.error("Failed to apply: " + (error.message || "Please try again"));
@@ -245,16 +261,29 @@ const Jobs = () => {
                     </Button>
                   </div>
                   
-                  {filteredJobs.map((job) => (
-                    <Card key={job.id} className="overflow-hidden hover:shadow-lg transition-all duration-200 border-l-4 border-l-primary/20 hover:border-l-primary">
+                  {filteredJobs.map((job) => {
+                    const hasApplied = userApplications.some(app => app.job_id === job.id);
+                    return (
+                    <Card key={job.id} className={`overflow-hidden hover:shadow-lg transition-all duration-200 border-l-4 ${
+                      hasApplied 
+                        ? 'border-l-green-500 bg-green-50/50' 
+                        : 'border-l-primary/20 hover:border-l-primary'
+                    }`}>
                       <CardContent className="p-0">
                         <div className="p-6">
                           <div className="flex flex-col md:flex-row md:items-start justify-between mb-4">
                             <div className="flex-1">
-                              <h3 className="text-xl font-semibold mb-2 hover:text-primary transition-colors cursor-pointer" 
-                                  onClick={() => handleViewJob(job.id)}>
-                                {job.title}
-                              </h3>
+                              <div className="flex items-center gap-2 mb-2">
+                                <h3 className="text-xl font-semibold hover:text-primary transition-colors cursor-pointer" 
+                                    onClick={() => handleViewJob(job.id)}>
+                                  {job.title}
+                                </h3>
+                                {hasApplied && (
+                                  <Badge variant="default" className="bg-green-500 text-white">
+                                    Applied
+                                  </Badge>
+                                )}
+                              </div>
                               <div className="flex items-center text-muted-foreground mb-2">
                                 <Building className="h-4 w-4 mr-2" />
                                 <span className="font-medium">{job.employer?.company || job.employer?.name || 'Great Company'}</span>
@@ -319,10 +348,16 @@ const Jobs = () => {
                             
                             <Button 
                               onClick={() => handleApply(job.id)} 
-                              disabled={applyingToJob === job.id || (user?.user_type === 'employer')}
+                              disabled={applyingToJob === job.id || (user?.user_type === 'employer') || hasApplied}
                               className="flex-1"
+                              variant={hasApplied ? 'outline' : 'default'}
                             >
-                              {applyingToJob === job.id ? (
+                              {hasApplied ? (
+                                <>
+                                  <CheckCircle className="h-4 w-4 mr-2" />
+                                  Applied
+                                </>
+                              ) : applyingToJob === job.id ? (
                                 <>
                                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                                   Applying...
@@ -338,7 +373,7 @@ const Jobs = () => {
                         </div>
                       </CardContent>
                     </Card>
-                  ))}
+                  )})}
                 </>
               )}
             </div>
