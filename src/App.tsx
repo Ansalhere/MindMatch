@@ -64,6 +64,7 @@ const App = () => (
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/super-admin" element={<Admin />} />
           <Route path="/auth-test" element={<AuthTest />} />
           <Route path="/login-test" element={<LoginTest />} />
           <Route path="*" element={<NotFound />} />

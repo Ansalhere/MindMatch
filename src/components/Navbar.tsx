@@ -124,6 +124,11 @@ const Navbar = () => {
                     Post a Job
                   </Link>
                 )}
+                {user.user_type === 'admin' && (
+                  <Link to="/super-admin" className="text-gray-600 hover:text-primary transition-colors font-medium">
+                    Super Admin
+                  </Link>
+                )}
                 <Button 
                   variant="outline" 
                   size="sm"
@@ -206,6 +211,15 @@ const Navbar = () => {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Post a Job
+                  </Link>
+                )}
+                {user.user_type === 'admin' && (
+                  <Link 
+                    to="/super-admin" 
+                    className="block py-2 px-4 text-gray-600 hover:bg-gray-100 hover:text-primary rounded-md transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Super Admin
                   </Link>
                 )}
                 <button 

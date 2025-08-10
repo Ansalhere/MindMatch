@@ -169,6 +169,36 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
         </div>
         
         <div>
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Profile Snapshot</CardTitle>
+              <CardDescription>Key details at a glance</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Name</span>
+                  <span className="font-medium">{userData.name || 'Your Name'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Email</span>
+                  <span className="font-medium">{userData.email || '—'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Rank Score</span>
+                  <span className="font-medium">{userData.ranking.overall}/100</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Global Rank</span>
+                  <span className="font-medium">#{userData.ranking.position} of {userData.ranking.total}</span>
+                </div>
+              </div>
+              <Button variant="outline" className="w-full mt-4" onClick={() => navigate(`/profile/${userData.id}/candidate`)}>
+                View Full Profile
+              </Button>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">

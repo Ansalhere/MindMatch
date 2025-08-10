@@ -115,7 +115,7 @@ const Dashboard = () => {
     name: user.name,
     email: user.email,
     ranking: {
-      overall: 75,
+      overall: Math.round(user.rank_score || 0),
       position: 234,
       total: 1250
     },

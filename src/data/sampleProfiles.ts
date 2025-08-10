@@ -209,6 +209,38 @@ export const sampleCandidates = [
         status: "Accepted"
       }
     ]
+  },
+  {
+    id: "c4",
+    name: "Aisha Khan",
+    title: "Backend Developer",
+    email: "aisha.k@example.com",
+    password: "password123",
+    phone: "+971 55 123 4567",
+    location: "Dubai, UAE",
+    education: "Bachelor's in Information Technology",
+    availability: "Immediately",
+    avatar: "https://i.pravatar.cc/150?img=8",
+    skills: ["Node.js","PostgreSQL","AWS","Docker"],
+    ranking: { overall: 84, position: 312, total: 5000 },
+    projects: [],
+    applications: []
+  },
+  {
+    id: "c5",
+    name: "Carlos Mendez",
+    title: "Full Stack Engineer",
+    email: "carlos.m@example.com",
+    password: "password123",
+    phone: "+52 55 9876 5432",
+    location: "Mexico City, MX",
+    education: "Bachelor's in Computer Engineering",
+    availability: "2 weeks",
+    avatar: "https://i.pravatar.cc/150?img=12",
+    skills: ["React","Node.js","GraphQL","Kubernetes"],
+    ranking: { overall: 90, position: 120, total: 5000 },
+    projects: [],
+    applications: []
   }
 ];
 
