@@ -9,6 +9,8 @@ import TestimonialsSection from '@/components/sections/TestimonialsSection';
 import StatsSection from '@/components/sections/StatsSection';
 import CTASection from '@/components/sections/CTASection';
 import Footer from '@/components/Footer';
+import QuickUserPanel from '@/components/home/QuickUserPanel';
+import { useUser } from '@/hooks/useUser';
 import { 
   useStatsAnimation, 
   useHowItWorksAnimation, 
@@ -19,6 +21,7 @@ import {
 
 const Index = () => {
   const [heroVisible, setHeroVisible] = useState(false);
+  const { user } = useUser();
   const rankingVisible = useRankingAnimation();
   const howItWorksVisible = useHowItWorksAnimation();
   const testimonialsVisible = useTestimonialsAnimation();
@@ -55,6 +58,7 @@ const Index = () => {
         transition={{ duration: 0.8 }}
       >
         <Hero />
+        {user && <QuickUserPanel />}
         <div id="features">
           <Features />
         </div>

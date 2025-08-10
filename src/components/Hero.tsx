@@ -3,9 +3,11 @@ import { useState, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
+import { useUser } from '@/hooks/useUser';
 
 const Hero = () => {
   const [loaded, setLoaded] = useState(false);
+  const { user } = useUser();
   
   useEffect(() => {
     setLoaded(true);
@@ -13,7 +15,7 @@ const Hero = () => {
 
   return (
     <section className="min-h-screen hero-gradient flex items-center justify-center pt-16">
-      <div className="container mx-auto px-6 py-24 md:py-32 flex flex-col md:flex-row items-center justify-between">
+      <div className="container mx-auto px-6 py-16 md:py-24 flex flex-col md:flex-row items-center justify-between">
         {/* Hero Text */}
         <div className={`md:max-w-[50%] space-y-6 md:space-y-8 text-center md:text-left mb-12 md:mb-0 transition-all duration-700 ${loaded ? 'opacity-100' : 'opacity-0 translate-y-10'}`}>
           <div className="inline-block overflow-hidden rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
@@ -33,16 +35,33 @@ const Hero = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-            <Button size="lg" className="px-8 py-6 text-base rounded-xl" asChild>
-              <Link to="/register">
-                Get Started <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" className="px-8 py-6 text-base rounded-xl" asChild>
-              <Link to="/login">
-                Login to Demo
-              </Link>
-            </Button>
+            {user ? (
+              <>
+                <Button size="lg" className="px-8 py-6 text-base rounded-xl" asChild>
+                  <Link to={`/profile/${user.id}/${user.user_type === 'employer' ? 'employer' : 'candidate'}`}>
+                    Go to Profile <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" className="px-8 py-6 text-base rounded-xl" asChild>
+                  <Link to="/dashboard">
+                    Go to Dashboard
+                  </Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button size="lg" className="px-8 py-6 text-base rounded-xl" asChild>
+                  <Link to="/register">
+                    Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" className="px-8 py-6 text-base rounded-xl" asChild>
+                  <Link to="/login">
+                    Login to Demo
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
 
           <div className="flex items-center justify-center md:justify-start pt-4 space-x-4">
