@@ -29,7 +29,15 @@ const EmployerLogin = () => {
   });
 
   const handleSubmit = async (data: AuthFormData) => {
-    console.log('Employer login form submitted with:', { email: data.email, hasPassword: !!data.password });
+    console.log('=== EMPLOYER LOGIN FORM SUBMIT TRIGGERED ===');
+    console.log('Form data received:', { email: data.email, hasPassword: !!data.password });
+    
+    // Add form validation check
+    if (!data.email || !data.password) {
+      console.error('Missing email or password');
+      setError('Please enter both email and password');
+      return;
+    }
     setIsLoading(true);
     setError(null);
     
@@ -126,6 +134,12 @@ const EmployerLogin = () => {
                     type="submit" 
                     className="w-full" 
                     disabled={isLoading}
+                    onClick={(e) => {
+                      console.log('=== EMPLOYER LOGIN BUTTON CLICKED ===');
+                      console.log('Form values:', form.getValues());
+                      console.log('Form errors:', form.formState.errors);
+                      console.log('Form is valid:', form.formState.isValid);
+                    }}
                   >
                     {isLoading ? (
                       <>
