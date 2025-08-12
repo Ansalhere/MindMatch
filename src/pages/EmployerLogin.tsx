@@ -29,39 +29,24 @@ const EmployerLogin = () => {
   });
 
   const handleSubmit = async (data: AuthFormData) => {
-    console.log('=== EMPLOYER LOGIN FORM SUBMIT TRIGGERED ===');
-    console.log('Form data received:', { email: data.email, hasPassword: !!data.password });
-    
-    // Add form validation check
-    if (!data.email || !data.password) {
-      console.error('Missing email or password');
-      setError('Please enter both email and password');
-      return;
-    }
+    console.log('Employer login form submitted with data:', data);
     setIsLoading(true);
     setError(null);
     
     try {
-      console.log('Calling signIn function...');
       const { data: signInData, error } = await signIn(data.email, data.password);
       
-      console.log('SignIn response:', { hasUser: !!signInData?.user, hasSession: !!signInData?.session, error });
-      
       if (error) {
-        console.error('SignIn error:', error);
         throw error;
       }
       
       if (signInData?.user && signInData?.session) {
-        console.log('Login successful, navigating to dashboard...');
         toast({ title: "Success", description: "Welcome back! Successfully logged in." });
         navigate('/dashboard', { replace: true });
       } else {
-        console.error('Login failed - missing user or session data');
         throw new Error('Login failed. Please try again.');
       }
     } catch (err: any) {
-      console.error('Login error caught:', err);
       let errorMessage = 'An error occurred during login';
       
       if (err.message) {
@@ -71,7 +56,6 @@ const EmployerLogin = () => {
       setError(errorMessage);
       toast({ title: "Error", description: errorMessage, variant: "destructive" });
     } finally {
-      console.log('Setting loading to false');
       setIsLoading(false);
     }
   };
@@ -134,12 +118,6 @@ const EmployerLogin = () => {
                     type="submit" 
                     className="w-full" 
                     disabled={isLoading}
-                    onClick={(e) => {
-                      console.log('=== EMPLOYER LOGIN BUTTON CLICKED ===');
-                      console.log('Form values:', form.getValues());
-                      console.log('Form errors:', form.formState.errors);
-                      console.log('Form is valid:', form.formState.isValid);
-                    }}
                   >
                     {isLoading ? (
                       <>
