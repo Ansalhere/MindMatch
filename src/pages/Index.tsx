@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Layout from '@/components/Layout';
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
 import RankingShowcase from '@/components/RankingShowcase';
@@ -8,7 +9,6 @@ import HowItWorksSection from '@/components/sections/HowItWorksSection';
 import TestimonialsSection from '@/components/sections/TestimonialsSection';
 import StatsSection from '@/components/sections/StatsSection';
 import CTASection from '@/components/sections/CTASection';
-import Footer from '@/components/Footer';
 import QuickUserPanel from '@/components/home/QuickUserPanel';
 import { useUser } from '@/hooks/useUser';
 import { 
@@ -51,35 +51,36 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-      >
-        <Hero />
-        {user && <QuickUserPanel />}
-        <div id="features">
-          <Features />
-        </div>
-        <div id="ranking-system">
-          <RankingShowcase isVisible={rankingVisible} />
-        </div>
-        <div id="how-it-works">
-          <HowItWorksSection isVisible={howItWorksVisible} />
-        </div>
-        <div id="stats">
-          <StatsSection isVisible={statsVisible} />
-        </div>
-        <div id="testimonials">
-          <TestimonialsSection isVisible={testimonialsVisible} />
-        </div>
-        <div id="cta">
-          <CTASection isVisible={ctaVisible} />
-        </div>
-        <Footer />
-      </motion.div>
-    </div>
+    <Layout>
+      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+        >
+          <Hero />
+          {user && <QuickUserPanel />}
+          <div id="features">
+            <Features />
+          </div>
+          <div id="ranking-system">
+            <RankingShowcase isVisible={rankingVisible} />
+          </div>
+          <div id="how-it-works">
+            <HowItWorksSection isVisible={howItWorksVisible} />
+          </div>
+          <div id="stats">
+            <StatsSection isVisible={statsVisible} />
+          </div>
+          <div id="testimonials">
+            <TestimonialsSection isVisible={testimonialsVisible} />
+          </div>
+          <div id="cta">
+            <CTASection isVisible={ctaVisible} />
+          </div>
+        </motion.div>
+      </div>
+    </Layout>
   );
 };
 
