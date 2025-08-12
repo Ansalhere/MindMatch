@@ -17,7 +17,6 @@ import Packages from "./pages/Packages";
 import PostJob from "./pages/PostJob";
 import AddSkill from "./pages/AddSkill";
 import RankingExplanationPage from "./pages/RankingExplanation";
-import { AuthProvider } from "./hooks/useUser";
 import Jobs from "./pages/Jobs";
 import Skills from "./pages/Skills";
 import Career from "./pages/Career";
@@ -30,6 +29,7 @@ import Privacy from "./pages/Privacy";
 import Job from "./pages/Job";
 import Admin from "./pages/Admin";
 import SuperAdmin from "./pages/SuperAdmin";
+import { AuthProvider } from "./hooks/useUser";
 
 const queryClient = new QueryClient();
 
