@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Shield, Loader2, Building, UserCheck } from 'lucide-react';
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import { signIn } from '@/lib/supabase';
 import { loginSchema, type AuthFormData } from '@/lib/validation';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -16,6 +16,7 @@ const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const form = useForm<AuthFormData>({
     resolver: zodResolver(loginSchema),
@@ -27,6 +28,7 @@ const AdminLogin = () => {
   });
 
   const handleSubmit = async (data: AuthFormData) => {
+    console.log('Admin login form submitted');
     setIsLoading(true);
     setError(null);
     
@@ -38,7 +40,7 @@ const AdminLogin = () => {
       }
       
       if (signInData?.user && signInData?.session) {
-        toast.success("Admin login successful!");
+        toast({ title: "Success", description: "Admin login successful!" });
         navigate('/dashboard', { replace: true });
       } else {
         throw new Error('Login failed. Please try again.');
@@ -51,7 +53,7 @@ const AdminLogin = () => {
       }
       
       setError(errorMessage);
-      toast.error(errorMessage);
+      toast({ title: "Error", description: errorMessage, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -115,6 +117,11 @@ const AdminLogin = () => {
                     type="submit" 
                     className="w-full" 
                     disabled={isLoading}
+                    onClick={(e) => {
+                      console.log('Admin login button clicked!');
+                      console.log('Form is valid:', form.formState.isValid);
+                      console.log('Form errors:', form.formState.errors);
+                    }}
                   >
                     {isLoading ? (
                       <>
