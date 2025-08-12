@@ -118,6 +118,12 @@ const Login = () => {
                     type="submit" 
                     className="w-full" 
                     disabled={isLoading}
+                    onClick={(e) => {
+                      console.log('🔵 Login button clicked!');
+                      console.log('🔵 Form is valid:', form.formState.isValid);
+                      console.log('🔵 Form errors:', form.formState.errors);
+                      console.log('🔵 Form values:', form.getValues());
+                    }}
                   >
                     {isLoading ? (
                       <>
