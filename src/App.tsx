@@ -28,6 +28,7 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Job from "./pages/Job";
 import Admin from "./pages/Admin";
+import SuperAdmin from "./pages/SuperAdmin";
 import AuthTest from "./pages/AuthTest";
 import LoginTest from "./pages/LoginTest";
 
@@ -64,7 +65,7 @@ const App = () => (
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="/super-admin" element={<Admin />} />
+          <Route path="/super-admin" element={<SuperAdmin />} />
           <Route path="/auth-test" element={<AuthTest />} />
           <Route path="/login-test" element={<LoginTest />} />
           <Route path="*" element={<NotFound />} />

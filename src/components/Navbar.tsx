@@ -6,6 +6,7 @@ import { useUser } from '@/hooks/useUser';
 import { signOut } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { LogOut, Menu, X, Trophy } from 'lucide-react';
+import NotificationCenter from '@/components/NotificationCenter';
 
 const Navbar = () => {
   const { user, refreshUser } = useUser();
@@ -116,6 +117,7 @@ const Navbar = () => {
             
             {user ? (
               <div className="flex items-center space-x-4">
+                <NotificationCenter />
                 <Link to="/dashboard" className="text-gray-600 hover:text-primary transition-colors font-medium">
                   Dashboard
                 </Link>
