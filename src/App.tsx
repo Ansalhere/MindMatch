@@ -12,25 +12,8 @@ import CandidateDetails from "./pages/CandidateDetails";
 import Profiles from "./pages/Profiles";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
-import Packages from "./pages/Packages";
-import PostJob from "./pages/PostJob";
-import AddSkill from "./pages/AddSkill";
-import RankingExplanationPage from "./pages/RankingExplanation";
-import { AuthProvider } from "./hooks/useUser";
-import Jobs from "./pages/Jobs";
-import Skills from "./pages/Skills";
-import Career from "./pages/Career";
-import SuccessStories from "./pages/SuccessStories";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import Pricing from "./pages/Pricing";
-import Terms from "./pages/Terms";
-import Privacy from "./pages/Privacy";
-import Job from "./pages/Job";
-import Admin from "./pages/Admin";
-import SuperAdmin from "./pages/SuperAdmin";
-import AuthTest from "./pages/AuthTest";
-import LoginTest from "./pages/LoginTest";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 const queryClient = new QueryClient();
 
@@ -45,8 +28,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/register" element={<Auth />} />
-          <Route path="/login" element={<Auth />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/profile/:id/:type" element={<Profile />} />
           <Route path="/candidate/:id" element={<CandidateDetails />} />
           <Route path="/profiles" element={<Profiles />} />
@@ -66,8 +49,6 @@ const App = () => (
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
-          <Route path="/auth-test" element={<AuthTest />} />
-          <Route path="/login-test" element={<LoginTest />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </TooltipProvider>

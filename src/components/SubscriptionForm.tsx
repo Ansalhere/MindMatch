@@ -20,13 +20,13 @@ const SubscriptionForm = () => {
 
     setIsLoading(true);
     try {
-      // Insert email into newsletter_subscriptions table
-      const { error } = await supabase
-        .from('newsletter_subscriptions')
-        .insert([{ email: email.trim() }]);
+      // Use a raw SQL query since the table might not be in types yet
+      const { error } = await supabase.rpc('insert_newsletter_subscription', {
+        email_address: email.trim()
+      });
 
       if (error) {
-        if (error.code === '23505') { // Unique constraint violation
+        if (error.message?.includes('duplicate') || error.message?.includes('unique')) {
           toast.error('This email is already subscribed!');
         } else {
           throw error;
