@@ -47,7 +47,26 @@ const RankingExplanation = () => {
               <li>Skills and assessments (verified skills score higher)</li>
               <li>Work experience (relevance and years)</li>
               <li>Certifications and projects</li>
+              <li>College tier and academic performance</li>
             </ul>
+          </div>
+
+          <Separator />
+
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Algorithm Details (Technical)</h3>
+            <div className="bg-muted/30 p-4 rounded-lg text-sm">
+              <h4 className="font-medium mb-3">Current Ranking Formula:</h4>
+              <div className="space-y-2 font-mono text-xs">
+                <div>Skills Score = (Level × 20) + (Experience Years × 10) + (Verification Bonus × 15)</div>
+                <div>Education Score = (Degree Tier × 25) + (GPA/10 × 25) + (College Tier Bonus × 12)</div>
+                <div>Experience Score = Years × 15 + Role Diversity + Recency Bonus</div>
+                <div>Certification Score = Base Score + Verification + Expiry + Recency</div>
+                <div className="pt-2 border-t mt-3">
+                  <strong>Total = (Skills × 0.4) + (Education × 0.25) + (Experience × 0.25) + (Certifications × 0.1)</strong>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="bg-secondary/30 p-4 rounded-lg">

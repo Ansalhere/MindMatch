@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Layout from '@/components/Layout';
+import BackButton from '@/components/navigation/BackButton';
 import { 
   Card, 
   CardContent, 
@@ -20,6 +22,7 @@ import { Progress } from "@/components/ui/progress";
 import { MapPin, Star, Trophy, Building, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUser } from '@/hooks/useUser';
+import { getRandomIndianCity } from '@/data/indianCities';
 
 const Profiles = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -62,7 +65,7 @@ const Profiles = () => {
       const processedCandidates = candidatesData?.map(candidate => ({
         ...candidate,
         title: candidate.skills?.[0]?.name ? `${candidate.skills[0].name} Developer` : 'Software Developer',
-        location: 'Remote', // Default for now
+        location: getRandomIndianCity(),
         ranking: {
           overall: candidate.rank_score || 0,
           position: Math.floor(Math.random() * 500) + 1,
@@ -102,7 +105,7 @@ const Profiles = () => {
       // Process employers data
       const processedEmployers = employersData?.map(employer => ({
         ...employer,
-        location: 'San Francisco, CA', // Default for now
+        location: getRandomIndianCity(),
         rating: {
           overall: 4.5,
           environment: 5,
@@ -168,17 +171,21 @@ const Profiles = () => {
   
   if (loading) {
     return (
-      <div className="container mx-auto py-12 px-6 text-center">
-        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-        <p className="text-muted-foreground">Loading profiles...</p>
-      </div>
+      <Layout>
+        <div className="container mx-auto py-12 px-6 text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading profiles...</p>
+        </div>
+      </Layout>
     );
   }
   
   return (
-    <div className="container mx-auto py-12 px-6">
-      <h1 className="text-3xl font-bold mb-2">Browse Profiles</h1>
-      <p className="text-muted-foreground mb-8">Discover talented candidates and top employers</p>
+    <Layout>
+      <div className="container mx-auto py-12 px-6">
+        <BackButton className="mb-6" />
+        <h1 className="text-3xl font-bold mb-2">Browse Profiles</h1>
+        <p className="text-muted-foreground mb-8">Discover talented candidates and top employers</p>
       
       <div className="mb-8">
         <input
@@ -347,7 +354,8 @@ const Profiles = () => {
           )}
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </Layout>
   );
 };
 

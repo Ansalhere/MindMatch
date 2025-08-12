@@ -118,6 +118,14 @@ const Navbar = () => {
             {user ? (
               <div className="flex items-center space-x-4">
                 <NotificationCenter />
+                {user.user_type === 'candidate' && user.rank_score && (
+                  <div className="flex items-center space-x-2 px-3 py-1 bg-primary/10 rounded-full">
+                    <Trophy className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium text-primary">
+                      Rank {Math.floor(user.rank_score)}
+                    </span>
+                  </div>
+                )}
                 <Link to="/dashboard" className="text-gray-600 hover:text-primary transition-colors font-medium">
                   Dashboard
                 </Link>

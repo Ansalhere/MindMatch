@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
+import { useUser } from '@/hooks/useUser';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ const SuperAdmin = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
+  const { user } = useUser();
 
   // Super admin credentials check
   const adminCredentials = {
@@ -35,8 +37,17 @@ const SuperAdmin = () => {
   };
 
   useEffect(() => {
+    // Check if user is admin
+    if (user === undefined) return; // Still loading
+    
+    if (!user || user.user_type !== 'admin') {
+      navigate('/');
+      toast.error("Access denied. Admin privileges required.");
+      return;
+    }
+    
     fetchAllData();
-  }, []);
+  }, [user, navigate]);
 
   const fetchAllData = async () => {
     try {
@@ -134,7 +145,8 @@ const SuperAdmin = () => {
     user.company?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (loading) {
+  // Show loading if still checking user auth or loading data
+  if (user === undefined || loading) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[60vh]">
@@ -142,6 +154,11 @@ const SuperAdmin = () => {
         </div>
       </Layout>
     );
+  }
+
+  // Redirect if not admin (this shouldn't happen due to useEffect, but safety check)
+  if (!user || user.user_type !== 'admin') {
+    return null;
   }
 
   return (
