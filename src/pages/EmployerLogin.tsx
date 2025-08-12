@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { User, Loader2, Building, Shield } from 'lucide-react';
+import { Building, Loader2, Shield, UserCheck } from 'lucide-react';
 import { toast } from "sonner";
 import { signIn } from '@/lib/supabase';
 import { loginSchema, type AuthFormData } from '@/lib/validation';
@@ -13,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import Layout from '@/components/Layout';
 import { Link } from 'react-router-dom';
 
-const Login = () => {
+const EmployerLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -60,17 +60,17 @@ const Login = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center py-12 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4">
         <div className="max-w-md w-full">
           <Card className="shadow-xl border-0">
             <CardHeader className="text-center space-y-4">
-              <div className="mx-auto bg-gradient-to-r from-green-500 to-emerald-600 p-3 rounded-full w-16 h-16 flex items-center justify-center">
-                <User className="h-8 w-8 text-white" />
+              <div className="mx-auto bg-gradient-to-r from-blue-500 to-indigo-600 p-3 rounded-full w-16 h-16 flex items-center justify-center">
+                <Building className="h-8 w-8 text-white" />
               </div>
               <div>
-                <CardTitle className="text-2xl font-bold text-gray-900">Job Seeker Login</CardTitle>
+                <CardTitle className="text-2xl font-bold text-gray-900">Employer Portal</CardTitle>
                 <CardDescription className="text-gray-600">
-                  Access your career dashboard
+                  Access your hiring dashboard
                 </CardDescription>
               </div>
             </CardHeader>
@@ -83,9 +83,9 @@ const Login = () => {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel>Company Email</FormLabel>
                         <FormControl>
-                          <Input type="email" placeholder="your@email.com" {...field} />
+                          <Input type="email" placeholder="hr@company.com" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -114,7 +114,7 @@ const Login = () => {
                   
                   <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700" 
+                    className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700" 
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -124,8 +124,8 @@ const Login = () => {
                       </>
                     ) : (
                       <>
-                        <User className="h-4 w-4 mr-2" />
-                        Sign In
+                        <Building className="h-4 w-4 mr-2" />
+                        Access Dashboard
                       </>
                     )}
                   </Button>
@@ -136,8 +136,8 @@ const Login = () => {
                 <div className="text-center">
                   <p className="text-sm text-gray-600">
                     Don't have an account?{' '}
-                    <Link to="/register" className="text-green-600 hover:text-green-800 font-medium">
-                      Sign up here
+                    <Link to="/register" className="text-blue-600 hover:text-blue-800 font-medium">
+                      Sign up as Employer
                     </Link>
                   </p>
                 </div>
@@ -155,11 +155,11 @@ const Login = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigate('/employer-login')}
-                    className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                    onClick={() => navigate('/login')}
+                    className="text-green-600 border-green-200 hover:bg-green-50"
                   >
-                    <Building className="h-4 w-4 mr-1" />
-                    Employer
+                    <UserCheck className="h-4 w-4 mr-1" />
+                    Job Seeker
                   </Button>
                   <Button
                     variant="outline"
@@ -180,4 +180,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default EmployerLogin;

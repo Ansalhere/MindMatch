@@ -29,6 +29,9 @@ import Privacy from "./pages/Privacy";
 import Job from "./pages/Job";
 import Admin from "./pages/Admin";
 import SuperAdmin from "./pages/SuperAdmin";
+import AdminLogin from "./pages/AdminLogin";
+import EmployerLogin from "./pages/EmployerLogin";
+import EditProfile from "./pages/EditProfile";
 import { AuthProvider } from "./hooks/useUser";
 
 const queryClient = new QueryClient();
@@ -46,6 +49,9 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/employer-login" element={<EmployerLogin />} />
+          <Route path="/edit-profile" element={<EditProfile />} />
           <Route path="/profile/:id/:type" element={<Profile />} />
           <Route path="/candidate/:id" element={<CandidateDetails />} />
           <Route path="/profiles" element={<Profiles />} />

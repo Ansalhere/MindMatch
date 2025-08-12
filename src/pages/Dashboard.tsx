@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Briefcase, Users, Plus, Loader2 } from 'lucide-react';
+import { Briefcase, Users, Plus, Loader2, User } from 'lucide-react';
 import { toast } from "sonner";
 import { getEmployerJobs, signOut, getUserApplications } from '@/lib/supabase';
 import { useUser } from '@/hooks/useUser';
@@ -136,23 +136,34 @@ const Dashboard = () => {
     <Layout>
       <div className="container mx-auto px-6 py-8">
         <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">Dashboard</h1>
-            <p className="text-muted-foreground">
-              Welcome back, {user.user_type === 'candidate' ? user.name : user.company}
-            </p>
+          <div className="flex items-center gap-4">
+            <div>
+              <h1 className="text-3xl font-bold">Dashboard</h1>
+              <p className="text-muted-foreground">
+                Welcome back, {user.user_type === 'candidate' ? user.name : user.company}
+              </p>
+            </div>
+            {/* Prominent Rank Display for Candidates */}
+            {user.user_type === 'candidate' && user.rank_score && (
+              <div className="bg-gradient-to-r from-primary to-primary/80 text-white px-6 py-3 rounded-xl shadow-lg">
+                <div className="text-center">
+                  <div className="text-2xl font-bold">#{Math.floor(user.rank_score)}</div>
+                  <div className="text-xs opacity-90">Your Rank</div>
+                </div>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-3">
+            <Button variant="outline" onClick={() => navigate('/edit-profile')}>
+              <User className="h-4 w-4 mr-2" />
+              Edit Profile
+            </Button>
             {user.user_type === "candidate" && (
               <Button variant="outline" onClick={handleViewJobs}>
                 <Briefcase className="h-4 w-4 mr-2" />
                 Browse Jobs
               </Button>
             )}
-            <Button variant="outline" onClick={handleViewAllProfiles}>
-              <Users className="h-4 w-4 mr-2" />
-              Browse Profiles
-            </Button>
             <Button onClick={user.user_type === "candidate" ? handleAddSkill : handlePostJob}>
               <Plus className="h-4 w-4 mr-2" />
               {user.user_type === "candidate" ? "Add Skill" : "Post Job"}

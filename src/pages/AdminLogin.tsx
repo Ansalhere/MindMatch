@@ -5,15 +5,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { User, Loader2, Building, Shield } from 'lucide-react';
+import { Shield, Loader2, Building, UserCheck } from 'lucide-react';
 import { toast } from "sonner";
 import { signIn } from '@/lib/supabase';
 import { loginSchema, type AuthFormData } from '@/lib/validation';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Layout from '@/components/Layout';
-import { Link } from 'react-router-dom';
 
-const Login = () => {
+const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -39,7 +38,7 @@ const Login = () => {
       }
       
       if (signInData?.user && signInData?.session) {
-        toast.success("Welcome back! Successfully logged in.");
+        toast.success("Admin login successful!");
         navigate('/dashboard', { replace: true });
       } else {
         throw new Error('Login failed. Please try again.');
@@ -60,17 +59,17 @@ const Login = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center py-12 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center py-12 px-4">
         <div className="max-w-md w-full">
           <Card className="shadow-xl border-0">
             <CardHeader className="text-center space-y-4">
-              <div className="mx-auto bg-gradient-to-r from-green-500 to-emerald-600 p-3 rounded-full w-16 h-16 flex items-center justify-center">
-                <User className="h-8 w-8 text-white" />
+              <div className="mx-auto bg-gradient-to-r from-red-500 to-red-600 p-3 rounded-full w-16 h-16 flex items-center justify-center">
+                <Shield className="h-8 w-8 text-white" />
               </div>
               <div>
-                <CardTitle className="text-2xl font-bold text-gray-900">Job Seeker Login</CardTitle>
+                <CardTitle className="text-2xl font-bold text-gray-900">Admin Access</CardTitle>
                 <CardDescription className="text-gray-600">
-                  Access your career dashboard
+                  Secure login for system administrators
                 </CardDescription>
               </div>
             </CardHeader>
@@ -83,9 +82,9 @@ const Login = () => {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel>Admin Email</FormLabel>
                         <FormControl>
-                          <Input type="email" placeholder="your@email.com" {...field} />
+                          <Input type="email" placeholder="admin@company.com" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -114,18 +113,18 @@ const Login = () => {
                   
                   <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700" 
+                    className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700" 
                     disabled={isLoading}
                   >
                     {isLoading ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Signing In...
+                        Authenticating...
                       </>
                     ) : (
                       <>
-                        <User className="h-4 w-4 mr-2" />
-                        Sign In
+                        <Shield className="h-4 w-4 mr-2" />
+                        Access Admin Panel
                       </>
                     )}
                   </Button>
@@ -133,21 +132,12 @@ const Login = () => {
               </Form>
               
               <div className="mt-6 space-y-3">
-                <div className="text-center">
-                  <p className="text-sm text-gray-600">
-                    Don't have an account?{' '}
-                    <Link to="/register" className="text-green-600 hover:text-green-800 font-medium">
-                      Sign up here
-                    </Link>
-                  </p>
-                </div>
-                
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-gray-300" />
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">Other Login Options</span>
+                    <span className="px-2 bg-white text-gray-500">Quick Access</span>
                   </div>
                 </div>
                 
@@ -155,20 +145,20 @@ const Login = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigate('/employer-login')}
+                    onClick={() => navigate('/login')}
                     className="text-blue-600 border-blue-200 hover:bg-blue-50"
                   >
-                    <Building className="h-4 w-4 mr-1" />
-                    Employer
+                    <UserCheck className="h-4 w-4 mr-1" />
+                    User Login
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigate('/admin-login')}
-                    className="text-red-600 border-red-200 hover:bg-red-50"
+                    onClick={() => navigate('/employer-login')}
+                    className="text-green-600 border-green-200 hover:bg-green-50"
                   >
-                    <Shield className="h-4 w-4 mr-1" />
-                    Admin
+                    <Building className="h-4 w-4 mr-1" />
+                    Employer Login
                   </Button>
                 </div>
               </div>
@@ -180,4 +170,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default AdminLogin;

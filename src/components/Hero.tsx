@@ -27,11 +27,11 @@ const Hero = () => {
           </h1>
           
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight leading-tight">
-            AI-Powered <span className="text-primary">Job Matching</span> for Fresh Talent
+            AI-Powered <span className="text-primary">Job Matching</span> for All Talent
           </h2>
           
           <p className="text-lg md:text-xl text-muted-foreground">
-            Connect with employers who value your skills. RankMe.AI uses AI to match entry-level candidates with the perfect job opportunities.
+            Connect job seekers with recruiters through AI-powered skill matching. RankMe.AI helps professionals at every level find the perfect opportunities.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
@@ -67,7 +67,7 @@ const Hero = () => {
           <div className="flex items-center justify-center md:justify-start pt-4 space-x-4">
             <p className="text-sm text-muted-foreground">Trusted by:</p>
             <div className="flex space-x-6">
-              {['Acme Inc.', 'TechCorp', 'StartupHub'].map((company, index) => (
+              {['TCS', 'Infosys', 'Wipro', 'HCL Tech'].map((company, index) => (
                 <div key={index} className="flex items-center text-muted-foreground/80 font-medium">
                   {company}
                 </div>
