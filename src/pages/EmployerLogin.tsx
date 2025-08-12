@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Building, Loader2, Shield, UserCheck } from 'lucide-react';
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import { signIn } from '@/lib/supabase';
 import { loginSchema, type AuthFormData } from '@/lib/validation';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -17,6 +17,7 @@ const EmployerLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const form = useForm<AuthFormData>({
     resolver: zodResolver(loginSchema),
@@ -45,7 +46,7 @@ const EmployerLogin = () => {
       
       if (signInData?.user && signInData?.session) {
         console.log('Login successful, navigating to dashboard...');
-        toast.success("Welcome back! Successfully logged in.");
+        toast({ title: "Success", description: "Welcome back! Successfully logged in." });
         navigate('/dashboard', { replace: true });
       } else {
         console.error('Login failed - missing user or session data');
@@ -60,7 +61,7 @@ const EmployerLogin = () => {
       }
       
       setError(errorMessage);
-      toast.error(errorMessage);
+      toast({ title: "Error", description: errorMessage, variant: "destructive" });
     } finally {
       console.log('Setting loading to false');
       setIsLoading(false);
