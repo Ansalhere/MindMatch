@@ -9,8 +9,8 @@ const Auth = () => {
 
   useEffect(() => {
     if (!isLoading && user) {
-      const type = user.user_type === 'employer' ? 'employer' : 'candidate';
-      navigate(`/profile/${user.id}/${type}`, { replace: true });
+      // Redirect to dashboard after login
+      navigate('/dashboard', { replace: true });
     }
   }, [user, isLoading, navigate]);
 

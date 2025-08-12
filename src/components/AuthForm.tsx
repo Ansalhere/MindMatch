@@ -20,7 +20,7 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import LoginCredentials from '@/components/LoginCredentials';
+import DemoCredentials from '@/components/DemoCredentials';
 import DetailedSignupForm from '@/components/candidate/DetailedSignupForm';
 
 // Add additional fields for employer signup
@@ -466,7 +466,7 @@ const AuthForm = () => {
           {/* Demo Credentials */}
           {!isRegister && (
             <div>
-              <LoginCredentials />
+              <DemoCredentials />
             </div>
           )}
         </div>

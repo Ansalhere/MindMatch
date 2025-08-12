@@ -116,16 +116,35 @@ const Navbar = () => {
             ))}
             
             {user ? (
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
                 <NotificationCenter />
-                {user.user_type === 'candidate' && user.rank_score && (
-                  <div className="flex items-center space-x-2 px-3 py-1 bg-primary/10 rounded-full">
-                    <Trophy className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium text-primary">
-                      Rank {Math.floor(user.rank_score)}
-                    </span>
+                
+                {/* User Badge with Rank */}
+                <div className="flex items-center space-x-3 px-4 py-2 bg-gradient-to-r from-primary/10 to-primary/5 rounded-full border border-primary/20">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
+                      {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-gray-800 leading-tight">
+                        {user.user_type === 'employer' ? user.company : user.name}
+                      </span>
+                      <span className="text-xs text-gray-500 capitalize">
+                        {user.user_type}
+                      </span>
+                    </div>
                   </div>
-                )}
+                  
+                  {user.user_type === 'candidate' && user.rank_score && (
+                    <div className="flex items-center space-x-1 px-2 py-1 bg-primary/15 rounded-full">
+                      <Trophy className="h-3 w-3 text-primary" />
+                      <span className="text-xs font-bold text-primary">
+                        #{Math.floor(user.rank_score)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                
                 <Link to="/dashboard" className="text-gray-600 hover:text-primary transition-colors font-medium">
                   Dashboard
                 </Link>
