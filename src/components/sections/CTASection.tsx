@@ -113,35 +113,6 @@ const CTASection = ({ isVisible }: CTASectionProps) => {
             </Button>
           </motion.div>
           
-          {/* Newsletter Subscription */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={isVisible ? { opacity: 1 } : { opacity: 0 }}
-            transition={{ delay: 1.2, duration: 0.6 }}
-            className="mt-12"
-          >
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 max-w-md mx-auto">
-              <h3 className="text-white font-semibold mb-3 text-center">Stay Updated</h3>
-              <div className="flex gap-2">
-                <input 
-                  type="email" 
-                  placeholder="Enter your email" 
-                  className="flex-1 px-4 py-2 rounded-md bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50"
-                />
-                <Button 
-                  variant="secondary" 
-                  size="sm"
-                  className="bg-white text-primary hover:bg-white/90"
-                >
-                  Subscribe
-                </Button>
-              </div>
-              <p className="text-white/70 text-xs mt-2 text-center">
-                Get notified about new features and job opportunities
-              </p>
-            </div>
-          </motion.div>
-          
           <motion.div 
             initial={{ opacity: 0 }}
             animate={isVisible ? { opacity: 1 } : { opacity: 0 }}
@@ -150,10 +121,10 @@ const CTASection = ({ isVisible }: CTASectionProps) => {
           >
             <p className="text-white/70 text-sm mb-4">Trusted by professionals at</p>
             <div className="flex items-center justify-center space-x-8 opacity-60">
-              <div className="text-white/60 font-semibold">Google</div>
-              <div className="text-white/60 font-semibold">Microsoft</div>
-              <div className="text-white/60 font-semibold">Amazon</div>
-              <div className="text-white/60 font-semibold">Apple</div>
+              <div className="text-white/60 font-semibold">TCS</div>
+              <div className="text-white/60 font-semibold">Infosys</div>
+              <div className="text-white/60 font-semibold">Wipro</div>
+              <div className="text-white/60 font-semibold">HCL Tech</div>
             </div>
           </motion.div>
         </motion.div>

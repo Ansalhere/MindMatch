@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +13,23 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Packages from "./pages/Packages";
+import PostJob from "./pages/PostJob";
+import AddSkill from "./pages/AddSkill";
+import RankingExplanationPage from "./pages/RankingExplanation";
+import { AuthProvider } from "./hooks/useUser";
+import Jobs from "./pages/Jobs";
+import Skills from "./pages/Skills";
+import Career from "./pages/Career";
+import SuccessStories from "./pages/SuccessStories";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Pricing from "./pages/Pricing";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import Job from "./pages/Job";
+import Admin from "./pages/Admin";
+import SuperAdmin from "./pages/SuperAdmin";
 
 const queryClient = new QueryClient();
 

@@ -613,6 +613,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      insert_newsletter_subscription: {
+        Args: { email_address: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
