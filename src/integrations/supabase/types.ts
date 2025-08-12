@@ -108,6 +108,7 @@ export type Database = {
       }
       education: {
         Row: {
+          college_tier: number | null
           created_at: string
           degree: string
           end_date: string | null
@@ -121,6 +122,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          college_tier?: number | null
           created_at?: string
           degree: string
           end_date?: string | null
@@ -134,6 +136,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          college_tier?: number | null
           created_at?: string
           degree?: string
           end_date?: string | null
@@ -261,6 +264,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      messages: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message: string
+          receiver_id: string
+          sender_id: string
+          subject: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message: string
+          receiver_id: string
+          sender_id: string
+          subject: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          receiver_id?: string
+          sender_id?: string
+          subject?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message: string
+          related_id: string | null
+          related_type: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message: string
+          related_id?: string | null
+          related_type?: string | null
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          related_id?: string | null
+          related_type?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       packages: {
         Row: {
