@@ -60,16 +60,16 @@ const Login = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center py-12 px-4">
-        <div className="max-w-md w-full">
-          <Card className="shadow-xl border-0">
-            <CardHeader className="text-center space-y-4">
-              <div className="mx-auto bg-gradient-to-r from-green-500 to-emerald-600 p-3 rounded-full w-16 h-16 flex items-center justify-center">
-                <User className="h-8 w-8 text-white" />
+      <div className="min-h-screen bg-background flex items-center justify-center py-8 px-4">
+        <div className="max-w-sm w-full">
+          <Card className="shadow-sm border">
+            <CardHeader className="text-center space-y-3 pb-4">
+              <div className="mx-auto bg-primary p-2 rounded-lg w-12 h-12 flex items-center justify-center">
+                <User className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <CardTitle className="text-2xl font-bold text-gray-900">Job Seeker Login</CardTitle>
-                <CardDescription className="text-gray-600">
+                <CardTitle className="text-xl font-semibold">Job Seeker Login</CardTitle>
+                <CardDescription className="text-sm">
                   Access your career dashboard
                 </CardDescription>
               </div>
@@ -114,7 +114,7 @@ const Login = () => {
                   
                   <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700" 
+                    className="w-full" 
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -123,20 +123,17 @@ const Login = () => {
                         Signing In...
                       </>
                     ) : (
-                      <>
-                        <User className="h-4 w-4 mr-2" />
-                        Sign In
-                      </>
+                      "Sign In"
                     )}
                   </Button>
                 </form>
               </Form>
               
-              <div className="mt-6 space-y-3">
+              <div className="mt-4 space-y-3">
                 <div className="text-center">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     Don't have an account?{' '}
-                    <Link to="/register" className="text-green-600 hover:text-green-800 font-medium">
+                    <Link to="/register" className="text-primary hover:underline font-medium">
                       Sign up here
                     </Link>
                   </p>
@@ -144,30 +141,30 @@ const Login = () => {
                 
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300" />
+                    <div className="w-full border-t border-border" />
                   </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">Other Login Options</span>
+                  <div className="relative flex justify-center text-xs">
+                    <span className="px-2 bg-background text-muted-foreground">Other Options</span>
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => navigate('/employer-login')}
-                    className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                    className="text-xs"
                   >
-                    <Building className="h-4 w-4 mr-1" />
+                    <Building className="h-3 w-3 mr-1" />
                     Employer
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => navigate('/admin-login')}
-                    className="text-red-600 border-red-200 hover:bg-red-50"
+                    className="text-xs"
                   >
-                    <Shield className="h-4 w-4 mr-1" />
+                    <Shield className="h-3 w-3 mr-1" />
                     Admin
                   </Button>
                 </div>

@@ -20,7 +20,7 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import DemoCredentials from '@/components/DemoCredentials';
+
 import DetailedSignupForm from '@/components/candidate/DetailedSignupForm';
 
 // Add additional fields for employer signup
@@ -70,10 +70,6 @@ const AuthForm = () => {
 
   // Handle form submission with proper validation
   const handleSubmit = async (data: AuthFormData) => {
-    console.log('=== FORM SUBMIT START ===');
-    console.log('handleSubmit called with:', data);
-    console.log('isRegister:', isRegister);
-    console.log('Current route:', location.pathname);
     
     setIsLoading(true);
     setError(null);
@@ -81,30 +77,18 @@ const AuthForm = () => {
     try {
       // Sanitize input data
       const sanitizedData = sanitizeObject(data) as AuthFormData;
-      console.log('Sanitized data:', { 
-        email: sanitizedData.email, 
-        hasPassword: !!sanitizedData.password,
-        isRegister, 
-        userType: sanitizedData.user_type 
-      });
       
       // Validate required fields
       if (!sanitizedData.email || !sanitizedData.password) {
-        console.error('Missing required fields:', { 
-          hasEmail: !!sanitizedData.email, 
-          hasPassword: !!sanitizedData.password 
-        });
         throw new Error('Email and password are required');
       }
       
       if (isRegister && !sanitizedData.name) {
-        console.error('Missing name for registration');
         throw new Error('Name is required for registration');
       }
       
       // Validate employer-specific fields if registering as employer
       if (isRegister && sanitizedData.user_type === 'employer') {
-        console.log('Validating employer fields:', formValues);
         if (!formValues.company?.trim()) {
           throw new Error('Company name is required for employer registration');
         }
@@ -137,60 +121,39 @@ const AuthForm = () => {
           })
         };
         
-        console.log('=== ATTEMPTING SIGNUP ===');
-        console.log('Signup userData:', userData);
         const { data: signUpData, error } = await signUp(sanitizedData.email, sanitizedData.password, userData);
         
         if (error) {
-          console.error('Signup error:', error);
           throw error;
         }
         
         if (signUpData?.user) {
-          console.log('Signup successful:', signUpData);
           toast.success("Account created successfully! You can now access your dashboard.");
           // Small delay to ensure auth state is updated
           setTimeout(() => {
             navigate('/dashboard', { replace: true });
           }, 100);
         } else {
-          console.error('Signup failed - no user data returned');
           throw new Error('Signup failed. Please try again.');
         }
       } else {
-        console.log('=== ATTEMPTING SIGNIN ===');
-        console.log('Signin with email:', sanitizedData.email);
         const { data: signInData, error } = await signIn(sanitizedData.email, sanitizedData.password);
         
-        console.log('Signin response:', { 
-          hasUser: !!signInData?.user, 
-          hasSession: !!signInData?.session,
-          error: error 
-        });
-        
         if (error) {
-          console.error('Signin error details:', error);
           throw error;
         }
         
         if (signInData?.user && signInData?.session) {
-          console.log('Signin successful - redirecting to dashboard');
           toast.success("Welcome back! Successfully logged in.");
           // Small delay to ensure auth state is updated
           setTimeout(() => {
             navigate('/dashboard', { replace: true });
           }, 100);
         } else {
-          console.error('Login failed - missing user or session data');
           throw new Error('Login failed. Please try again.');
         }
       }
     } catch (err: any) {
-      console.error('=== AUTHENTICATION ERROR ===');
-      console.error('Full error object:', err);
-      console.error('Error message:', err.message);
-      console.error('Error code:', err.code);
-      
       let errorMessage = 'An error occurred during authentication';
       
       if (err.message) {
@@ -200,8 +163,6 @@ const AuthForm = () => {
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
-      console.log('=== FORM SUBMIT END ===');
-      console.log('Setting loading to false');
       setIsLoading(false);
     }
   };
@@ -263,10 +224,8 @@ const AuthForm = () => {
       <Navbar />
       
       <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
-          {/* Login Form */}
-          <div>
-            <Card>
+        <div className="max-w-md mx-auto">
+          <Card>
               <CardHeader>
                 <CardTitle>{isRegister ? 'Create an Account' : 'Log In to RankMe.AI'}</CardTitle>
                 <CardDescription>
@@ -461,14 +420,6 @@ const AuthForm = () => {
                 </Form>
               </CardContent>
             </Card>
-          </div>
-          
-          {/* Demo Credentials */}
-          {!isRegister && (
-            <div>
-              <DemoCredentials />
-            </div>
-          )}
         </div>
       </main>
       

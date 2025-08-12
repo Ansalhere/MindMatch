@@ -59,16 +59,16 @@ const AdminLogin = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center py-12 px-4">
-        <div className="max-w-md w-full">
-          <Card className="shadow-xl border-0">
-            <CardHeader className="text-center space-y-4">
-              <div className="mx-auto bg-gradient-to-r from-red-500 to-red-600 p-3 rounded-full w-16 h-16 flex items-center justify-center">
-                <Shield className="h-8 w-8 text-white" />
+      <div className="min-h-screen bg-background flex items-center justify-center py-8 px-4">
+        <div className="max-w-sm w-full">
+          <Card className="shadow-sm border">
+            <CardHeader className="text-center space-y-3 pb-4">
+              <div className="mx-auto bg-primary p-2 rounded-lg w-12 h-12 flex items-center justify-center">
+                <Shield className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <CardTitle className="text-2xl font-bold text-gray-900">Admin Access</CardTitle>
-                <CardDescription className="text-gray-600">
+                <CardTitle className="text-xl font-semibold">Admin Access</CardTitle>
+                <CardDescription className="text-sm">
                   Secure login for system administrators
                 </CardDescription>
               </div>
@@ -113,7 +113,7 @@ const AdminLogin = () => {
                   
                   <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700" 
+                    className="w-full" 
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -122,43 +122,40 @@ const AdminLogin = () => {
                         Authenticating...
                       </>
                     ) : (
-                      <>
-                        <Shield className="h-4 w-4 mr-2" />
-                        Access Admin Panel
-                      </>
+                      "Sign In"
                     )}
                   </Button>
                 </form>
               </Form>
               
-              <div className="mt-6 space-y-3">
+              <div className="mt-4 space-y-3">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300" />
+                    <div className="w-full border-t border-border" />
                   </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">Quick Access</span>
+                  <div className="relative flex justify-center text-xs">
+                    <span className="px-2 bg-background text-muted-foreground">Other Options</span>
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => navigate('/login')}
-                    className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                    className="text-xs"
                   >
-                    <UserCheck className="h-4 w-4 mr-1" />
-                    User Login
+                    <UserCheck className="h-3 w-3 mr-1" />
+                    Job Seeker
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => navigate('/employer-login')}
-                    className="text-green-600 border-green-200 hover:bg-green-50"
+                    className="text-xs"
                   >
-                    <Building className="h-4 w-4 mr-1" />
-                    Employer Login
+                    <Building className="h-3 w-3 mr-1" />
+                    Employer
                   </Button>
                 </div>
               </div>

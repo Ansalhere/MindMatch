@@ -46,9 +46,6 @@ export async function signIn(email: string, password: string) {
   try {
     console.log('Attempting to sign in with:', email);
     
-    // Clear any existing session first
-    await supabase.auth.signOut();
-    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
