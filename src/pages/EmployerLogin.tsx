@@ -28,23 +28,31 @@ const EmployerLogin = () => {
   });
 
   const handleSubmit = async (data: AuthFormData) => {
+    console.log('Employer login form submitted with:', { email: data.email, hasPassword: !!data.password });
     setIsLoading(true);
     setError(null);
     
     try {
+      console.log('Calling signIn function...');
       const { data: signInData, error } = await signIn(data.email, data.password);
       
+      console.log('SignIn response:', { hasUser: !!signInData?.user, hasSession: !!signInData?.session, error });
+      
       if (error) {
+        console.error('SignIn error:', error);
         throw error;
       }
       
       if (signInData?.user && signInData?.session) {
+        console.log('Login successful, navigating to dashboard...');
         toast.success("Welcome back! Successfully logged in.");
         navigate('/dashboard', { replace: true });
       } else {
+        console.error('Login failed - missing user or session data');
         throw new Error('Login failed. Please try again.');
       }
     } catch (err: any) {
+      console.error('Login error caught:', err);
       let errorMessage = 'An error occurred during login';
       
       if (err.message) {
@@ -54,6 +62,7 @@ const EmployerLogin = () => {
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
+      console.log('Setting loading to false');
       setIsLoading(false);
     }
   };
@@ -147,25 +156,16 @@ const EmployerLogin = () => {
                     <span className="px-2 bg-background text-muted-foreground">Other Options</span>
                   </div>
                 </div>
-                
-                <div className="grid grid-cols-2 gap-2">
+                 
+                <div className="w-full">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => navigate('/login')}
-                    className="text-xs"
+                    className="w-full text-xs"
                   >
                     <UserCheck className="h-3 w-3 mr-1" />
-                    Job Seeker
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigate('/admin-login')}
-                    className="text-xs"
-                  >
-                    <Shield className="h-3 w-3 mr-1" />
-                    Admin
+                    Job Seeker Login
                   </Button>
                 </div>
               </div>
