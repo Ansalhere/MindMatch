@@ -41,6 +41,12 @@ const ContactEmployerButton = ({
       return;
     }
 
+    // Prevent employers from contacting other employers
+    if (user.user_type === 'employer') {
+      toast.error("This feature is only available for candidates.");
+      return;
+    }
+
     if (!subject.trim() || !message.trim()) {
       toast.error("Please fill in all fields");
       return;
@@ -91,6 +97,11 @@ const ContactEmployerButton = ({
       setSending(false);
     }
   };
+
+  // Don't show the button for employers
+  if (user?.user_type === 'employer') {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

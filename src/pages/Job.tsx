@@ -96,6 +96,12 @@ const Job = () => {
       navigate('/auth');
       return;
     }
+
+    // Prevent employers from applying to jobs
+    if (user.user_type === 'employer') {
+      toast.error("Employers cannot apply for jobs. Only candidates can apply.");
+      return;
+    }
     
     try {
       setApplying(true);
@@ -258,7 +264,11 @@ const Job = () => {
               )}
               
               <div className="flex justify-end pt-4">
-                {alreadyApplied ? (
+                {user?.user_type === 'employer' ? (
+                  <div className="text-center text-muted-foreground">
+                    <p className="text-sm">As an employer, you can view job details but cannot apply for positions.</p>
+                  </div>
+                ) : alreadyApplied ? (
                   <Badge variant="outline" className="py-3 px-6 text-base">
                     Already Applied
                   </Badge>

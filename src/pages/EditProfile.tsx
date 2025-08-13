@@ -80,7 +80,6 @@ const EditProfile = () => {
         bio: data.bio,
         phone: data.phone,
         location: data.location,
-        website: data.website,
       };
 
       // Add employer-specific fields if user is an employer
@@ -88,6 +87,7 @@ const EditProfile = () => {
         updateData.company = data.company;
         updateData.industry = data.industry;
         updateData.size = data.size;
+        updateData.website = data.website;
       }
 
       const { error } = await supabase
