@@ -284,28 +284,31 @@ const AuthForm = () => {
                             {employerFields.map(field => (
                               <div key={field.name}>
                                 <Label htmlFor={field.name}>{field.label}{field.required && ' *'}</Label>
-                                {field.type === 'select' ? (
-                                  <Select 
-                                    onValueChange={(value) => setFormValues(prev => ({ ...prev, [field.name]: value }))}
-                                    required={field.required}
-                                  >
-                                    <SelectTrigger>
-                                      <SelectValue placeholder={`Select ${field.label}`} />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {field.options?.map(option => (
-                                        <SelectItem key={option} value={option}>{option}</SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                ) : (
-                                  <Input
-                                    id={field.name}
-                                    type={field.type}
-                                    onChange={handleEmployerFieldChange}
-                                    required={field.required}
-                                  />
-                                )}
+                                 {field.type === 'select' ? (
+                                   <Select 
+                                     onValueChange={(value) => setFormValues(prev => ({ ...prev, [field.name]: value }))}
+                                     required={field.required}
+                                     value={formValues[field.name] || ''}
+                                   >
+                                     <SelectTrigger>
+                                       <SelectValue placeholder={`Select ${field.label}`} />
+                                     </SelectTrigger>
+                                     <SelectContent>
+                                       {field.options?.map(option => (
+                                         <SelectItem key={option} value={option}>{option}</SelectItem>
+                                       ))}
+                                     </SelectContent>
+                                   </Select>
+                                 ) : (
+                                   <Input
+                                     id={field.name}
+                                     name={field.name}
+                                     type={field.type}
+                                     value={formValues[field.name] || ''}
+                                     onChange={handleEmployerFieldChange}
+                                     required={field.required}
+                                   />
+                                 )}
                               </div>
                             ))}
                           </div>
