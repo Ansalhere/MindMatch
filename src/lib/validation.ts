@@ -11,6 +11,11 @@ export const passwordSchema = z
   .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character');
 
 // Auth form validation - different schemas for login vs signup
+export const simpleLoginSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(1, 'Password is required'),
+});
+
 export const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(1, 'Password is required'),
@@ -113,6 +118,7 @@ export const sanitizeObject = (obj: Record<string, any>): Record<string, any> =>
 };
 
 export type AuthFormData = z.infer<typeof authSchema>;
+export type SimpleLoginFormData = z.infer<typeof simpleLoginSchema>;
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type SignupFormData = z.infer<typeof signupSchema>;
 export type JobFormData = z.infer<typeof jobSchema>;

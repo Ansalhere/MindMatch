@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { User, Loader2, Building, Shield } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { signIn } from '@/lib/supabase';
-import { loginSchema, type AuthFormData } from '@/lib/validation';
+import { simpleLoginSchema, type SimpleLoginFormData } from '@/lib/validation';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Layout from '@/components/Layout';
 import { Link } from 'react-router-dom';
@@ -19,8 +19,8 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const form = useForm<AuthFormData>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<SimpleLoginFormData>({
+    resolver: zodResolver(simpleLoginSchema),
     mode: 'onChange',
     defaultValues: {
       email: '',
@@ -28,7 +28,7 @@ const Login = () => {
     },
   });
 
-  const handleSubmit = async (data: AuthFormData) => {
+  const handleSubmit = async (data: SimpleLoginFormData) => {
     console.log('Login form submitted with data:', data);
     setIsLoading(true);
     setError(null);
