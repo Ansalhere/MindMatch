@@ -156,15 +156,24 @@ const Login = () => {
                   </div>
                 </div>
                  
-                <div className="w-full">
+                <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => navigate('/employer-login')}
-                    className="w-full text-xs"
+                    className="text-xs"
                   >
                     <Building className="h-3 w-3 mr-1" />
-                    Employer Login
+                    Employer
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate('/auth-selector')}
+                    className="text-xs"
+                  >
+                    <Shield className="h-3 w-3 mr-1" />
+                    More Options
                   </Button>
                 </div>
               </div>

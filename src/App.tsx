@@ -32,6 +32,7 @@ import SuperAdmin from "./pages/SuperAdmin";
 import AdminLogin from "./pages/AdminLogin";
 import EmployerLogin from "./pages/EmployerLogin";
 import EditProfile from "./pages/EditProfile";
+import LoginSelector from "./components/navigation/LoginSelector";
 import { AuthProvider } from "./hooks/useUser";
 
 const queryClient = new QueryClient();
@@ -47,6 +48,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/auth-selector" element={<LoginSelector />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/admin-login" element={<AdminLogin />} />

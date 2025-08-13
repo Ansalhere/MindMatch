@@ -148,7 +148,7 @@ const Navbar = () => {
               </div>
             ) : (
               <div className="flex items-center space-x-3">
-                <Link to="/login">
+                <Link to="/auth-selector">
                   <Button variant="ghost" size="sm">Login</Button>
                 </Link>
                 <Link to="/register">
@@ -235,7 +235,7 @@ const Navbar = () => {
             ) : (
               <div className="space-y-2 pt-2">
                 <Link 
-                  to="/login" 
+                  to="/auth-selector" 
                   className="block"
                   onClick={() => setIsMenuOpen(false)}
                 >

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Building, Loader2, Shield, UserCheck } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { signIn } from '@/lib/supabase';
-import { loginSchema, type AuthFormData } from '@/lib/validation';
+import { simpleLoginSchema, type SimpleLoginFormData } from '@/lib/validation';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Layout from '@/components/Layout';
 import { Link } from 'react-router-dom';
@@ -19,8 +19,8 @@ const EmployerLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const form = useForm<AuthFormData>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<SimpleLoginFormData>({
+    resolver: zodResolver(simpleLoginSchema),
     mode: 'onChange',
     defaultValues: {
       email: '',
@@ -28,7 +28,7 @@ const EmployerLogin = () => {
     },
   });
 
-  const handleSubmit = async (data: AuthFormData) => {
+  const handleSubmit = async (data: SimpleLoginFormData) => {
     console.log('Employer login form submitted with data:', data);
     setIsLoading(true);
     setError(null);
@@ -150,15 +150,24 @@ const EmployerLogin = () => {
                   </div>
                 </div>
                  
-                <div className="w-full">
+                <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => navigate('/login')}
-                    className="w-full text-xs"
+                    className="text-xs"
                   >
                     <UserCheck className="h-3 w-3 mr-1" />
-                    Job Seeker Login
+                    Job Seeker
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate('/auth-selector')}
+                    className="text-xs"
+                  >
+                    <Shield className="h-3 w-3 mr-1" />
+                    More Options
                   </Button>
                 </div>
               </div>

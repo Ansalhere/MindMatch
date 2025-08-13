@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Shield, Loader2, Building, UserCheck } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { signIn } from '@/lib/supabase';
-import { loginSchema, type AuthFormData } from '@/lib/validation';
+import { simpleLoginSchema, type SimpleLoginFormData } from '@/lib/validation';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Layout from '@/components/Layout';
 
@@ -18,8 +18,8 @@ const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const form = useForm<AuthFormData>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<SimpleLoginFormData>({
+    resolver: zodResolver(simpleLoginSchema),
     mode: 'onChange',
     defaultValues: {
       email: '',
@@ -27,7 +27,7 @@ const AdminLogin = () => {
     },
   });
 
-  const handleSubmit = async (data: AuthFormData) => {
+  const handleSubmit = async (data: SimpleLoginFormData) => {
     console.log('Admin login form submitted');
     setIsLoading(true);
     setError(null);
@@ -163,6 +163,17 @@ const AdminLogin = () => {
                   >
                     <Building className="h-3 w-3 mr-1" />
                     Employer
+                  </Button>
+                </div>
+                
+                <div className="text-center pt-2">
+                  <Button
+                    variant="link"
+                    size="sm"
+                    onClick={() => navigate('/auth-selector')}
+                    className="text-xs text-muted-foreground"
+                  >
+                    ← Back to Login Options
                   </Button>
                 </div>
               </div>
