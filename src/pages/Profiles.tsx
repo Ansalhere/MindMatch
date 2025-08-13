@@ -22,7 +22,7 @@ import { Progress } from "@/components/ui/progress";
 import { MapPin, Star, Trophy, Building, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUser } from '@/hooks/useUser';
-import { getRandomIndianCity } from '@/data/indianCities';
+import { getRandomGlobalCity } from '@/data/globalLocations';
 
 const Profiles = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -64,8 +64,8 @@ const Profiles = () => {
       // Process candidates data
       const processedCandidates = candidatesData?.map(candidate => ({
         ...candidate,
-        title: candidate.skills?.[0]?.name ? `${candidate.skills[0].name} Developer` : 'Software Developer',
-        location: getRandomIndianCity(),
+        title: candidate.skills?.[0]?.name ? `${candidate.skills[0].name} Professional` : 'Software Professional',
+        location: getRandomGlobalCity(),
         ranking: {
           overall: candidate.rank_score || 0,
           position: Math.floor(Math.random() * 500) + 1,
@@ -105,13 +105,15 @@ const Profiles = () => {
       // Process employers data
       const processedEmployers = employersData?.map(employer => ({
         ...employer,
-        location: getRandomIndianCity(),
+        location: getRandomGlobalCity(),
         rating: {
-          overall: 4.5,
-          environment: 5,
-          growth: 4,
-          worklife: 4
+          overall: (4.0 + Math.random() * 1.0),
+          environment: (4.0 + Math.random() * 1.0),
+          growth: (3.5 + Math.random() * 1.5),
+          worklife: (3.5 + Math.random() * 1.5)
         },
+        companyName: employer.company || employer.name || 'Technology Company',
+        description: `Leading ${employer.industry || 'technology'} company focused on innovation and growth.`,
         jobsWithApplicants: employer.jobs?.map((job: any) => ({
           ...job,
           applicants: job.applications?.length || 0
@@ -301,8 +303,8 @@ const Profiles = () => {
                         <AvatarFallback>{employer.company?.charAt(0) || 'C'}</AvatarFallback>
                       </Avatar>
                       <div>
-                        <CardTitle className="text-xl">{employer.company || employer.name}</CardTitle>
-                        <CardDescription>{employer.industry || 'Technology'}</CardDescription>
+                        <CardTitle className="text-xl">{employer.companyName || employer.company || employer.name}</CardTitle>
+                        <CardDescription>{employer.description || `Leading ${employer.industry || 'Technology'} company`}</CardDescription>
                         <div className="flex items-center text-sm mt-1">
                           <MapPin className="h-3 w-3 mr-1 text-muted-foreground" />
                           <span className="text-muted-foreground">{employer.location}</span>

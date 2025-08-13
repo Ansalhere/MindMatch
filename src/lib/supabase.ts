@@ -313,6 +313,7 @@ export async function applyForJob(applicationData: any) {
   try {
     console.log("Applying for job with data:", applicationData);
     
+    // Check for existing applications first
     const { data: existingApplications, error: checkError } = await supabase
       .from('applications')
       .select('id')

@@ -141,21 +141,27 @@ const PostJobForm = ({ onSubmit, isSubmitting }: PostJobFormProps) => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="location">Location (if not remote)</Label>
-              <div className="flex">
-                <div className="bg-muted p-2 flex items-center rounded-l-md border border-r-0 border-input">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
+              <div className="space-y-2">
+                <Label htmlFor="location">Location (if not remote)</Label>
+                <div className="flex">
+                  <div className="bg-muted p-2 flex items-center rounded-l-md border border-r-0 border-input">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <Input
+                    id="location"
+                    placeholder="e.g., Mumbai, India | London, UK | New York, USA"
+                    className="rounded-l-none"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    list="global-cities"
+                  />
+                  <datalist id="global-cities">
+                    {['Mumbai, India', 'London, UK', 'New York, USA', 'Remote', 'Singapore, Singapore', 'Toronto, Canada', 'Berlin, Germany', 'Sydney, Australia', 'Tokyo, Japan', 'Dubai, UAE'].map(city => (
+                      <option key={city} value={city} />
+                    ))}
+                  </datalist>
                 </div>
-                <Input
-                  id="location"
-                  placeholder="e.g., San Francisco, CA"
-                  className="rounded-l-none"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                />
               </div>
-            </div>
             
             <div className="space-y-2">
               <Label htmlFor="deadline">Application Deadline</Label>

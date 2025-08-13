@@ -15,6 +15,7 @@ import Layout from '@/components/Layout';
 import CandidateRankDisplay from '@/components/ranking/CandidateRankDisplay';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { jobs as sampleJobs } from '@/data/sampleJobs';
+import { getJobLocationsFromData, globalCities } from '@/data/globalLocations';
 
 const Jobs = () => {
   const [jobs, setJobs] = useState<any[]>([]);
@@ -146,17 +147,18 @@ const Jobs = () => {
   });
 
   const jobTypes = ['Full-time', 'Part-time', 'Contract', 'Internship', 'Remote'];
-  const locations = ['New York', 'San Francisco', 'London', 'Remote', 'Tokyo', 'Berlin', 'Sydney'];
+  const availableLocations = getJobLocationsFromData(jobs);
+  const locations = availableLocations.length > 0 ? availableLocations : globalCities.slice(0, 20);
 
   return (
     <Layout>
       <main className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            Find Your Perfect Job
+            Discover Your Next Career Opportunity
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Full-time · Part-time · Contract · Internship · Remote — opportunities worldwide
+            Connect with leading employers worldwide. Browse opportunities across all industries and experience levels.
           </p>
         </div>
         
@@ -170,7 +172,7 @@ const Jobs = () => {
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
                     <Input 
-                      placeholder="Search by title, company, or keywords" 
+                      placeholder="Search jobs by title, company, skills, or keywords" 
                       className="pl-10 h-12"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
@@ -237,8 +239,8 @@ const Jobs = () => {
                 <Card>
                   <CardContent className="flex flex-col items-center py-12">
                     <Briefcase className="h-16 w-16 text-muted-foreground/50 mb-4" />
-                    <p className="text-xl font-medium mb-2">No jobs found</p>
-                    <p className="text-muted-foreground mb-4">Try adjusting your search criteria or check back later</p>
+                    <p className="text-xl font-medium mb-2">No matching opportunities found</p>
+                    <p className="text-muted-foreground mb-4">Try adjusting your search criteria or explore all available positions</p>
                     <Button variant="outline" onClick={() => {
                       setSearchTerm('');
                       setFilterType('all');
@@ -252,7 +254,7 @@ const Jobs = () => {
                 <>
                   <div className="flex justify-between items-center">
                     <p className="text-muted-foreground">
-                      Showing {filteredJobs.length} of {jobs.length} jobs
+                      Showing {filteredJobs.length} of {jobs.length} opportunities
                     </p>
                     <Button variant="outline" size="sm" onClick={handleRefresh} className="gap-2">
                       <RefreshCw className="h-4 w-4" />
@@ -383,9 +385,9 @@ const Jobs = () => {
             {user && user.user_type === 'candidate' ? (
               <Card className="sticky top-24 shadow-lg">
                 <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5">
-                  <CardTitle className="text-xl">Your Profile</CardTitle>
+                  <CardTitle className="text-xl">Career Profile</CardTitle>
                   <CardDescription>
-                    Your current ranking and application stats
+                    Track your professional ranking and application progress
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6">

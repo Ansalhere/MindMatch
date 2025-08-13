@@ -26,6 +26,7 @@ import { getJobById, applyForJob } from '@/lib/supabase';
 import { useUser } from '@/hooks/useUser';
 import Layout from '@/components/Layout';
 import CandidateRankDisplay from '@/components/ranking/CandidateRankDisplay';
+import ContactEmployerButton from '@/components/messaging/ContactEmployerButton';
 import { jobs as sampleJobs } from '@/data/sampleJobs';
 
 const Job = () => {
@@ -266,23 +267,31 @@ const Job = () => {
                     Demo Job
                   </Badge>
                 ) : (
-                  <Button 
-                    size="lg"
-                    onClick={handleApply} 
-                    disabled={applying}
-                  >
-                    {applying ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Applying...
-                      </>
-                    ) : (
-                      <>
-                        <Briefcase className="h-4 w-4 mr-2" />
-                        Apply Now
-                      </>
-                    )}
-                  </Button>
+                  <div className="flex gap-2">
+                    <ContactEmployerButton
+                      employerId={job.employer_id}
+                      employerName={job.employer?.company || job.employer?.name || 'Employer'}
+                      jobTitle={job.title}
+                    />
+                    <Button 
+                      size="lg"
+                      onClick={handleApply} 
+                      disabled={applying}
+                      className="flex-1"
+                    >
+                      {applying ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Applying...
+                        </>
+                      ) : (
+                        <>
+                          <Briefcase className="h-4 w-4 mr-2" />
+                          Apply Now
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 )}
               </div>
             </CardContent>
