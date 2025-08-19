@@ -126,12 +126,8 @@ const SelfAssessmentCenter = () => {
   const [startingAssessment, setStartingAssessment] = useState<string | null>(null);
 
   const handleStartAssessment = (categoryId: string) => {
-    setStartingAssessment(categoryId);
-    // Simulate assessment start
-    setTimeout(() => {
-      setCompletedAssessments(prev => [...prev, categoryId]);
-      setStartingAssessment(null);
-    }, 2000);
+    // Navigate to the actual skill assessment page
+    window.location.href = '/skills';
   };
 
   const getDifficultyColor = (difficulty: string) => {
@@ -175,19 +171,19 @@ const SelfAssessmentCenter = () => {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {assessmentCategories.map((category) => {
-          const IconComponent = category.icon;
-          const isCompleted = completedAssessments.includes(category.id);
-          const isStarting = startingAssessment === category.id;
-          
-          return (
-            <Card 
-              key={category.id} 
-              className={`relative overflow-hidden transition-all hover:shadow-lg ${
-                isCompleted ? 'border-green-200 bg-green-50/50' : ''
-              }`}
-            >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {assessmentCategories.map((category) => {
+            const IconComponent = category.icon;
+            const isCompleted = completedAssessments.includes(category.id);
+            const isStarting = startingAssessment === category.id;
+            
+            return (
+              <Card 
+                key={category.id} 
+                className={`relative overflow-hidden card-hover ${
+                  isCompleted ? 'border-green-200 bg-green-50/50' : ''
+                }`}
+              >
               {isCompleted && (
                 <div className="absolute top-2 right-2">
                   <CheckCircle className="h-6 w-6 text-green-600" />
@@ -232,19 +228,19 @@ const SelfAssessmentCenter = () => {
                   </div>
                 </div>
                 
-                <Button 
-                  onClick={() => handleStartAssessment(category.id)}
-                  disabled={isStarting || isCompleted}
-                  className="w-full"
-                  variant={isCompleted ? "outline" : "default"}
-                >
-                  {isStarting ? (
-                    <>Loading Assessment...</>
-                  ) : isCompleted ? (
-                    <>Completed • Retake</>
-                  ) : (
-                    <>Start Assessment</>
-                  )}
+                        <Button 
+                          onClick={() => handleStartAssessment(category.id)}
+                          disabled={isStarting || isCompleted}
+                          className="w-full shadow-elegant hover-lift"
+                          variant={isCompleted ? "outline" : "default"}
+                        >
+                          {isStarting ? (
+                            <>Loading Assessment...</>
+                          ) : isCompleted ? (
+                            <>Completed • Retake</>
+                          ) : (
+                            <>Start Assessment</>
+                          )}
                 </Button>
               </CardContent>
             </Card>

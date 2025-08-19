@@ -150,6 +150,61 @@ html {
   transform-origin: bottom left;
 }
 
+/* Enhanced global styles for production-ready UI */
+.glass-effect {
+  @apply backdrop-blur-lg bg-white/70 dark:bg-gray-900/70 border border-white/20 dark:border-gray-700/20;
+}
+
+.gradient-text {
+  @apply bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent;
+}
+
+.shadow-elegant {
+  box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.hover-lift {
+  @apply transition-transform duration-200 hover:scale-[1.02];
+}
+
+.button-glow {
+  @apply shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-shadow duration-200;
+}
+
+/* Enhanced spacing system */
+.section-padding {
+  @apply py-16 px-6 md:py-24 md:px-8 lg:px-12;
+}
+
+.container-responsive {
+  @apply container mx-auto max-w-7xl;
+}
+
+/* Improved card designs */
+.card-hover {
+  @apply transition-all duration-300 hover:shadow-elegant hover:-translate-y-1;
+}
+
+/* Professional navigation */
+.nav-item {
+  @apply relative text-sm font-medium transition-colors duration-200 hover:text-primary;
+}
+
+.nav-item::after {
+  @apply absolute bottom-0 left-0 h-0.5 w-0 bg-primary transition-all duration-200;
+  content: '';
+}
+
+.nav-item:hover::after,
+.nav-item.active::after {
+  @apply w-full;
+}
+
+/* Global focus styles */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background;
+}
+
 /* Employer theme overrides: professional red theme */
 .theme-employer {
   --primary: 0 72% 51%;
@@ -166,5 +221,52 @@ html {
   --card-foreground: 0 10% 10%;
   --popover: 0 0% 100%;
   --popover-foreground: 0 10% 10%;
+}
+
+/* Animation improvements */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideInUp 0.6s ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* Loading states */
+.skeleton {
+  @apply animate-pulse bg-muted rounded;
+}
+
+/* Success/Error states */
+.badge-success {
+  @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300;
+}
+
+.badge-error {
+  @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300;
+}
+
+.badge-warning {
+  @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300;
 }
 

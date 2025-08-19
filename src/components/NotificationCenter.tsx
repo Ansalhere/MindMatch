@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Bell, Check, Trash2, Mail, Briefcase, User } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +26,7 @@ interface Notification {
 
 const NotificationCenter = () => {
   const { user } = useUser();
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
@@ -140,6 +142,38 @@ const NotificationCenter = () => {
     }
   };
 
+  const handleNotificationClick = async (notification: Notification) => {
+    // Mark as read if not already read
+    if (!notification.is_read) {
+      await markAsRead(notification.id);
+    }
+    
+    // Navigate based on notification type and related data
+    switch (notification.type) {
+      case 'message':
+        navigate('/dashboard'); // Could be enhanced to navigate to specific message
+        break;
+      case 'application':
+        if (notification.related_type === 'job' && notification.related_id) {
+          navigate(`/jobs/${notification.related_id}`);
+        } else {
+          navigate('/dashboard');
+        }
+        break;
+      case 'job_posted':
+        navigate('/jobs');
+        break;
+      case 'profile':
+        navigate('/edit-profile');
+        break;
+      default:
+        navigate('/dashboard');
+        break;
+    }
+    
+    setIsOpen(false);
+  };
+
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'message':
@@ -209,7 +243,10 @@ const NotificationCenter = () => {
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
+                        <div 
+                          className="min-w-0 cursor-pointer hover:bg-muted/30 rounded p-1 -m-1"
+                          onClick={() => handleNotificationClick(notification)}
+                        >
                           <p className="text-sm font-medium truncate">
                             {notification.title}
                           </p>

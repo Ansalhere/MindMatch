@@ -46,10 +46,13 @@ import {
   calculateUserRank,
   getEmployerJobs 
 } from '@/lib/supabase';
+import { useUser } from '@/hooks/useUser';
+import ContactActions from '@/components/employer/ContactActions';
 
 const Profile = () => {
   const { id, type = 'candidate' } = useParams();
   const navigate = useNavigate();
+  const { user: currentUser } = useUser();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   
@@ -201,7 +204,7 @@ const Profile = () => {
       </Button>
       
       {type === 'candidate' ? (
-        <CandidateProfile profile={profile} />
+        <CandidateProfile profile={profile} currentUser={currentUser} />
       ) : (
         <EmployerProfile profile={profile} />
       )}
@@ -209,7 +212,7 @@ const Profile = () => {
   );
 };
 
-const CandidateProfile = ({ profile }: { profile: any }) => {
+const CandidateProfile = ({ profile, currentUser }: { profile: any; currentUser: any }) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Left column - Profile Info */}
@@ -253,6 +256,19 @@ const CandidateProfile = ({ profile }: { profile: any }) => {
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <span>Available immediately</span>
             </div>
+            
+            {/* Contact Actions for Employers */}
+            {currentUser?.user_type === 'employer' && (
+              <div className="pt-4 border-t">
+                <ContactActions
+                  candidateName={profile.name}
+                  candidateEmail={profile.email}
+                  candidatePhone={profile.phone}
+                  candidateId={profile.id}
+                />
+              </div>
+            )}
+            
             <div className="border-t pt-4 mt-4">
               <h3 className="font-semibold mb-3 flex items-center">
                 <Trophy className="h-4 w-4 mr-2 text-primary" /> Ranking

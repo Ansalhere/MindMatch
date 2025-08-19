@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Trophy, Clock, CheckCircle, ArrowRight } from 'lucide-react';
 import { toast } from "sonner";
 import { addUserSkill } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { useUser } from '@/hooks/useUser';
 
 interface Question {
@@ -229,7 +230,18 @@ const SkillAssessment = ({ onComplete }: SkillAssessmentProps) => {
       
       try {
         await addUserSkill(skillData);
-        toast.success(`Skill "${skillData.name}" added to your profile!`);
+        
+        // Trigger rank recalculation
+        const { data: rankData, error: rankError } = await supabase.functions.invoke('rank-calculator', {
+          body: { userId: user.id }
+        });
+        
+        if (rankError) {
+          console.error('Error recalculating rank:', rankError);
+        } else {
+          toast.success(`Skill "${skillData.name}" added to your profile! Rank updated.`);
+        }
+        
         onComplete?.(skillData.name, score);
       } catch (error) {
         console.error('Error saving skill:', error);
@@ -418,9 +430,13 @@ const SkillAssessment = ({ onComplete }: SkillAssessmentProps) => {
             <Button variant="outline" onClick={resetExam} className="flex-1">
               Take Another Assessment
             </Button>
-            {!passed && (
+            {!passed ? (
               <Button onClick={() => startExam(selectedExam)} className="flex-1">
                 Retake Assessment
+              </Button>
+            ) : (
+              <Button onClick={() => window.location.href = '/dashboard'} className="flex-1">
+                View Dashboard
               </Button>
             )}
           </div>
