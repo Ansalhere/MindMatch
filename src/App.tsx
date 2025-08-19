@@ -19,6 +19,9 @@ import AddSkill from "./pages/AddSkill";
 import RankingExplanationPage from "./pages/RankingExplanation";
 import Jobs from "./pages/Jobs";
 import Skills from "./pages/Skills";
+import SkillAssessmentPage from "./pages/SkillAssessmentPage";
+import Community from "./pages/Community";
+import Rankings from "./pages/Rankings";
 import Career from "./pages/Career";
 import SuccessStories from "./pages/SuccessStories";
 import About from "./pages/About";
@@ -64,6 +67,9 @@ const App = () => (
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/job/:id" element={<Job />} />
           <Route path="/skills" element={<Skills />} />
+          <Route path="/skill-assessment/:category" element={<SkillAssessmentPage />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/rankings" element={<Rankings />} />
           <Route path="/resources" element={<Career />} />
           <Route path="/success-stories" element={<SuccessStories />} />
           <Route path="/about" element={<About />} />

@@ -126,8 +126,11 @@ const SelfAssessmentCenter = () => {
   const [startingAssessment, setStartingAssessment] = useState<string | null>(null);
 
   const handleStartAssessment = (categoryId: string) => {
-    // Navigate to the actual skill assessment page
-    window.location.href = '/skills';
+    setStartingAssessment(categoryId);
+    // Navigate to skill assessment with category
+    setTimeout(() => {
+      window.location.href = `/skill-assessment/${categoryId}`;
+    }, 500);
   };
 
   const getDifficultyColor = (difficulty: string) => {

@@ -3,10 +3,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Briefcase, MapPin, Clock, Search, Filter, Building, Loader2, Trophy, Info, AlertTriangle, RefreshCw, CheckCircle, DollarSign } from 'lucide-react';
+import { MapPin, Building, Clock, Search, Filter, Trophy, IndianRupee, TrendingUp, Briefcase, AlertTriangle, RefreshCw, CheckCircle, Info, Loader2 } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 import { toast } from "sonner";
 import { getJobs, applyForJob, getUserApplications } from '@/lib/supabase';
 import { useUser } from '@/hooks/useUser';
@@ -314,7 +315,7 @@ const Jobs = () => {
                             </div>
                             {(job.salary_min || job.salary_max) && (
                               <div className="flex items-center text-muted-foreground">
-                                <DollarSign className="h-4 w-4 mr-2 text-primary" />
+                                <IndianRupee className="h-4 w-4 mr-2 text-primary" />
                                 <span>
                                   ₹{job.salary_min ? job.salary_min.toLocaleString() : ''}
                                   {job.salary_min && job.salary_max && ' - '}

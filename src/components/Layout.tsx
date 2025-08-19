@@ -18,17 +18,6 @@ const Layout = ({ children, className = '' }: LayoutProps) => {
       <Navbar />
       <main className="flex-grow animate-fade-in">{children}</main>
       <Footer />
-      <Toaster 
-        position="top-right"
-        richColors
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: 'hsl(var(--card))',
-            border: '1px solid hsl(var(--border))',
-          }
-        }}
-      />
     </div>
   );
 };
