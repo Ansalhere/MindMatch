@@ -171,18 +171,31 @@ html {
   @apply shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-shadow duration-200;
 }
 
-/* Enhanced spacing system */
+/* Enhanced spacing system - More compact */
 .section-padding {
-  @apply py-16 px-6 md:py-24 md:px-8 lg:px-12;
+  @apply py-8 px-4 md:py-12 md:px-6 lg:px-8;
 }
 
 .container-responsive {
-  @apply container mx-auto max-w-7xl;
+  @apply container mx-auto max-w-6xl;
+}
+
+.compact-spacing {
+  @apply space-y-3;
+}
+
+.tight-grid {
+  @apply gap-3 md:gap-4;
 }
 
 /* Improved card designs */
 .card-hover {
-  @apply transition-all duration-300 hover:shadow-elegant hover:-translate-y-1;
+  @apply transition-all duration-300 hover:-translate-y-1;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.card-hover:hover {
+  box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 /* Professional navigation */
