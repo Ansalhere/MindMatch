@@ -43,19 +43,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (currentSession?.user) {
         console.log('Setting user from session:', currentSession.user.id);
-        setUser({
-          id: currentSession.user.id,
-          email: currentSession.user.email || '',
-          user_type: currentSession.user.user_metadata?.user_type || 'candidate',
-          ...currentSession.user.user_metadata
-        });
         
-        // Get additional profile data from users table
-        try {
-          const { profile: userProfile } = await getUserProfile(currentSession.user.id);
+        // Get user profile from users table first
+        const { profile: userProfile } = await getUserProfile(currentSession.user.id);
+        if (userProfile) {
+          setUser({
+            id: currentSession.user.id,
+            email: currentSession.user.email || '',
+            user_type: userProfile.user_type || 'candidate',
+            ...userProfile // This includes all fields from users table
+          });
           setProfile(userProfile);
-        } catch (profileError) {
-          console.warn('Could not fetch user profile:', profileError);
+        } else {
+          // Fallback to session metadata if no profile found
+          setUser({
+            id: currentSession.user.id,
+            email: currentSession.user.email || '',
+            user_type: currentSession.user.user_metadata?.user_type || 'candidate',
+            ...currentSession.user.user_metadata
+          });
           setProfile(null);
         }
       } else {

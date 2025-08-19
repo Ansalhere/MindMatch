@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -189,7 +189,7 @@ const SkillAssessment = ({ onComplete }: SkillAssessmentProps) => {
     setAnswers([]);
     setShowResults(false);
     setTimeLeft(300);
-    setExamStarted(true);
+    setExamStarted(false); // Don't start timer immediately
   };
 
   const selectAnswer = (answerIndex: number) => {
@@ -312,6 +312,52 @@ const SkillAssessment = ({ onComplete }: SkillAssessmentProps) => {
           ))}
         </div>
       </div>
+    );
+  }
+
+  // Show assessment start screen before beginning timer
+  if (selectedExam && !examStarted) {
+    return (
+      <Card className="max-w-2xl mx-auto">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl mb-2">{selectedExam.title}</CardTitle>
+          <CardDescription>{selectedExam.description}</CardDescription>
+        </CardHeader>
+        <CardContent className="text-center space-y-6">
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <p className="font-semibold">Questions</p>
+              <p className="text-2xl font-bold text-primary">{selectedExam.questions.length}</p>
+            </div>
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <p className="font-semibold">Time Limit</p>
+              <p className="text-2xl font-bold text-primary">5 min</p>
+            </div>
+          </div>
+          
+          <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
+            <p className="text-amber-800 font-medium mb-2">Assessment Instructions:</p>
+            <ul className="text-amber-700 text-sm space-y-1 text-left">
+              <li>• You have 5 minutes to complete all questions</li>
+              <li>• Each question has only one correct answer</li>
+              <li>• You need {selectedExam.passingScore}% to pass</li>
+              <li>• Timer starts when you click "Begin Assessment"</li>
+            </ul>
+          </div>
+          
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={resetExam} className="flex-1">
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => setExamStarted(true)} 
+              className="flex-1"
+            >
+              Begin Assessment
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 

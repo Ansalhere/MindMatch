@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, MapPin, Clock, Search, Filter, Building, Loader2, Trophy, Info, AlertTriangle, RefreshCw, CheckCircle } from 'lucide-react';
+import { Briefcase, MapPin, Clock, Search, Filter, Building, Loader2, Trophy, Info, AlertTriangle, RefreshCw, CheckCircle, DollarSign } from 'lucide-react';
 import { toast } from "sonner";
 import { getJobs, applyForJob, getUserApplications } from '@/lib/supabase';
 import { useUser } from '@/hooks/useUser';
@@ -59,16 +59,24 @@ const Jobs = () => {
       if (error) {
         console.error("Error fetching jobs:", error);
         setError("Failed to load jobs. Please check your connection and try again.");
+        // Show sample jobs as fallback
+        setJobs(sampleJobs as any[]);
         return;
       }
       
       console.log("Jobs fetched:", fetchedJobs?.length || 0);
-      if (!fetchedJobs || fetchedJobs.length === 0) {
-        console.log("No jobs returned from API, using featured sample jobs");
-        setJobs(sampleJobs as any[]);
-      } else {
-        setJobs(fetchedJobs || []);
+      
+      // Always combine real jobs with sample jobs for better user experience
+      const allJobs = [];
+      if (fetchedJobs && fetchedJobs.length > 0) {
+        allJobs.push(...fetchedJobs);
       }
+      // Add sample jobs if we have fewer than 5 real jobs
+      if (allJobs.length < 5) {
+        allJobs.push(...sampleJobs);
+      }
+      
+      setJobs(allJobs);
     } catch (error) {
       console.error("Exception in fetchJobs:", error);
       setError("An unexpected error occurred. Please try again later.");
@@ -304,6 +312,16 @@ const Jobs = () => {
                               <Clock className="h-4 w-4 mr-2 text-primary" />
                               <span>Posted {job.created_at ? new Date(job.created_at).toLocaleDateString() : 'Recently'}</span>
                             </div>
+                            {(job.salary_min || job.salary_max) && (
+                              <div className="flex items-center text-muted-foreground">
+                                <DollarSign className="h-4 w-4 mr-2 text-primary" />
+                                <span>
+                                  ₹{job.salary_min ? job.salary_min.toLocaleString() : ''}
+                                  {job.salary_min && job.salary_max && ' - '}
+                                  {job.salary_max ? `₹${job.salary_max.toLocaleString()}` : ''} /month
+                                </span>
+                              </div>
+                            )}
                           </div>
                           
                           <p className="text-muted-foreground mb-4 line-clamp-3">

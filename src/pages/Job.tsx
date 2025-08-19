@@ -19,7 +19,8 @@ import {
   Clock,
   Users,
   DollarSign,
-  ArrowLeft
+  ArrowLeft,
+  IndianRupee
 } from 'lucide-react';
 import { toast } from "sonner";
 import { getJobById, applyForJob } from '@/lib/supabase';
@@ -158,11 +159,11 @@ const Job = () => {
 
   const formatSalary = () => {
     if (job.salary_min && job.salary_max) {
-      return `$${job.salary_min.toLocaleString()} - $${job.salary_max.toLocaleString()}`;
+      return `₹${job.salary_min.toLocaleString()} - ₹${job.salary_max.toLocaleString()}`;
     } else if (job.salary_min) {
-      return `$${job.salary_min.toLocaleString()}+`;
+      return `₹${job.salary_min.toLocaleString()}+`;
     } else if (job.salary_max) {
-      return `Up to $${job.salary_max.toLocaleString()}`;
+      return `Up to ₹${job.salary_max.toLocaleString()}`;
     }
     return "Not disclosed";
   };
