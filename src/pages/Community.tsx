@@ -42,6 +42,9 @@ const Community = () => {
   const [newPost, setNewPost] = useState('');
   const [newPostTitle, setNewPostTitle] = useState('');
   const [postType, setPostType] = useState<'discussion' | 'job' | 'achievement' | 'question'>('discussion');
+  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+  const [commentingPost, setCommentingPost] = useState<string | null>(null);
+  const [newComment, setNewComment] = useState('');
 
   const mockPosts: Post[] = [
     {
@@ -135,6 +138,37 @@ const Community = () => {
     if (days > 0) return `${days}d ago`;
     if (hours > 0) return `${hours}h ago`;
     return 'Just now';
+  };
+
+  const handleLike = (postId: string) => {
+    const newLikedPosts = new Set(likedPosts);
+    const isLiked = likedPosts.has(postId);
+    
+    if (isLiked) {
+      newLikedPosts.delete(postId);
+    } else {
+      newLikedPosts.add(postId);
+    }
+    
+    setLikedPosts(newLikedPosts);
+    setPosts(prev => prev.map(post => 
+      post.id === postId 
+        ? { ...post, likes: post.likes + (isLiked ? -1 : 1) }
+        : post
+    ));
+  };
+
+  const handleComment = (postId: string) => {
+    if (!newComment.trim()) return;
+    
+    setPosts(prev => prev.map(post => 
+      post.id === postId 
+        ? { ...post, comments: post.comments + 1 }
+        : post
+    ));
+    
+    setNewComment('');
+    setCommentingPost(null);
   };
 
   return (
@@ -246,19 +280,51 @@ const Community = () => {
                   <Separator />
                   
                   <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="sm" className="text-muted-foreground">
-                      <Heart className="h-4 w-4 mr-1" />
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => handleLike(post.id)}
+                      className={`text-muted-foreground hover:text-red-500 ${
+                        likedPosts.has(post.id) ? 'text-red-500' : ''
+                      }`}
+                    >
+                      <Heart className={`h-4 w-4 mr-1 ${likedPosts.has(post.id) ? 'fill-current' : ''}`} />
                       {post.likes} Likes
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-muted-foreground">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setCommentingPost(commentingPost === post.id ? null : post.id)}
+                      className="text-muted-foreground hover:text-blue-500"
+                    >
                       <MessageSquare className="h-4 w-4 mr-1" />
                       {post.comments} Comments
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-muted-foreground">
+                    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-green-500">
                       <Share2 className="h-4 w-4 mr-1" />
                       Share
                     </Button>
                   </div>
+                  
+                  {commentingPost === post.id && (
+                    <div className="mt-4 pt-4 border-t">
+                      <div className="flex gap-2">
+                        <Textarea
+                          placeholder="Write a comment..."
+                          value={newComment}
+                          onChange={(e) => setNewComment(e.target.value)}
+                          className="flex-1 min-h-[80px]"
+                        />
+                        <Button 
+                          onClick={() => handleComment(post.id)}
+                          disabled={!newComment.trim()}
+                          size="sm"
+                        >
+                          Post
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}

@@ -60,10 +60,10 @@ const Index = () => {
         >
           <Hero />
           {user && <QuickUserPanel />}
-          <div id="features">
+          <div id="features" className="py-12">
             <Features />
           </div>
-          <div id="ranking-system">
+          <div id="ranking-system" className="py-12">
             <RankingShowcase isVisible={rankingVisible} />
           </div>
           <div id="how-it-works">

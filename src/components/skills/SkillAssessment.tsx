@@ -26,51 +26,209 @@ interface SkillExam {
   maxScore: number;
 }
 
-const skillExams: SkillExam[] = [
-  {
-    id: 'javascript',
-    title: 'JavaScript Fundamentals',
-    description: 'Test your JavaScript knowledge with 10 questions covering variables, functions, and ES6 features.',
+// Dynamic skill exams mapping based on category
+const getSkillExamByCategory = (category: string): SkillExam => {
+  const examTemplates = {
+    'frontend': {
+      id: 'frontend',
+      title: 'Frontend Development',
+      description: 'Test your HTML, CSS, JavaScript, React, and UI/UX skills',
+      questions: [
+        {
+          id: 1,
+          question: 'What is the virtual DOM in React?',
+          options: ['A real DOM copy', 'An in-memory representation of the real DOM', 'A database', 'A CSS framework'],
+          correct: 1,
+          difficulty: 'intermediate' as const
+        },
+        {
+          id: 2,
+          question: 'Which CSS property is used for responsive design?',
+          options: ['display', 'position', 'media queries', 'flex'],
+          correct: 2,
+          difficulty: 'beginner' as const
+        },
+        {
+          id: 3,
+          question: 'What is the purpose of useEffect in React?',
+          options: ['State management', 'Side effects handling', 'Component styling', 'Routing'],
+          correct: 1,
+          difficulty: 'intermediate' as const
+        },
+        {
+          id: 4,
+          question: 'Which HTML5 element is semantic?',
+          options: ['<div>', '<span>', '<article>', '<b>'],
+          correct: 2,
+          difficulty: 'beginner' as const
+        },
+        {
+          id: 5,
+          question: 'What is TypeScript?',
+          options: ['A database', 'JavaScript with types', 'A CSS framework', 'A testing library'],
+          correct: 1,
+          difficulty: 'intermediate' as const
+        }
+      ]
+    },
+    'backend': {
+      id: 'backend',
+      title: 'Backend Development',
+      description: 'Assess your server-side programming and API development knowledge',
+      questions: [
+        {
+          id: 1,
+          question: 'What is REST API?',
+          options: ['A database', 'Representational State Transfer', 'A programming language', 'A framework'],
+          correct: 1,
+          difficulty: 'intermediate' as const
+        },
+        {
+          id: 2,
+          question: 'Which HTTP method is used to create data?',
+          options: ['GET', 'POST', 'PUT', 'DELETE'],
+          correct: 1,
+          difficulty: 'beginner' as const
+        },
+        {
+          id: 3,
+          question: 'What is middleware in Node.js?',
+          options: ['A database', 'Functions that execute during request-response cycle', 'A framework', 'A library'],
+          correct: 1,
+          difficulty: 'intermediate' as const
+        },
+        {
+          id: 4,
+          question: 'What is JWT?',
+          options: ['Java Web Token', 'JSON Web Token', 'JavaScript Tool', 'Database'],
+          correct: 1,
+          difficulty: 'advanced' as const
+        },
+        {
+          id: 5,
+          question: 'Which database is NoSQL?',
+          options: ['MySQL', 'PostgreSQL', 'MongoDB', 'SQLite'],
+          correct: 2,
+          difficulty: 'beginner' as const
+        }
+      ]
+    },
+    'data-science': {
+      id: 'data-science',
+      title: 'Data Science & Analytics',
+      description: 'Evaluate your data analysis, machine learning, and statistics skills',
+      questions: [
+        {
+          id: 1,
+          question: 'What is machine learning?',
+          options: ['A type of computer', 'AI that learns from data', 'A programming language', 'A database'],
+          correct: 1,
+          difficulty: 'beginner' as const
+        },
+        {
+          id: 2,
+          question: 'Which library is used for data manipulation in Python?',
+          options: ['NumPy', 'Pandas', 'Matplotlib', 'All of the above'],
+          correct: 3,
+          difficulty: 'intermediate' as const
+        },
+        {
+          id: 3,
+          question: 'What is supervised learning?',
+          options: ['Learning with labeled data', 'Learning without data', 'Random learning', 'Manual learning'],
+          correct: 0,
+          difficulty: 'intermediate' as const
+        },
+        {
+          id: 4,
+          question: 'What is a neural network?',
+          options: ['A computer network', 'A model inspired by brain neurons', 'A database', 'An algorithm'],
+          correct: 1,
+          difficulty: 'advanced' as const
+        },
+        {
+          id: 5,
+          question: 'What is the purpose of data visualization?',
+          options: ['To hide data', 'To present data graphically', 'To delete data', 'To create data'],
+          correct: 1,
+          difficulty: 'beginner' as const
+        }
+      ]
+    },
+    'digital-marketing': {
+      id: 'digital-marketing',
+      title: 'Digital Marketing',
+      description: 'Test your knowledge in SEO, social media, and online advertising',
+      questions: [
+        {
+          id: 1,
+          question: 'What does SEO stand for?',
+          options: ['Search Engine Optimization', 'Social Engine Optimization', 'Site Engine Optimization', 'System Engine Optimization'],
+          correct: 0,
+          difficulty: 'beginner' as const
+        },
+        {
+          id: 2,
+          question: 'What is CTR in digital marketing?',
+          options: ['Click Through Rate', 'Cost Through Rate', 'Customer Through Rate', 'Content Through Rate'],
+          correct: 0,
+          difficulty: 'intermediate' as const
+        },
+        {
+          id: 3,
+          question: 'Which platform is best for B2B marketing?',
+          options: ['Instagram', 'TikTok', 'LinkedIn', 'Snapchat'],
+          correct: 2,
+          difficulty: 'beginner' as const
+        },
+        {
+          id: 4,
+          question: 'What is A/B testing?',
+          options: ['Testing two versions', 'Testing one version', 'Testing three versions', 'No testing'],
+          correct: 0,
+          difficulty: 'intermediate' as const
+        },
+        {
+          id: 5,
+          question: 'What is the purpose of Google Analytics?',
+          options: ['Website design', 'Website tracking and analysis', 'Website hosting', 'Website creation'],
+          correct: 1,
+          difficulty: 'beginner' as const
+        }
+      ]
+    }
+  };
+
+  // Add required properties to all exam templates
+  const examWithDefaults = examTemplates[category as keyof typeof examTemplates];
+  if (examWithDefaults) {
+    return {
+      ...examWithDefaults,
+      passingScore: 70,
+      maxScore: 100
+    };
+  }
+
+  // Default to a general exam if category not found
+  return {
+    id: category,
+    title: category.charAt(0).toUpperCase() + category.slice(1),
+    description: `Test your knowledge in ${category}`,
     passingScore: 70,
     maxScore: 100,
     questions: [
       {
         id: 1,
-        question: 'What is the output of: console.log(typeof null)?',
-        options: ['null', 'undefined', 'object', 'boolean'],
-        correct: 2,
-        difficulty: 'beginner'
-      },
-      {
-        id: 2,
-        question: 'Which method is used to add an element to the end of an array?',
-        options: ['push()', 'pop()', 'shift()', 'unshift()'],
-        correct: 0,
-        difficulty: 'beginner'
-      },
-      {
-        id: 3,
-        question: 'What does "hoisting" mean in JavaScript?',
-        options: ['Moving variables to the top of scope', 'Creating new variables', 'Deleting variables', 'Copying variables'],
-        correct: 0,
-        difficulty: 'intermediate'
-      },
-      {
-        id: 4,
-        question: 'Which keyword is used to declare a constant in ES6?',
-        options: ['var', 'let', 'const', 'final'],
-        correct: 2,
-        difficulty: 'beginner'
-      },
-      {
-        id: 5,
-        question: 'What is a closure in JavaScript?',
-        options: ['A loop structure', 'A function with access to outer scope', 'A data type', 'An error handling mechanism'],
-        correct: 1,
-        difficulty: 'advanced'
+        question: `What is the most important concept in ${category}?`,
+        options: ['Concept A', 'Concept B', 'Concept C', 'All of the above'],
+        correct: 3,
+        difficulty: 'intermediate' as const
       }
     ]
-  },
+  };
+};
+
+const skillExams: SkillExam[] = [
   {
     id: 'react',
     title: 'React Fundamentals',
@@ -163,9 +321,10 @@ const skillExams: SkillExam[] = [
 
 interface SkillAssessmentProps {
   onComplete?: (skillName: string, score: number) => void;
+  category?: string; // Add category prop
 }
 
-const SkillAssessment = ({ onComplete }: SkillAssessmentProps) => {
+const SkillAssessment = ({ onComplete, category }: SkillAssessmentProps) => {
   const [selectedExam, setSelectedExam] = useState<SkillExam | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
@@ -173,6 +332,14 @@ const SkillAssessment = ({ onComplete }: SkillAssessmentProps) => {
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
   const [examStarted, setExamStarted] = useState(false);
   const { user } = useUser();
+
+  // Auto-select exam based on category if provided
+  useEffect(() => {
+    if (category && !selectedExam) {
+      const exam = getSkillExamByCategory(category);
+      setSelectedExam({ ...exam, passingScore: 70, maxScore: 100 });
+    }
+  }, [category, selectedExam]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
