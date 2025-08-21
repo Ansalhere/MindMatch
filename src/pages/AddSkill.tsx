@@ -73,7 +73,7 @@ const AddSkill = () => {
   };
 
   return (
-    <div className="container mx-auto px-6 py-12">
+    <div className="container mx-auto px-4 py-8 max-w-5xl">
       <Button 
         variant="outline" 
         onClick={() => navigate('/dashboard')} 
@@ -83,26 +83,26 @@ const AddSkill = () => {
         Back to Dashboard
       </Button>
       
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold">Add Skills & Certifications</h1>
-        <p className="text-muted-foreground">
-          Add your skills and certifications to improve your ranking
+      <div className="max-w-4xl mx-auto mb-8">
+        <h1 className="text-3xl font-bold mb-2">Add Skills & Certifications</h1>
+        <p className="text-muted-foreground text-lg">
+          Add your skills and certifications to improve your ranking and showcase your expertise
         </p>
       </div>
       
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-center mb-8">
         <div className="bg-muted p-1 rounded-lg">
           <Button
             variant={activeTab === 'assessment' ? 'default' : 'ghost'}
             onClick={() => setActiveTab('assessment')}
-            className="px-6"
+            className="px-8 py-2"
           >
             Take Assessment
           </Button>
           <Button
             variant={activeTab === 'manual' ? 'default' : 'ghost'}
             onClick={() => setActiveTab('manual')}
-            className="px-6"
+            className="px-8 py-2"
           >
             Add Manually
           </Button>

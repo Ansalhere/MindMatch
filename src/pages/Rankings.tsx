@@ -162,8 +162,8 @@ const Rankings = () => {
     });
 
     return (
-      <div className="space-y-6">
-        {skillGroups.map(({ skill, candidates }) => (
+      <>
+        {skillGroups.slice(0, 6).map(({ skill, candidates }) => (
           <Card key={skill}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -206,29 +206,29 @@ const Rankings = () => {
             </CardContent>
           </Card>
         ))}
-      </div>
+      </>
     );
   };
 
   return (
     <Layout>
-      <div className="container-responsive section-padding">
+      <div className="container mx-auto py-8 px-4 max-w-7xl">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4">Global Rankings</h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Discover top talent across skills, locations, and industries. See where you stand globally.
+          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Global Rankings</h1>
+          <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
+            Discover top talent across skills, locations, and industries. See where you stand among the best professionals worldwide.
           </p>
         </div>
 
         <Tabs defaultValue="overall" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overall">Overall Rankings</TabsTrigger>
-            <TabsTrigger value="skills">Skill-wise</TabsTrigger>
-            <TabsTrigger value="location">Location-wise</TabsTrigger>
-            <TabsTrigger value="education">Education-wise</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto mb-8">
+            <TabsTrigger value="overall" className="text-sm">Overall</TabsTrigger>
+            <TabsTrigger value="skills" className="text-sm">Skills</TabsTrigger>
+            <TabsTrigger value="location" className="text-sm">Location</TabsTrigger>
+            <TabsTrigger value="education" className="text-sm">Education</TabsTrigger>
           </TabsList>
 
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex flex-col lg:flex-row gap-3 mb-6 max-w-4xl mx-auto">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
@@ -239,7 +239,7 @@ const Rankings = () => {
               />
             </div>
             <Select value={filterLocation} onValueChange={setFilterLocation}>
-              <SelectTrigger className="w-full md:w-48">
+              <SelectTrigger className="w-full lg:w-48">
                 <SelectValue placeholder="Filter by location" />
               </SelectTrigger>
               <SelectContent>
@@ -250,7 +250,7 @@ const Rankings = () => {
               </SelectContent>
             </Select>
             <Select value={filterSkill} onValueChange={setFilterSkill}>
-              <SelectTrigger className="w-full md:w-48">
+              <SelectTrigger className="w-full lg:w-48">
                 <SelectValue placeholder="Filter by skill" />
               </SelectTrigger>
               <SelectContent>
@@ -262,10 +262,10 @@ const Rankings = () => {
             </Select>
           </div>
 
-          <TabsContent value="overall" className="space-y-4">
+          <TabsContent value="overall" className="space-y-4 max-w-5xl mx-auto">
             {filteredCandidates.map((candidate) => (
-              <Card key={candidate.id} className="card-hover">
-                <CardContent className="p-6">
+              <Card key={candidate.id} className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-primary/20">
+                <CardContent className="p-5">
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-3">
                       <div className="text-2xl font-bold text-primary w-12">
@@ -323,11 +323,13 @@ const Rankings = () => {
             ))}
           </TabsContent>
 
-          <TabsContent value="skills">
-            <SkillRankings />
+          <TabsContent value="skills" className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <SkillRankings />
+            </div>
           </TabsContent>
 
-          <TabsContent value="location" className="space-y-4">
+          <TabsContent value="location" className="space-y-4 max-w-5xl mx-auto">
             {uniqueLocations.map(location => {
               const locationCandidates = candidates
                 .filter(c => c.location === location)
@@ -378,7 +380,7 @@ const Rankings = () => {
             })}
           </TabsContent>
 
-          <TabsContent value="education" className="space-y-4">
+          <TabsContent value="education" className="space-y-4 max-w-5xl mx-auto">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

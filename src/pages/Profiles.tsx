@@ -39,7 +39,7 @@ const Profiles = () => {
     try {
       setLoading(true);
       
-      // Fetch all candidates
+      // Fetch all candidates (remove auth requirement for public viewing)
       const { data: candidatesData, error: candidatesError } = await supabase
         .from('users')
         .select(`
@@ -50,13 +50,16 @@ const Profiles = () => {
           current_ctc,
           expected_ctc,
           rank_score,
-          skills!inner(
+          location,
+          bio,
+          skills(
             name,
             level,
             experience_years
           )
         `)
         .eq('user_type', 'candidate')
+        .eq('is_profile_public', true)
         .limit(50);
 
       if (candidatesError) throw candidatesError;
@@ -76,7 +79,7 @@ const Profiles = () => {
 
       setCandidates(processedCandidates);
 
-      // Fetch all employers
+      // Fetch all employers (public data only)
       const { data: employersData, error: employersError } = await supabase
         .from('users')
         .select(`
@@ -88,6 +91,8 @@ const Profiles = () => {
           industry,
           size,
           website,
+          location,
+          bio,
           jobs(
             id,
             title,
@@ -184,10 +189,12 @@ const Profiles = () => {
   
   return (
     <Layout>
-      <div className="container mx-auto py-12 px-6">
+      <div className="container mx-auto py-8 px-4 max-w-7xl">
         <BackButton className="mb-6" />
-        <h1 className="text-3xl font-bold mb-2">Browse Profiles</h1>
-        <p className="text-muted-foreground mb-8">Discover talented candidates and top employers</p>
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Browse Profiles</h1>
+          <p className="text-muted-foreground text-lg">Discover talented candidates and top employers</p>
+        </div>
       
       <div className="mb-8">
         <input
@@ -216,7 +223,7 @@ const Profiles = () => {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredCandidates.map((candidate) => (
                 <Card key={candidate.id} className="overflow-hidden">
                   <CardHeader className="pb-4">
@@ -293,7 +300,7 @@ const Profiles = () => {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredEmployers.map((employer) => (
                 <Card key={employer.id} className="overflow-hidden">
                   <CardHeader className="pb-4">

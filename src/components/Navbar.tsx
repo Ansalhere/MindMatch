@@ -110,9 +110,9 @@ const Navbar = () => {
                   {/* Professional User Badge - More compact */}
                   <div className="flex items-center space-x-2">
                     {user.user_type === 'candidate' && user.rank_score && (
-                      <div className="flex items-center space-x-1 px-2 py-1 bg-gradient-to-r from-primary to-primary/80 text-white rounded-full text-xs font-semibold">
-                        <Trophy className="h-3 w-3" />
-                        <span>#{Math.floor(user.rank_score)}</span>
+                      <div className="flex items-center space-x-1 px-3 py-1.5 bg-gradient-to-r from-primary via-primary to-blue-600 text-white rounded-full text-sm font-bold shadow-lg border border-white/20">
+                        <Trophy className="h-4 w-4 text-yellow-300" />
+                        <span className="tracking-wide">#{Math.floor(user.rank_score)}</span>
                       </div>
                     )}
                     
@@ -185,9 +185,12 @@ const Navbar = () => {
                         </div>
                         <div>
                           <p className="font-medium text-sm">{user.user_type === 'employer' ? user.company : user.name}</p>
-                          {user.user_type === 'candidate' && user.rank_score && (
-                            <p className="text-xs text-primary font-semibold">Rank #{Math.floor(user.rank_score)}</p>
-                          )}
+                           {user.user_type === 'candidate' && user.rank_score && (
+                             <div className="flex items-center gap-1">
+                               <Trophy className="h-3 w-3 text-primary" />
+                               <span className="text-xs text-primary font-bold">Rank #{Math.floor(user.rank_score)}</span>
+                             </div>
+                           )}
                         </div>
                       </div>
                 </div>
