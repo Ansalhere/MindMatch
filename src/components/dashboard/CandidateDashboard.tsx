@@ -25,64 +25,96 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
 
   return (
     <>
-      <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-6 rounded-lg mb-8">
-        <div className="flex flex-col md:flex-row items-center gap-6">
-          <div className="w-full md:w-1/2">
-            <h2 className="text-xl font-bold mb-2 flex items-center">
-              <Trophy className="h-5 w-5 text-amber-500 mr-2" />
-              Your Career Ranking
-            </h2>
-            <p className="text-muted-foreground mb-4">
-              Your ranking determines your visibility to top employers and eligibility for premium jobs
+      {/* Enhanced Ranking Section */}
+      <div className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 p-8 rounded-2xl mb-8 border border-primary/20 shadow-lg">
+        <div className="flex flex-col lg:flex-row items-center gap-8">
+          <div className="flex-1 text-center lg:text-left">
+            <div className="flex items-center justify-center lg:justify-start mb-4">
+              <Trophy className="h-6 w-6 text-amber-500 mr-2" />
+              <h2 className="text-2xl font-bold">Your Global Ranking</h2>
+            </div>
+            <p className="text-muted-foreground mb-6 text-lg leading-relaxed">
+              Your ranking determines your visibility to top employers and eligibility for premium opportunities. 
+              Stand out from the competition with a higher rank.
             </p>
-            <div className="flex gap-4">
-              <Button size="sm" variant="default" onClick={handleAddSkill}>
-                <TrendingUp className="h-4 w-4 mr-2" />
-                Improve Ranking
+            <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+              <Button size="lg" variant="default" onClick={handleAddSkill} className="font-semibold">
+                <TrendingUp className="h-5 w-5 mr-2" />
+                Boost Your Rank
               </Button>
-              <Button size="sm" variant="outline" onClick={viewRankingExplanation}>
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Ranking Details
+              <Button size="lg" variant="outline" onClick={viewRankingExplanation} className="font-semibold">
+                <BarChart3 className="h-5 w-5 mr-2" />
+                How Rankings Work
               </Button>
             </div>
           </div>
-          <div className="w-full md:w-1/2 bg-white rounded-lg p-4 shadow-sm">
-            <CandidateRankDisplay 
-              rankScore={userData.ranking.overall}
-              rankPosition={userData.ranking.position}
-              totalCandidates={userData.ranking.total}
-              showDetailedScore={false}
-            />
+          
+          <div className="lg:w-80">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/50">
+              <CandidateRankDisplay 
+                rankScore={userData.ranking.overall}
+                rankPosition={userData.ranking.position}
+                totalCandidates={userData.ranking.total}
+                showDetailedScore={true}
+              />
+            </div>
           </div>
         </div>
       </div>
 
+      {/* Enhanced Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <StatCard 
-          title="Profile Completion" 
-          value="75%" 
-          buttonText="Complete Profile"
-          onButtonClick={() => navigate(`/profile/${userData.id}/candidate`)}
-          progress={75}
-        />
+        <Card className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-primary">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Profile Completion</p>
+                <p className="text-3xl font-bold">75%</p>
+              </div>
+              <div className="p-3 bg-primary/10 rounded-full">
+                <TrendingUp className="h-6 w-6 text-primary" />
+              </div>
+            </div>
+            <div className="mb-3">
+              <div className="w-full bg-secondary h-2 rounded-full">
+                <div className="bg-primary h-2 rounded-full" style={{ width: '75%' }}></div>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" className="w-full" onClick={() => navigate(`/profile/${userData.id}/candidate`)}>
+              Complete Profile
+            </Button>
+          </CardContent>
+        </Card>
         
-        <StatCard 
-          title="Applications Sent" 
-          value={userData.applications.length}
-          secondaryText="3 this week"
-          icon={<ChevronUp className="h-4 w-4 mr-1" />}
-          bgColor="bg-emerald-50"
-          progress={60}
-        />
+        <Card className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-emerald-500">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Applications Sent</p>
+                <p className="text-3xl font-bold">{userData.applications.length}</p>
+                <p className="text-sm text-emerald-600 font-medium">3 this week</p>
+              </div>
+              <div className="p-3 bg-emerald-100 rounded-full">
+                <Briefcase className="h-6 w-6 text-emerald-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
         
-        <StatCard 
-          title="Job Match Rate" 
-          value={`${Math.round(userData.ranking.overall * 0.8)}%`}
-          secondaryText="Based on your skills"
-          icon={<Briefcase className="h-4 w-4 mr-1" />}
-          bgColor="bg-blue-50"
-          progress={Math.round(userData.ranking.overall * 0.8)}
-        />
+        <Card className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Match Rate</p>
+                <p className="text-3xl font-bold">{Math.round(userData.ranking.overall * 0.8)}%</p>
+                <p className="text-sm text-blue-600 font-medium">Based on your skills</p>
+              </div>
+              <div className="p-3 bg-blue-100 rounded-full">
+                <Award className="h-6 w-6 text-blue-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
