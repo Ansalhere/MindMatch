@@ -655,6 +655,7 @@ export type Database = {
           id: string
           industry: string | null
           is_premium: boolean | null
+          is_profile_public: boolean
           location: string | null
           name: string | null
           phone: string | null
@@ -674,6 +675,7 @@ export type Database = {
           id: string
           industry?: string | null
           is_premium?: boolean | null
+          is_profile_public?: boolean
           location?: string | null
           name?: string | null
           phone?: string | null
@@ -693,6 +695,7 @@ export type Database = {
           id?: string
           industry?: string | null
           is_premium?: boolean | null
+          is_profile_public?: boolean
           location?: string | null
           name?: string | null
           phone?: string | null
@@ -711,6 +714,14 @@ export type Database = {
       calculate_candidate_rank: {
         Args: { user_id: string }
         Returns: number
+      }
+      candidate_is_public: {
+        Args: { candidate_id: string }
+        Returns: boolean
+      }
+      employer_has_app_with_candidate: {
+        Args: { candidate_id: string }
+        Returns: boolean
       }
       get_current_user_type: {
         Args: Record<PropertyKey, never>
