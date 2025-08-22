@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import StatCard from './StatCard';
 import RecommendedJobs from './RecommendedJobs';
 import SkillRanking from './SkillRanking';
+import SkillsList from './SkillsList';
 import { Award, ChevronUp, Trophy, TrendingUp, BarChart3, Briefcase } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import CandidateRankDisplay from '@/components/ranking/CandidateRankDisplay';
+import RankBreakdown from '@/components/profile/RankBreakdown';
 
 interface CandidateDashboardProps {
   userData: any;
@@ -200,33 +202,29 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
           </Card>
         </div>
         
-        <div>
-          <Card className="mb-6">
+        <div className="space-y-6">
+          {/* Skills Overview */}
+          <SkillsList />
+          
+          {/* Rank Breakdown */}
+          <Card>
             <CardHeader>
-              <CardTitle>Profile Snapshot</CardTitle>
-              <CardDescription>Key details at a glance</CardDescription>
+              <CardTitle className="flex items-center">
+                <BarChart3 className="h-5 w-5 mr-2 text-primary" />
+                Ranking Breakdown
+              </CardTitle>
+              <CardDescription>
+                Understand how your rank is calculated
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Name</span>
-                  <span className="font-medium">{userData.name || 'Your Name'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Email</span>
-                  <span className="font-medium">{userData.email || '—'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Rank Score</span>
-                  <span className="font-medium">{userData.ranking.overall}/100</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Global Rank</span>
-                  <span className="font-medium">#{userData.ranking.position} of {userData.ranking.total}</span>
-                </div>
-              </div>
-              <Button variant="outline" className="w-full mt-4" onClick={() => navigate(`/profile/${userData.id}/candidate`)}>
-                View Full Profile
+              <RankBreakdown user={userData} detailed={false} />
+              <Button 
+                variant="outline" 
+                className="w-full mt-4" 
+                onClick={() => navigate('/ranking-explanation')}
+              >
+                View Detailed Analysis
               </Button>
             </CardContent>
           </Card>
