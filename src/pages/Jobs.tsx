@@ -147,10 +147,12 @@ const Jobs = () => {
     const matchesSearch = job.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          job.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          job.employer?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         job.employer?.company?.toLowerCase().includes(searchTerm.toLowerCase());
+                         job.employer?.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         job.company?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesType = filterType === 'all' || job.job_type?.toLowerCase() === filterType.toLowerCase();
-    const matchesLocation = filterLocation === 'all' || job.location?.toLowerCase().includes(filterLocation.toLowerCase());
+    const matchesType = filterType === 'all' || job.job_type?.toLowerCase().includes(filterType.toLowerCase());
+    const matchesLocation = filterLocation === 'all' || 
+                           job.location?.toLowerCase().includes(filterLocation.toLowerCase());
     
     return matchesSearch && matchesType && matchesLocation;
   });

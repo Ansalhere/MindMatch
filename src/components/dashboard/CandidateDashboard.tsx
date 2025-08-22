@@ -243,13 +243,22 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
             </CardHeader>
             <CardContent>
               <SkillRanking userData={userData} />
-              <Button 
-                variant="outline" 
-                className="w-full mt-4" 
-                onClick={handleAddSkill}
-              >
-                Add New Skills
-              </Button>
+              <div className="mt-4 space-y-2">
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={handleAddSkill}
+                >
+                  Add New Skills
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={() => navigate('/skills')}
+                >
+                  Take Skill Assessment
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>

@@ -50,12 +50,12 @@ const Hero = () => {
               </>
             ) : (
               <>
-                <Button size="lg" className="px-8 py-6 text-base rounded-xl" asChild>
+                <Button size="lg" className="px-8 py-6 text-base rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold shadow-lg" asChild>
                   <Link to="/register">
                     Get Started <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="px-8 py-6 text-base rounded-xl" asChild>
+                <Button size="lg" variant="outline" className="px-8 py-6 text-base rounded-xl border-2 border-primary text-primary hover:bg-primary hover:text-white font-semibold" asChild>
                   <Link to="/login">
                     Login to Demo
                   </Link>
