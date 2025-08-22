@@ -1,16 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '@/components/Layout';
-import { useUser } from '@/hooks/useUser';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  Shield, 
+  Users, 
+  Briefcase, 
+  Settings,
+  Search,
+  Trash2,
+  UserCheck,
+  UserX,
+  MessageSquare, 
+  Bell, 
+  Database
+} from 'lucide-react';
 import { toast } from "sonner";
+import { useUser } from '@/hooks/useUser';
+import Layout from '@/components/Layout';
+import { supabase } from '@/integrations/supabase/client';
 import { Loader } from "@/components/ui/loader";
-import { Search, Users, Briefcase, Settings, MessageSquare, Bell, Shield, Database } from 'lucide-react';
 import {
   Table,
   TableBody,

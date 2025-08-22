@@ -66,13 +66,23 @@ const Navbar = () => {
     setIsMenuOpen(false);
   };
 
-  const navigationItems = [
-    { label: 'Jobs', to: '/jobs' },
-    { label: 'Rankings', to: '/rankings' },
-    { label: 'Community', to: '/community' },
-    { label: 'Profiles', to: '/profiles' },
-    { label: 'Skills', to: '/skills' },
-  ];
+  const getNavigationItems = () => {
+    const baseItems = [
+      { label: 'Jobs', to: '/jobs' },
+      { label: 'Rankings', to: '/rankings' },
+      { label: 'Community', to: '/community' },
+      { label: 'Skills', to: '/skills' },
+    ];
+    
+    // Only show Profiles for employers and admin
+    if (user && (user.user_type === 'employer' || user.user_type === 'admin')) {
+      baseItems.splice(3, 0, { label: 'Profiles', to: '/profiles' });
+    }
+    
+    return baseItems;
+  };
+
+  const navigationItems = getNavigationItems();
 
   return (
     <header 
@@ -110,9 +120,9 @@ const Navbar = () => {
                   {/* Professional User Badge - More compact */}
                   <div className="flex items-center space-x-2">
                     {user.user_type === 'candidate' && user.rank_score && (
-                      <div className="flex items-center space-x-1 px-3 py-1.5 bg-gradient-to-r from-primary via-primary to-blue-600 text-white rounded-full text-sm font-bold shadow-lg border border-white/20">
-                        <Trophy className="h-4 w-4 text-yellow-300" />
-                        <span className="tracking-wide">#{Math.floor(user.rank_score)}</span>
+                      <div className="flex items-center space-x-1 px-3 py-1.5 bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-500 text-white rounded-full text-sm font-bold shadow-lg border border-white/20 min-w-[60px] justify-center">
+                        <Trophy className="h-4 w-4 text-white drop-shadow-sm" />
+                        <span className="tracking-wide text-white font-extrabold drop-shadow-sm">#{Math.floor(user.rank_score)}</span>
                       </div>
                     )}
                     

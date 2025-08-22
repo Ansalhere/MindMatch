@@ -19,6 +19,7 @@ import {
   Search,
   Filter
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface RankedCandidate {
   id: string;
@@ -39,6 +40,53 @@ const Rankings = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterLocation, setFilterLocation] = useState('all');
   const [filterSkill, setFilterSkill] = useState('all');
+
+  const [realCandidates, setRealCandidates] = useState<RankedCandidate[]>([]);
+  
+  // Real ranking data from Supabase
+  useEffect(() => {
+    fetchRealRankings();
+  }, []);
+
+  const fetchRealRankings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select(`
+          id,
+          name,
+          rank_score,
+          location,
+          company,
+          user_type,
+          skills:skills(name, level, experience_years),
+          education:education(institution, degree, field),
+          experiences:experiences(company, role, is_current)
+        `)
+        .eq('user_type', 'candidate')
+        .eq('is_profile_public', true)
+        .order('rank_score', { ascending: false })
+        .limit(50);
+
+      if (!error && data) {
+        const mappedCandidates = data.map((user, index) => ({
+          id: user.id,
+          name: user.name || 'Anonymous User',
+          rank_score: user.rank_score || 0,
+          position: index + 1,
+          location: user.location || 'Not specified',
+          company: user.company || user.experiences?.find(exp => exp.is_current)?.company,
+          skills: user.skills?.map(skill => skill.name) || [],
+          education: user.education?.[0] ? `${user.education[0].institution} - ${user.education[0].degree}` : undefined,
+          experience_years: user.experiences?.length || 0,
+          user_type: user.user_type
+        }));
+        setRealCandidates(mappedCandidates);
+      }
+    } catch (error) {
+      console.error('Error fetching real rankings:', error);
+    }
+  };
 
   const mockCandidates: RankedCandidate[] = [
     {
@@ -104,9 +152,19 @@ const Rankings = () => {
   ];
 
   useEffect(() => {
-    setCandidates(mockCandidates);
-    setFilteredCandidates(mockCandidates);
-  }, []);
+    // Combine real and mock data for better UX
+    const allCandidates = realCandidates.length > 0 ? 
+      [...realCandidates, ...mockCandidates.slice(realCandidates.length)] : 
+      mockCandidates;
+    
+    // Re-assign positions after combining
+    const rankedCandidates = allCandidates
+      .sort((a, b) => b.rank_score - a.rank_score)
+      .map((candidate, index) => ({ ...candidate, position: index + 1 }));
+    
+    setCandidates(rankedCandidates);
+    setFilteredCandidates(rankedCandidates);
+  }, [realCandidates]);
 
   useEffect(() => {
     let filtered = candidates;

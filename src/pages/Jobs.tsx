@@ -171,9 +171,9 @@ const Jobs = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-6">
           {/* Main Content */}
-          <div className="lg:col-span-2">
+          <div>
             {/* Search and Filter Section */}
             <Card className="mb-8 shadow-sm">
               <CardContent className="p-6">
@@ -271,133 +271,140 @@ const Jobs = () => {
                     </Button>
                   </div>
                   
-                  {filteredJobs.map((job) => {
-                    const hasApplied = userApplications.some(app => app.job_id === job.id);
-                    return (
-                    <Card key={job.id} className={`overflow-hidden hover:shadow-lg transition-all duration-200 border-l-4 ${
-                      hasApplied 
-                        ? 'border-l-green-500 bg-green-50/50' 
-                        : 'border-l-primary/20 hover:border-l-primary'
-                    }`}>
-                      <CardContent className="p-0">
-                        <div className="p-6">
-                          <div className="flex flex-col md:flex-row md:items-start justify-between mb-4">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <h3 className="text-xl font-semibold hover:text-primary transition-colors cursor-pointer" 
-                                    onClick={() => handleViewJob(job.id)}>
-                                  {job.title}
-                                </h3>
-                                {hasApplied && (
-                                  <Badge variant="default" className="bg-green-500 text-white">
-                                    Applied
-                                  </Badge>
-                                )}
-                              </div>
-                              <div className="flex items-center text-muted-foreground mb-2">
-                                <Building className="h-4 w-4 mr-2" />
-                                <span className="font-medium">{job.employer?.company || job.employer?.name || 'Great Company'}</span>
-                              </div>
-                            </div>
-                            <Badge className="mt-2 md:mt-0 w-fit" variant="secondary">
-                              {(job.job_type || 'Full-time').toString()}
-                            </Badge>
-                          </div>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div className="flex items-center text-muted-foreground">
-                              <MapPin className="h-4 w-4 mr-2 text-primary" />
-                              <span>{job.location || 'Remote'}</span>
-                            </div>
-                            <div className="flex items-center text-muted-foreground">
-                              <Clock className="h-4 w-4 mr-2 text-primary" />
-                              <span>Posted {job.created_at ? new Date(job.created_at).toLocaleDateString() : 'Recently'}</span>
-                            </div>
-                            {(job.salary_min || job.salary_max) && (
-                              <div className="flex items-center text-muted-foreground">
-                                <IndianRupee className="h-4 w-4 mr-2 text-primary" />
-                                <span>
-                                  ₹{job.salary_min ? job.salary_min.toLocaleString() : ''}
-                                  {job.salary_min && job.salary_max && ' - '}
-                                  {job.salary_max ? `₹${job.salary_max.toLocaleString()}` : ''} /month
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                          
-                          <p className="text-muted-foreground mb-4 line-clamp-3">
-                            {job.description || 'Exciting opportunity to join our dynamic team and make a real impact.'}
-                          </p>
-                          
-                          <div className="flex flex-wrap gap-2 mb-4">
-                            {job.required_skills && job.required_skills.length > 0 ? (
-                              job.required_skills.map((skill: string, index: number) => (
-                                <Badge key={index} variant="outline" className="bg-primary/5 text-primary border-primary/20">
-                                  {skill}
-                                </Badge>
-                              ))
-                            ) : (
-                              <Badge variant="outline" className="text-muted-foreground">
-                                Open to all skill levels
-                              </Badge>
-                            )}
-                          </div>
-                          
-                          {job.min_rank_requirement > 0 && (
-                            <div className="flex items-center mb-4">
-                              <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 flex items-center gap-1">
-                                <Trophy className="h-3 w-3" />
-                                Minimum Rank: {job.min_rank_requirement}
-                              </Badge>
-                              {user && user.rank_score < job.min_rank_requirement && (
-                                <span className="ml-2 text-amber-600 text-xs">
-                                  Your rank ({user.rank_score}) is below requirement
-                                </span>
-                              )}
-                            </div>
-                          )}
-                          
-                          <div className="flex justify-between items-center pt-4 border-t">
-                            <Button 
-                              variant="outline"
-                              onClick={() => handleViewJob(job.id)}
-                              className="flex-1 mr-3"
-                            >
-                              View Details
-                            </Button>
-                            
-                            <Button 
-                              onClick={() => handleApply(job.id)} 
-                              disabled={applyingToJob === job.id || (user?.user_type === 'employer') || hasApplied}
-                              className="flex-1"
-                              variant={hasApplied ? 'outline' : 'default'}
-                            >
-                              {hasApplied ? (
-                                <>
-                                  <CheckCircle className="h-4 w-4 mr-2" />
-                                  Applied
-                                </>
-                              ) : applyingToJob === job.id ? (
-                                <>
-                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  Applying...
-                                </>
-                              ) : (
-                                <>
-                                  <Briefcase className="h-4 w-4 mr-2" />
-                                  {user?.user_type === 'employer' ? 'Employers Cannot Apply' : 'Apply Now'}
-                                </>
-                              )}
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )})}
-                </>
-              )}
-            </div>
-          </div>
+                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                     {filteredJobs.map((job) => {
+                       const hasApplied = userApplications.some(app => app.job_id === job.id);
+                       return (
+                       <Card key={job.id} className={`overflow-hidden hover:shadow-lg transition-all duration-200 border-l-4 ${
+                         hasApplied 
+                           ? 'border-l-green-500 bg-green-50/50' 
+                           : 'border-l-primary/20 hover:border-l-primary'
+                       }`}>
+                         <CardContent className="p-0">
+                           <div className="p-4">
+                           <div className="flex flex-col justify-between mb-3">
+                             <div className="flex-1">
+                               <div className="flex items-center gap-2 mb-2">
+                                 <h3 className="text-lg font-semibold hover:text-primary transition-colors cursor-pointer" 
+                                     onClick={() => handleViewJob(job.id)}>
+                                   {job.title}
+                                 </h3>
+                                 {hasApplied && (
+                                   <Badge variant="default" className="bg-green-500 text-white">
+                                     Applied
+                                   </Badge>
+                                 )}
+                               </div>
+                               <div className="flex items-center text-muted-foreground mb-2">
+                                 <Building className="h-4 w-4 mr-2" />
+                                 <span className="font-medium">{job.employer?.company || job.employer?.name || 'Great Company'}</span>
+                               </div>
+                             </div>
+                             <Badge className="mt-2 md:mt-0 w-fit" variant="secondary">
+                               {(job.job_type || 'Full-time').toString()}
+                             </Badge>
+                           </div>
+                           
+                           <div className="grid grid-cols-1 gap-2 mb-3">
+                             <div className="flex items-center text-muted-foreground text-sm">
+                               <MapPin className="h-3 w-3 mr-1 text-primary" />
+                               <span>{job.location || 'Remote'}</span>
+                             </div>
+                             {(job.salary_min || job.salary_max) && (
+                               <div className="flex items-center text-muted-foreground text-sm">
+                                 <IndianRupee className="h-3 w-3 mr-1 text-primary" />
+                                 <span>
+                                   ₹{job.salary_min ? job.salary_min.toLocaleString() : ''}
+                                   {job.salary_min && job.salary_max && ' - '}
+                                   {job.salary_max ? `₹${job.salary_max.toLocaleString()}` : ''} /month
+                                 </span>
+                               </div>
+                             )}
+                           </div>
+                           
+                           <p className="text-muted-foreground mb-3 line-clamp-2 text-sm">
+                             {job.description?.substring(0, 120) || 'Exciting opportunity to join our dynamic team and make a real impact.'}
+                             {job.description && job.description.length > 120 && '...'}
+                           </p>
+                           
+                           <div className="flex flex-wrap gap-1 mb-3">
+                             {job.required_skills && job.required_skills.length > 0 ? (
+                               job.required_skills.slice(0, 3).map((skill: string, index: number) => (
+                                 <Badge key={index} variant="outline" className="bg-primary/5 text-primary border-primary/20 text-xs">
+                                   {skill}
+                                 </Badge>
+                               ))
+                             ) : (
+                               <Badge variant="outline" className="text-muted-foreground text-xs">
+                                 Open to all skill levels
+                               </Badge>
+                             )}
+                             {job.required_skills && job.required_skills.length > 3 && (
+                               <Badge variant="outline" className="text-muted-foreground text-xs">
+                                 +{job.required_skills.length - 3} more
+                               </Badge>
+                             )}
+                           </div>
+                           
+                           {job.min_rank_requirement > 0 && (
+                             <div className="flex items-center mb-4">
+                               <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 flex items-center gap-1">
+                                 <Trophy className="h-3 w-3" />
+                                 Minimum Rank: {job.min_rank_requirement}
+                               </Badge>
+                               {user && user.rank_score < job.min_rank_requirement && (
+                                 <span className="ml-2 text-amber-600 text-xs">
+                                   Your rank ({user.rank_score}) is below requirement
+                                 </span>
+                               )}
+                             </div>
+                           )}
+                           
+                           <div className="flex gap-2 pt-3 border-t">
+                             <Button 
+                               variant="outline"
+                               onClick={() => handleViewJob(job.id)}
+                               className="flex-1"
+                               size="sm"
+                             >
+                               View
+                             </Button>
+                             
+                             <Button 
+                               onClick={() => handleApply(job.id)} 
+                               disabled={applyingToJob === job.id || (user?.user_type === 'employer') || hasApplied}
+                               className="flex-1"
+                               size="sm"
+                               variant={hasApplied ? 'outline' : 'default'}
+                             >
+                               {hasApplied ? (
+                                 <>
+                                   <CheckCircle className="h-3 w-3 mr-1" />
+                                   Applied
+                                 </>
+                               ) : applyingToJob === job.id ? (
+                                 <>
+                                   <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                   Applying...
+                                 </>
+                               ) : (
+                                 <>
+                                   <Briefcase className="h-4 w-4 mr-2" />
+                                   {user?.user_type === 'employer' ? 'Employers Cannot Apply' : 'Apply Now'}
+                                 </>
+                               )}
+                             </Button>
+                           </div>
+                         </div>
+                       </CardContent>
+                     </Card>
+                       );
+                     })}
+                   </div>
+                 </>
+               )}
+             </div>
+           </div>
           
           {/* Sidebar */}
           <div>
