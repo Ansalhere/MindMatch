@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { User, Building, Shield, Copy } from 'lucide-react';
+import { User, Building, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
@@ -22,14 +22,6 @@ const DemoCredentials = () => {
       description: 'Employer account for posting jobs',
       color: 'bg-green-50 text-green-700 border-green-200'
     },
-    {
-      type: 'Admin',
-      icon: <Shield className="h-4 w-4" />,
-      email: 'admin@skillrank.com',
-      password: 'SuperAdmin2024!',
-      description: 'Administrator with super admin privileges',
-      color: 'bg-purple-50 text-purple-700 border-purple-200'
-    }
   ];
 
   const copyToClipboard = (text: string, type: string) => {

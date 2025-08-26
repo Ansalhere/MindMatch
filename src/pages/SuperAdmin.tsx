@@ -42,11 +42,6 @@ const SuperAdmin = () => {
   const navigate = useNavigate();
   const { user } = useUser();
 
-  // Super admin credentials check
-  const adminCredentials = {
-    email: 'admin@skillrank.com',
-    password: 'SuperAdmin2024!'
-  };
 
   useEffect(() => {
     // Check if user is admin
@@ -185,13 +180,6 @@ const SuperAdmin = () => {
             <p className="text-muted-foreground">Complete system management and oversight</p>
           </div>
           
-          <Card className="p-4 bg-muted/50">
-            <h3 className="font-semibold mb-2">Admin Login Credentials</h3>
-            <div className="text-sm space-y-1">
-              <div><strong>Email:</strong> {adminCredentials.email}</div>
-              <div><strong>Password:</strong> {adminCredentials.password}</div>
-            </div>
-          </Card>
         </div>
         
         <div className="mb-6">

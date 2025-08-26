@@ -82,27 +82,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let mounted = true;
     
-    // Check for demo session first
-    const demoSession = localStorage.getItem('demo_session');
-    const demoUserData = localStorage.getItem('demo_user');
-    
-    if (demoSession === 'active' && demoUserData) {
-      try {
-        const mockUser = JSON.parse(demoUserData);
-        setUser(mockUser);
-        setProfile(mockUser);
-        setSession({ 
-          access_token: 'demo_token', 
-          user: { id: mockUser.id, email: mockUser.email } 
-        } as any);
-        setIsLoading(false);
-        return;
-      } catch (error) {
-        // Clear invalid demo data
-        localStorage.removeItem('demo_session');
-        localStorage.removeItem('demo_user');
-      }
-    }
     
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -110,9 +89,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.log('Auth state changed:', event, !!session);
         if (!mounted) return;
         
-        // Clear demo session if real auth occurs
-        localStorage.removeItem('demo_session');
-        localStorage.removeItem('demo_user');
         
         setSession(session);
         

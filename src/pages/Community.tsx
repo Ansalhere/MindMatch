@@ -47,11 +47,13 @@ const Community = () => {
 
   useEffect(() => {
     fetchPosts();
+  }, []);
+
+  useEffect(() => {
     if (user) {
       fetchUserLikes();
     }
-  }, [user]);
-
+  }, [user, posts]);
   const fetchPosts = async () => {
     try {
       // Use simpler query to avoid TypeScript errors
@@ -124,18 +126,17 @@ const Community = () => {
   };
 
   const fetchUserLikes = async () => {
-    if (!user) return;
+    if (!user || posts.length === 0) return;
     
     try {
-      const { data, error } = await supabase
-        .from('post_likes')
-        .select('post_id')
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
-      const likedPostIds = new Set(data?.map(like => like.post_id) || []);
-      setLikedPosts(likedPostIds);
+      const results = await Promise.all(
+        posts.map(async (p) => {
+          const { data, error } = await supabase.rpc('user_liked_post', { post_id_param: p.id });
+          if (error) throw error;
+          return data ? p.id : null;
+        })
+      );
+      setLikedPosts(new Set(results.filter(Boolean) as string[]));
     } catch (error) {
       console.error('Error fetching user likes:', error);
     }

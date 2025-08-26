@@ -46,36 +46,6 @@ export async function signIn(email: string, password: string) {
   try {
     console.log('Attempting to sign in with:', email);
     
-    // Handle demo credentials
-    if (email === 'admin@skillrank.com' && password === 'SuperAdmin2024!') {
-      // Create a mock session for demo admin
-      const mockUserData = {
-        id: '00000000-0000-0000-0000-000000000001',
-        email: 'admin@skillrank.com',
-        name: 'Super Administrator',
-        user_type: 'employer',
-        created_at: new Date().toISOString(),
-        is_premium: true,
-        rank_score: 100,
-        is_profile_public: true
-      };
-      
-      // Store demo user data in localStorage for session management
-      localStorage.setItem('demo_user', JSON.stringify(mockUserData));
-      localStorage.setItem('demo_session', 'active');
-      
-      toast.success('Demo admin login successful!');
-      return { 
-        data: { 
-          user: { 
-            id: mockUserData.id, 
-            email: mockUserData.email 
-          }, 
-          session: { access_token: 'demo_token' } 
-        }, 
-        error: null 
-      };
-    }
     
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -117,9 +87,6 @@ export async function signIn(email: string, password: string) {
 
 export async function signOut() {
   try {
-    // Clear demo session
-    localStorage.removeItem('demo_session');
-    localStorage.removeItem('demo_user');
     
     const { error } = await supabase.auth.signOut();
     if (error) throw error;

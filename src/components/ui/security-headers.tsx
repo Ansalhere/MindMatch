@@ -34,7 +34,7 @@ export const SecurityHeaders = () => {
     if (!document.querySelector('meta[http-equiv="X-Frame-Options"]')) {
       const frameOptionsMeta = document.createElement('meta');
       frameOptionsMeta.httpEquiv = 'X-Frame-Options';
-      frameOptionsMeta.content = 'DENY';
+      frameOptionsMeta.content = 'SAMEORIGIN';
       document.head.appendChild(frameOptionsMeta);
     }
 

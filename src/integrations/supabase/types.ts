@@ -727,9 +727,17 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_post_like_count: {
+        Args: { post_id_param: string }
+        Returns: number
+      }
       insert_newsletter_subscription: {
         Args: { email_address: string }
         Returns: undefined
+      }
+      user_liked_post: {
+        Args: { post_id_param: string }
+        Returns: boolean
       }
     }
     Enums: {
