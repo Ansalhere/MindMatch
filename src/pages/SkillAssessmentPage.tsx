@@ -1,83 +1,238 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import Layout from '@/components/Layout';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  ArrowLeft, 
-  Clock, 
-  Users, 
-  TrendingUp, 
-  Star,
-  Trophy,
-  Target,
-  Code,
-  PlayCircle,
-  CheckCircle,
-  Award
-} from 'lucide-react';
-import Layout from '@/components/Layout';
+import { Clock, CheckCircle, Award } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useUser } from '@/hooks/useUser';
 
-// Mock data for the assessment
-const mockAssessmentData = {
-  javascript: {
-    name: 'JavaScript',
-    description: 'Complete assessment of JavaScript fundamentals and advanced concepts',
-    duration: 30,
-    totalQuestions: 25,
-    completedBy: 1847,
-    averageScore: 73,
-    difficulty: 'Intermediate',
-    topics: ['ES6+', 'Async/Await', 'DOM Manipulation', 'Functions & Closures']
+interface Question {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  explanation: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+}
+
+interface AssessmentData {
+  title: string;
+  description: string;
+  timeLimit: number; // minutes
+  questions: Question[];
+}
+
+const skillAssessments: Record<string, AssessmentData> = {
+  'frontend': {
+    title: 'Frontend Development Assessment',
+    description: 'Test your HTML, CSS, JavaScript, React, and UI/UX knowledge',
+    timeLimit: 45,
+    questions: [
+      {
+        id: '1',
+        question: 'Which CSS property is used to control the spacing between elements?',
+        options: ['margin', 'padding', 'border', 'spacing'],
+        correctAnswer: 0,
+        explanation: 'Margin controls the space between elements, while padding controls space within an element.',
+        difficulty: 'easy'
+      },
+      {
+        id: '2',
+        question: 'What is the virtual DOM in React?',
+        options: [
+          'A copy of the real DOM kept in memory',
+          'A new DOM API',
+          'A browser feature',
+          'A JavaScript library'
+        ],
+        correctAnswer: 0,
+        explanation: 'The virtual DOM is a programming concept where a virtual representation of the real DOM is kept in memory.',
+        difficulty: 'medium'
+      },
+      {
+        id: '3',
+        question: 'Which hook is used for side effects in React functional components?',
+        options: ['useState', 'useEffect', 'useContext', 'useReducer'],
+        correctAnswer: 1,
+        explanation: 'useEffect is used to perform side effects in functional components, similar to componentDidMount.',
+        difficulty: 'medium'
+      },
+      {
+        id: '4',
+        question: 'What does CSS Grid offer that Flexbox doesn\'t?',
+        options: [
+          'Better browser support',
+          'Two-dimensional layout control',
+          'Faster rendering',
+          'Easier syntax'
+        ],
+        correctAnswer: 1,
+        explanation: 'CSS Grid provides two-dimensional layout control (rows and columns), while Flexbox is one-dimensional.',
+        difficulty: 'hard'
+      },
+      {
+        id: '5',
+        question: 'Which JavaScript method is used to add an element to the end of an array?',
+        options: ['append()', 'push()', 'add()', 'insert()'],
+        correctAnswer: 1,
+        explanation: 'The push() method adds one or more elements to the end of an array.',
+        difficulty: 'easy'
+      }
+    ]
   },
-  react: {
-    name: 'React',
-    description: 'Test your React knowledge including hooks, state management, and components',
-    duration: 45,
-    totalQuestions: 30,
-    completedBy: 1234,
-    averageScore: 68,
-    difficulty: 'Advanced',
-    topics: ['Components & JSX', 'Hooks', 'State Management', 'Performance']
+  'backend': {
+    title: 'Backend Development Assessment',
+    description: 'Test your server-side programming and API development skills',
+    timeLimit: 60,
+    questions: [
+      {
+        id: '1',
+        question: 'What is the purpose of middleware in Express.js?',
+        options: [
+          'To handle database connections',
+          'To process requests between the server and routes',
+          'To compile JavaScript',
+          'To manage file uploads'
+        ],
+        correctAnswer: 1,
+        explanation: 'Middleware functions execute during the request-response cycle and can modify requests/responses.',
+        difficulty: 'medium'
+      },
+      {
+        id: '2',
+        question: 'Which HTTP status code indicates a successful resource creation?',
+        options: ['200', '201', '204', '302'],
+        correctAnswer: 1,
+        explanation: '201 Created indicates that a new resource has been successfully created.',
+        difficulty: 'easy'
+      },
+      {
+        id: '3',
+        question: 'What is the main difference between SQL and NoSQL databases?',
+        options: [
+          'SQL is faster',
+          'NoSQL is newer',
+          'SQL uses structured schemas, NoSQL is schema-flexible',
+          'NoSQL only works with JSON'
+        ],
+        correctAnswer: 2,
+        explanation: 'SQL databases use structured schemas while NoSQL databases offer flexible, schema-less data models.',
+        difficulty: 'medium'
+      }
+    ]
   },
-  python: {
-    name: 'Python',
-    description: 'Comprehensive Python programming assessment',
-    duration: 35,
-    totalQuestions: 20,
-    completedBy: 2156,
-    averageScore: 75,
-    difficulty: 'Beginner',
-    topics: ['Data Types', 'Functions', 'Classes', 'Libraries']
+  'data-science': {
+    title: 'Data Science & Analytics Assessment',
+    description: 'Test your data analysis, machine learning, and statistics knowledge',
+    timeLimit: 75,
+    questions: [
+      {
+        id: '1',
+        question: 'What is the difference between supervised and unsupervised learning?',
+        options: [
+          'Supervised learning uses labeled data, unsupervised doesn\'t',
+          'Supervised learning is faster',
+          'Unsupervised learning is more accurate',
+          'There is no difference'
+        ],
+        correctAnswer: 0,
+        explanation: 'Supervised learning uses labeled training data, while unsupervised learning finds patterns in unlabeled data.',
+        difficulty: 'medium'
+      }
+    ]
   }
 };
 
 const SkillAssessmentPage = () => {
-  const { category } = useParams();
+  const { categoryId } = useParams();
   const navigate = useNavigate();
-  const [isStarted, setIsStarted] = useState(false);
+  const { user } = useUser();
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(0);
-  const [answers, setAnswers] = useState<any[]>([]);
+  const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
+  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [score, setScore] = useState(0);
+  const [isStarted, setIsStarted] = useState(false);
 
-  const assessmentData = mockAssessmentData[category as keyof typeof mockAssessmentData] || mockAssessmentData.javascript;
+  const assessment = categoryId ? skillAssessments[categoryId] : null;
 
   useEffect(() => {
-    if (isStarted && timeLeft > 0) {
-      const timer = setInterval(() => {
-        setTimeLeft(prev => prev - 1);
-      }, 1000);
-      return () => clearInterval(timer);
+    if (assessment && isStarted) {
+      setTimeRemaining(assessment.timeLimit * 60);
     }
-  }, [isStarted, timeLeft]);
+  }, [assessment, isStarted]);
+
+  useEffect(() => {
+    if (timeRemaining > 0 && isStarted && !isCompleted) {
+      const timer = setTimeout(() => {
+        setTimeRemaining(timeRemaining - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (timeRemaining === 0 && isStarted) {
+      handleSubmitAssessment();
+    }
+  }, [timeRemaining, isStarted, isCompleted]);
 
   const handleStartAssessment = () => {
     setIsStarted(true);
-    setTimeLeft(assessmentData.duration * 60); // Convert minutes to seconds
-    toast.success('Assessment started! Good luck!');
+    setSelectedAnswers(new Array(assessment!.questions.length).fill(-1));
+  };
+
+  const handleAnswerSelect = (answerIndex: number) => {
+    const newAnswers = [...selectedAnswers];
+    newAnswers[currentQuestion] = answerIndex;
+    setSelectedAnswers(newAnswers);
+  };
+
+  const handleNextQuestion = () => {
+    if (currentQuestion < assessment!.questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+    }
+  };
+
+  const handlePreviousQuestion = () => {
+    if (currentQuestion > 0) {
+      setCurrentQuestion(currentQuestion - 1);
+    }
+  };
+
+  const handleSubmitAssessment = async () => {
+    if (!assessment || !user) return;
+
+    let correctAnswers = 0;
+    assessment.questions.forEach((question, index) => {
+      if (selectedAnswers[index] === question.correctAnswer) {
+        correctAnswers++;
+      }
+    });
+
+    const finalScore = Math.round((correctAnswers / assessment.questions.length) * 100);
+    setScore(finalScore);
+    setIsCompleted(true);
+
+    try {
+      const skillLevel = Math.min(Math.round(finalScore / 10), 10);
+      const { error } = await supabase
+        .from('skills')
+        .upsert({
+          user_id: user.id,
+          name: assessment.title.replace(' Assessment', ''),
+          level: skillLevel,
+          experience_years: Math.max(1, Math.round(skillLevel / 2)),
+          is_verified: true,
+          verification_source: 'RankMe Assessment'
+        });
+
+      if (error) throw error;
+      toast.success(`Assessment completed! ${assessment.title.replace(' Assessment', '')} skill added to your profile.`);
+    } catch (error) {
+      console.error('Error saving assessment result:', error);
+      toast.error('Failed to save assessment result');
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -86,226 +241,158 @@ const SkillAssessmentPage = () => {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  if (!isStarted) {
+  if (!assessment) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
-          <div className="max-w-4xl mx-auto">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-8">
-              <Button variant="ghost" onClick={() => navigate('/skills')}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Skills
-              </Button>
-              <Badge variant="outline" className="text-sm">
-                {assessmentData.difficulty} Level
-              </Badge>
-            </div>
-
-            {/* Assessment Overview */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="text-3xl">
-                        {category === 'react' ? '⚛️' : category === 'python' ? '🐍' : '🟨'}
-                      </div>
-                      <div>
-                        <CardTitle className="text-2xl">{assessmentData.name} Assessment</CardTitle>
-                        <CardDescription className="text-lg">
-                          {assessmentData.description}
-                        </CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* Key Details */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div className="text-center p-4 bg-blue-50 rounded-lg">
-                        <Clock className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-                        <div className="font-semibold text-blue-900">{assessmentData.duration} mins</div>
-                        <div className="text-sm text-blue-700">Duration</div>
-                      </div>
-                      <div className="text-center p-4 bg-green-50 rounded-lg">
-                        <Target className="h-6 w-6 text-green-600 mx-auto mb-2" />
-                        <div className="font-semibold text-green-900">{assessmentData.totalQuestions}</div>
-                        <div className="text-sm text-green-700">Questions</div>
-                      </div>
-                      <div className="text-center p-4 bg-purple-50 rounded-lg">
-                        <Users className="h-6 w-6 text-purple-600 mx-auto mb-2" />
-                        <div className="font-semibold text-purple-900">{assessmentData.completedBy.toLocaleString()}</div>
-                        <div className="text-sm text-purple-700">Completed</div>
-                      </div>
-                      <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                        <Star className="h-6 w-6 text-yellow-600 mx-auto mb-2" />
-                        <div className="font-semibold text-yellow-900">{assessmentData.averageScore}%</div>
-                        <div className="text-sm text-yellow-700">Avg Score</div>
-                      </div>
-                    </div>
-
-                    {/* Topics Covered */}
-                    <div>
-                      <h3 className="font-semibold mb-3">Topics Covered:</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {assessmentData.topics.map((topic, index) => (
-                          <Badge key={index} variant="outline" className="bg-gray-50">
-                            {topic}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Instructions */}
-                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                      <h3 className="font-semibold text-blue-900 mb-2">Assessment Instructions:</h3>
-                      <ul className="text-sm text-blue-800 space-y-1">
-                        <li>• Answer all questions to the best of your ability</li>
-                        <li>• You can navigate between questions during the assessment</li>
-                        <li>• Your progress is automatically saved</li>
-                        <li>• A minimum score of 70% is required for skill verification</li>
-                        <li>• You can retake the assessment after 24 hours if needed</li>
-                      </ul>
-                    </div>
-
-                    <Button 
-                      size="lg" 
-                      className="w-full"
-                      onClick={handleStartAssessment}
-                    >
-                      <PlayCircle className="h-5 w-5 mr-2" />
-                      Start Assessment
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Sidebar */}
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <Trophy className="h-5 w-5 mr-2 text-yellow-500" />
-                      Benefits
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-start gap-3">
-                      <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
-                      <div>
-                        <div className="font-medium">Skill Verification</div>
-                        <div className="text-sm text-muted-foreground">Get official verification for your skills</div>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <TrendingUp className="h-5 w-5 text-blue-500 mt-0.5" />
-                      <div>
-                        <div className="font-medium">Ranking Boost</div>
-                        <div className="text-sm text-muted-foreground">Improve your candidate ranking significantly</div>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Award className="h-5 w-5 text-purple-500 mt-0.5" />
-                      <div>
-                        <div className="font-medium">Employer Confidence</div>
-                        <div className="text-sm text-muted-foreground">Stand out with verified capabilities</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Difficulty Level</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex justify-between text-sm">
-                        <span>Assessment Difficulty</span>
-                        <Badge className={
-                          assessmentData.difficulty === 'Beginner' ? 'bg-green-100 text-green-700' :
-                          assessmentData.difficulty === 'Intermediate' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-red-100 text-red-700'
-                        }>
-                          {assessmentData.difficulty}
-                        </Badge>
-                      </div>
-                      <Progress 
-                        value={
-                          assessmentData.difficulty === 'Beginner' ? 30 :
-                          assessmentData.difficulty === 'Intermediate' ? 60 : 90
-                        } 
-                        className="h-2" 
-                      />
-                      <p className="text-sm text-muted-foreground">
-                        This assessment is designed for {assessmentData.difficulty.toLowerCase()} level practitioners.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </div>
+          <Card>
+            <CardContent className="p-8 text-center">
+              <h1 className="text-2xl font-bold mb-4">Assessment Not Found</h1>
+              <p className="text-muted-foreground mb-4">The requested skill assessment could not be found.</p>
+              <Button onClick={() => navigate('/skills')}>Back to Skills</Button>
+            </CardContent>
+          </Card>
         </div>
       </Layout>
     );
   }
 
-  // Assessment in progress view
-  return (
-    <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Assessment Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <Badge variant="outline">{assessmentData.name} Assessment</Badge>
-              <div className="text-sm text-muted-foreground">
-                Question {currentQuestion + 1} of {assessmentData.totalQuestions}
+  if (!isStarted) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8 max-w-2xl">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Award className="h-6 w-6 text-primary" />
+                {assessment.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <p className="text-muted-foreground">{assessment.description}</p>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center p-4 border rounded-lg">
+                  <Clock className="h-8 w-8 mx-auto mb-2 text-primary" />
+                  <div className="font-semibold">{assessment.timeLimit} minutes</div>
+                  <div className="text-sm text-muted-foreground">Time limit</div>
+                </div>
+                <div className="text-center p-4 border rounded-lg">
+                  <Award className="h-8 w-8 mx-auto mb-2 text-primary" />
+                  <div className="font-semibold">{assessment.questions.length} questions</div>
+                  <div className="text-sm text-muted-foreground">Total questions</div>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center text-muted-foreground">
-                <Clock className="h-4 w-4 mr-1" />
-                {formatTime(timeLeft)}
-              </div>
-            </div>
-          </div>
 
-          {/* Progress Bar */}
-          <Card className="mb-6">
-            <CardContent className="p-4">
-              <Progress value={(currentQuestion / assessmentData.totalQuestions) * 100} className="h-2" />
+              <Button onClick={handleStartAssessment} className="w-full" size="lg">
+                Start Assessment
+              </Button>
             </CardContent>
           </Card>
+        </div>
+      </Layout>
+    );
+  }
 
-          {/* Question Content */}
+  if (isCompleted) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8 max-w-2xl">
           <Card>
-            <CardContent className="p-8">
-              <div className="text-center py-12">
-                <Code className="h-16 w-16 text-primary mx-auto mb-4" />
-                <h2 className="text-2xl font-bold mb-4">Assessment in Progress</h2>
-                <p className="text-muted-foreground mb-6">
-                  This is a demo of the assessment interface. The actual assessment questions 
-                  would be loaded here with interactive components.
-                </p>
-                <div className="space-y-4">
-                  <Button onClick={() => navigate('/skills')} variant="outline">
-                    Return to Skills
-                  </Button>
-                  <Button 
-                    onClick={() => {
-                      toast.success('Assessment completed! Skill verified and added to your profile.');
-                      navigate('/dashboard');
-                    }}
-                  >
-                    Complete Demo Assessment
-                  </Button>
-                </div>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle className="h-6 w-6 text-green-500" />
+                Assessment Completed!
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="text-center">
+                <div className="text-4xl font-bold text-primary mb-2">{score}%</div>
+                <p className="text-muted-foreground">Your Score</p>
+              </div>
+
+              <div className="bg-green-50 p-4 rounded-lg">
+                <p className="text-green-800 font-medium">Skill Added to Profile!</p>
+                <p className="text-green-700 text-sm">Your {assessment.title.replace(' Assessment', '')} skill has been verified and added to your profile with a level of {Math.min(Math.round(score / 10), 10)}/10.</p>
+              </div>
+
+              <div className="flex gap-2">
+                <Button onClick={() => navigate('/skills')} className="flex-1">
+                  Take Another Assessment
+                </Button>
+                <Button onClick={() => navigate('/dashboard')} variant="outline" className="flex-1">
+                  Back to Dashboard
+                </Button>
               </div>
             </CardContent>
           </Card>
         </div>
+      </Layout>
+    );
+  }
+
+  const question = assessment.questions[currentQuestion];
+  const progress = ((currentQuestion + 1) / assessment.questions.length) * 100;
+
+  return (
+    <Layout>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl font-bold">{assessment.title}</h1>
+            <Badge variant="outline" className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              {formatTime(timeRemaining)}
+            </Badge>
+          </div>
+          <Progress value={progress} className="h-2" />
+          <p className="text-sm text-muted-foreground mt-2">
+            Question {currentQuestion + 1} of {assessment.questions.length}
+          </p>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">{question.question}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              {question.options.map((option, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleAnswerSelect(index)}
+                  className={`w-full p-4 text-left border rounded-lg transition-colors ${
+                    selectedAnswers[currentQuestion] === index
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <span className="font-medium">{String.fromCharCode(65 + index)}.</span> {option}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex justify-between pt-6">
+              <Button
+                variant="outline"
+                onClick={handlePreviousQuestion}
+                disabled={currentQuestion === 0}
+              >
+                Previous
+              </Button>
+              
+              {currentQuestion === assessment.questions.length - 1 ? (
+                <Button onClick={handleSubmitAssessment}>
+                  Submit Assessment
+                </Button>
+              ) : (
+                <Button onClick={handleNextQuestion}>
+                  Next
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </Layout>
   );
