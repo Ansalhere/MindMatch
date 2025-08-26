@@ -64,9 +64,8 @@ const Rankings = () => {
           experiences:experiences(company, role, is_current)
         `)
         .eq('user_type', 'candidate')
-        .eq('is_profile_public', true)
         .order('rank_score', { ascending: false })
-        .limit(50);
+        .limit(100);
 
       if (!error && data) {
         const mappedCandidates = data.map((user, index) => ({

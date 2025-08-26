@@ -495,7 +495,7 @@ const SkillAssessment = ({ onComplete, category }: SkillAssessmentProps) => {
   }
 
   // Show assessment start screen before beginning timer
-  if (selectedExam && !examStarted) {
+  if (selectedExam && !examStarted && !showResults) {
     return (
       <Card className="max-w-2xl mx-auto">
         <CardHeader className="text-center">

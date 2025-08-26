@@ -23,15 +23,15 @@ const Hero = () => {
           </div>
           
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight">
-            <span className="text-blue-600">RankMe.AI</span>
+            <span className="text-blue-600">FresherPools</span>
           </h1>
           
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight leading-tight">
-            AI-Powered <span className="text-primary">Job Matching</span> for All Talent
+            AI-Powered <span className="text-primary">Job Matching</span> for Fresh Talent
           </h2>
           
           <p className="text-lg md:text-xl text-muted-foreground">
-            Connect job seekers with recruiters through AI-powered skill matching. RankMe.AI helps professionals at every level find the perfect opportunities.
+            Connect fresh talent with employers through AI-powered skill matching. FresherPools helps new graduates and entry-level professionals find the perfect opportunities.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">

@@ -97,7 +97,7 @@ const CTASection = ({ isVisible }: CTASectionProps) => {
             <Button 
               size="lg" 
               variant="outline" 
-              className="text-white border-white/30 hover:bg-white/10 hover:border-white/50 px-8 py-3 text-lg backdrop-blur-sm transition-all duration-300" 
+              className="text-white border-white bg-white/10 hover:bg-white/20 hover:border-white border-2 px-8 py-3 text-lg backdrop-blur-sm transition-all duration-300 font-semibold" 
               asChild
             >
               <Link to="/profiles">Browse Ranked Profiles</Link>

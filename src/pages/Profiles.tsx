@@ -39,7 +39,7 @@ const Profiles = () => {
     try {
       setLoading(true);
       
-      // Fetch all candidates (remove auth requirement for public viewing)
+      // Fetch all candidates with ranking data (public viewing)
       const { data: candidatesData, error: candidatesError } = await supabase
         .from('users')
         .select(`
@@ -59,20 +59,20 @@ const Profiles = () => {
           )
         `)
         .eq('user_type', 'candidate')
-        .eq('is_profile_public', true)
-        .limit(50);
+        .order('rank_score', { ascending: false })
+        .limit(100);
 
       if (candidatesError) throw candidatesError;
 
-      // Process candidates data
-      const processedCandidates = candidatesData?.map(candidate => ({
+      // Process candidates data with proper ranking positions
+      const processedCandidates = candidatesData?.map((candidate, index) => ({
         ...candidate,
         title: candidate.skills?.[0]?.name ? `${candidate.skills[0].name} Professional` : 'Software Professional',
-        location: getRandomGlobalCity(),
+        location: candidate.location || getRandomGlobalCity(),
         ranking: {
           overall: candidate.rank_score || 0,
-          position: Math.floor(Math.random() * 500) + 1,
-          total: 5000
+          position: index + 1, // Real rank position based on database order
+          total: candidatesData.length
         },
         skillsList: candidate.skills?.map((skill: any) => skill.name) || []
       })) || [];

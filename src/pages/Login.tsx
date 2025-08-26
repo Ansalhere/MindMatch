@@ -156,7 +156,7 @@ const Login = () => {
                   </div>
                 </div>
                  
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 gap-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -164,16 +164,7 @@ const Login = () => {
                     className="text-xs"
                   >
                     <Building className="h-3 w-3 mr-1" />
-                    Employer
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigate('/auth-selector')}
-                    className="text-xs"
-                  >
-                    <Shield className="h-3 w-3 mr-1" />
-                    More Options
+                    Employer Login
                   </Button>
                 </div>
               </div>

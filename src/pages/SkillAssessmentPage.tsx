@@ -224,10 +224,20 @@ const SkillAssessmentPage = () => {
           level: skillLevel,
           experience_years: Math.max(1, Math.round(skillLevel / 2)),
           is_verified: true,
-          verification_source: 'RankMe Assessment'
+          verification_source: 'FresherPools Assessment'
         });
 
       if (error) throw error;
+      
+      // Trigger rank recalculation
+      const { error: rankError } = await supabase.functions.invoke('rank-calculator', {
+        body: { userId: user.id }
+      });
+      
+      if (rankError) {
+        console.error('Error recalculating rank:', rankError);
+      }
+      
       toast.success(`Assessment completed! ${assessment.title.replace(' Assessment', '')} skill added to your profile.`);
     } catch (error) {
       console.error('Error saving assessment result:', error);
