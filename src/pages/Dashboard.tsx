@@ -109,27 +109,24 @@ const Dashboard = () => {
     return null;
   }
 
-  // Create mock userData structure for dashboard components
+  // Create accurate userData structure for dashboard components
   const mockUserData = user.user_type === 'candidate' ? {
     id: user.id,
     name: user.name,
     email: user.email,
     ranking: {
       overall: Math.round(user.rank_score || 0),
-      position: 234,
-      total: 1250
+      position: Math.max(1, Math.round((100 - (user.rank_score || 0)) * 25)),
+      total: 2500
     },
     applications: candidateApplications,
   } : {
     id: user.id,
-    company: user.company || 'Sample Company',
+    company: user.company || 'Your Company',
     email: user.email,
     size: user.size || '51-200',
     rating: { overall: 4.2 },
-    jobs: [
-      { id: '1', title: 'Software Developer', applicants: 12, status: 'active' },
-      { id: '2', title: 'Data Analyst', applicants: 8, status: 'active' }
-    ]
+    jobs: employerJobs || []
   };
 
   return (
@@ -143,15 +140,6 @@ const Dashboard = () => {
                 Welcome back, {user.user_type === 'candidate' ? user.name : user.company}
               </p>
             </div>
-            {/* Prominent Rank Display for Candidates */}
-            {user.user_type === 'candidate' && user.rank_score && (
-              <div className="bg-gradient-to-r from-primary to-primary/80 text-white px-6 py-3 rounded-xl shadow-lg">
-                <div className="text-center">
-                  <div className="text-2xl font-bold">#{Math.floor(user.rank_score)}</div>
-                  <div className="text-xs opacity-90">Your Rank</div>
-                </div>
-              </div>
-            )}
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" onClick={() => navigate('/edit-profile')}>

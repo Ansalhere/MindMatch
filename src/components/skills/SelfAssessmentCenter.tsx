@@ -130,7 +130,7 @@ const SelfAssessmentCenter = () => {
     // Navigate to skill assessment with category
     setTimeout(() => {
       window.location.href = `/skill-assessment/${categoryId}`;
-    }, 500);
+    }, 300);
   };
 
   const getDifficultyColor = (difficulty: string) => {

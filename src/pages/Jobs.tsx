@@ -60,24 +60,19 @@ const Jobs = () => {
       if (error) {
         console.error("Error fetching jobs:", error);
         setError("Failed to load jobs. Please check your connection and try again.");
-        // Show sample jobs as fallback
-        setJobs(sampleJobs as any[]);
+        // Don't show sample jobs, keep empty
+        setJobs([]);
         return;
       }
       
       console.log("Jobs fetched:", fetchedJobs?.length || 0);
       
-      // Always combine real jobs with sample jobs for better user experience
-      const allJobs = [];
+      // Use real jobs only, no sample jobs
       if (fetchedJobs && fetchedJobs.length > 0) {
-        allJobs.push(...fetchedJobs);
+        setJobs(fetchedJobs);
+      } else {
+        setJobs([]);
       }
-      // Add sample jobs if we have fewer than 5 real jobs
-      if (allJobs.length < 5) {
-        allJobs.push(...sampleJobs);
-      }
-      
-      setJobs(allJobs);
     } catch (error) {
       console.error("Exception in fetchJobs:", error);
       setError("An unexpected error occurred. Please try again later.");

@@ -171,15 +171,12 @@ const SuperAdmin = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-              <Shield className="h-8 w-8 text-primary" />
-              Super Admin Dashboard
-            </h1>
-            <p className="text-muted-foreground">Complete system management and oversight</p>
-          </div>
-          
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold mb-2 flex items-center gap-2">
+            <Shield className="h-6 w-6 text-primary" />
+            Admin Dashboard
+          </h1>
+          <p className="text-muted-foreground">System management and oversight</p>
         </div>
         
         <div className="mb-6">
@@ -194,81 +191,38 @@ const SuperAdmin = () => {
           </div>
         </div>
         
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="overview">
-              <Database className="h-4 w-4 mr-2" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="users">
-              <Users className="h-4 w-4 mr-2" />
-              Users
-            </TabsTrigger>
-            <TabsTrigger value="jobs">
-              <Briefcase className="h-4 w-4 mr-2" />
-              Jobs
-            </TabsTrigger>
-            <TabsTrigger value="messages">
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Messages
-            </TabsTrigger>
-            <TabsTrigger value="notifications">
-              <Bell className="h-4 w-4 mr-2" />
-              Notifications
-            </TabsTrigger>
-            <TabsTrigger value="settings">
-              <Settings className="h-4 w-4 mr-2" />
-              Settings
-            </TabsTrigger>
+        <Tabs defaultValue="overview" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-4 max-w-2xl">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="users">Users</TabsTrigger>
+            <TabsTrigger value="jobs">Jobs</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
           
           <TabsContent value="overview">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="p-4">
                   <div className="text-2xl font-bold">{users.length}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {users.filter(u => u.user_type === 'candidate').length} candidates, {users.filter(u => u.user_type === 'employer').length} employers
-                  </div>
+                  <div className="text-sm text-muted-foreground">Total Users</div>
                 </CardContent>
               </Card>
-              
               <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Active Jobs</CardTitle>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="p-4">
                   <div className="text-2xl font-bold">{jobs.filter(j => j.is_active).length}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {jobs.length - jobs.filter(j => j.is_active).length} inactive
-                  </div>
+                  <div className="text-sm text-muted-foreground">Active Jobs</div>
                 </CardContent>
               </Card>
-              
               <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Messages</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{messages.length}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {messages.filter(m => !m.is_read).length} unread
-                  </div>
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold">{users.filter(u => u.user_type === 'candidate').length}</div>
+                  <div className="text-sm text-muted-foreground">Candidates</div>
                 </CardContent>
               </Card>
-              
               <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Notifications</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{notifications.length}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {notifications.filter(n => !n.is_read).length} unread
-                  </div>
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold">{users.filter(u => u.user_type === 'employer').length}</div>
+                  <div className="text-sm text-muted-foreground">Employers</div>
                 </CardContent>
               </Card>
             </div>
@@ -337,101 +291,6 @@ const SuperAdmin = () => {
             </Card>
           </TabsContent>
           
-          <TabsContent value="messages">
-            <Card>
-              <CardHeader>
-                <CardTitle>Message Management</CardTitle>
-                <CardDescription>Monitor and manage user communications</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>From</TableHead>
-                      <TableHead>To</TableHead>
-                      <TableHead>Subject</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {messages.slice(0, 10).map(message => (
-                      <TableRow key={message.id}>
-                        <TableCell>{message.sender?.name || 'Unknown'}</TableCell>
-                        <TableCell>{message.receiver?.name || 'Unknown'}</TableCell>
-                        <TableCell className="max-w-xs truncate">{message.subject}</TableCell>
-                        <TableCell>{new Date(message.created_at).toLocaleDateString()}</TableCell>
-                        <TableCell>
-                          <Badge variant={message.is_read ? 'outline' : 'default'}>
-                            {message.is_read ? 'Read' : 'Unread'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button 
-                            size="sm" 
-                            variant="destructive"
-                            onClick={() => deleteMessage(message.id)}
-                          >
-                            Delete
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="notifications">
-            <Card>
-              <CardHeader>
-                <CardTitle>Notification Management</CardTitle>
-                <CardDescription>Monitor system notifications</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>User</TableHead>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {notifications.slice(0, 10).map(notification => (
-                      <TableRow key={notification.id}>
-                        <TableCell>{notification.user?.name || 'Unknown'}</TableCell>
-                        <TableCell className="max-w-xs truncate">{notification.title}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{notification.type}</Badge>
-                        </TableCell>
-                        <TableCell>{new Date(notification.created_at).toLocaleDateString()}</TableCell>
-                        <TableCell>
-                          <Badge variant={notification.is_read ? 'outline' : 'default'}>
-                            {notification.is_read ? 'Read' : 'Unread'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button 
-                            size="sm" 
-                            variant="destructive"
-                            onClick={() => deleteNotification(notification.id)}
-                          >
-                            Delete
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
           
           <TabsContent value="settings">
             <Card>

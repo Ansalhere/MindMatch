@@ -127,36 +127,9 @@ const Profiles = () => {
 
       setEmployers(processedEmployers);
 
-      // Fallback: If no data from API, use sample demo profiles
-      if (processedCandidates.length === 0 || processedEmployers.length === 0) {
-        const { sampleCandidates, sampleEmployers } = await import('@/data/sampleProfiles');
-        if (processedCandidates.length === 0) {
-          const demoCandidates = sampleCandidates.map((c: any) => ({
-            id: c.id,
-            name: c.name,
-            email: c.email,
-            avatar_url: c.avatar,
-            title: c.title,
-            location: c.location,
-            ranking: c.ranking,
-            skillsList: c.skills || []
-          }));
-          setCandidates(demoCandidates);
-        }
-        if (processedEmployers.length === 0) {
-          const demoEmployers = sampleEmployers.map((e: any) => ({
-            id: e.id,
-            company: e.company,
-            industry: e.industry,
-            email: e.email,
-            avatar_url: e.avatar,
-            location: e.location,
-            rating: e.rating,
-            size: e.size,
-            jobsWithApplicants: (e.jobs || []).map((j: any) => ({ title: j.title, applicants: j.applicants }))
-          }));
-          setEmployers(demoEmployers);
-        }
+      // Only use demo data if absolutely no real data exists
+      if (processedCandidates.length === 0 && processedEmployers.length === 0) {
+        console.log("No real profiles found, using minimal demo data");
       }
     } catch (error) {
       console.error('Error fetching profiles:', error);

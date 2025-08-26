@@ -27,100 +27,77 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
 
   return (
     <>
-      {/* Enhanced Ranking Section */}
-      <div className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 p-8 rounded-2xl mb-8 border border-primary/20 shadow-lg">
-        <div className="flex flex-col lg:flex-row items-center gap-8">
-          <div className="flex-1 text-center lg:text-left">
-            <div className="flex items-center justify-center lg:justify-start mb-4">
-              <Trophy className="h-6 w-6 text-amber-500 mr-2" />
-              <h2 className="text-2xl font-bold">Your Global Ranking</h2>
+      {/* Clean Ranking Overview */}
+      <Card className="mb-6 border-primary/20 shadow-lg">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-amber-500" />
+                Your Global Ranking
+              </h2>
+              <p className="text-muted-foreground">
+                Rank #{userData.ranking.position} of {userData.ranking.total.toLocaleString()} candidates
+              </p>
             </div>
-            <p className="text-muted-foreground mb-6 text-lg leading-relaxed">
-              Your ranking determines your visibility to top employers and eligibility for premium opportunities. 
-              Stand out from the competition with a higher rank.
-            </p>
-            <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
-              <Button size="lg" variant="default" onClick={handleAddSkill} className="font-semibold">
-                <TrendingUp className="h-5 w-5 mr-2" />
-                Boost Your Rank
-              </Button>
-              <Button size="lg" variant="outline" onClick={viewRankingExplanation} className="font-semibold">
-                <BarChart3 className="h-5 w-5 mr-2" />
-                How Rankings Work
-              </Button>
+            <div className="text-right">
+              <div className="text-3xl font-bold text-primary">{Math.round(userData.ranking.overall)}</div>
+              <div className="text-sm text-muted-foreground">Score</div>
             </div>
           </div>
-          
-          <div className="lg:w-80">
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/50">
-              <CandidateRankDisplay 
-                rankScore={userData.ranking.overall}
-                rankPosition={userData.ranking.position}
-                totalCandidates={userData.ranking.total}
-                showDetailedScore={true}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Enhanced Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-primary">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Profile Completion</p>
-                <p className="text-3xl font-bold">75%</p>
-              </div>
-              <div className="p-3 bg-primary/10 rounded-full">
-                <TrendingUp className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-            <div className="mb-3">
-              <div className="w-full bg-secondary h-2 rounded-full">
-                <div className="bg-primary h-2 rounded-full" style={{ width: '75%' }}></div>
-              </div>
-            </div>
-            <Button variant="outline" size="sm" className="w-full" onClick={() => navigate(`/profile/${userData.id}/candidate`)}>
-              Complete Profile
+          <div className="mt-4 flex gap-2">
+            <Button size="sm" onClick={handleAddSkill}>
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Improve Ranking
             </Button>
-          </CardContent>
-        </Card>
-        
-        <Card className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-emerald-500">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
+            <Button size="sm" variant="outline" onClick={viewRankingExplanation}>
+              How It Works
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Clean Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Applications Sent</p>
-                <p className="text-3xl font-bold">{userData.applications.length}</p>
-                <p className="text-sm text-emerald-600 font-medium">3 this week</p>
+                <p className="text-sm text-muted-foreground">Applications</p>
+                <p className="text-2xl font-bold">{userData.applications.length}</p>
               </div>
-              <div className="p-3 bg-emerald-100 rounded-full">
-                <Briefcase className="h-6 w-6 text-emerald-600" />
-              </div>
+              <Briefcase className="h-5 w-5 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
         
-        <Card className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Match Rate</p>
-                <p className="text-3xl font-bold">{Math.round(userData.ranking.overall * 0.8)}%</p>
-                <p className="text-sm text-blue-600 font-medium">Based on your skills</p>
+                <p className="text-sm text-muted-foreground">Profile Score</p>
+                <p className="text-2xl font-bold">{Math.round(userData.ranking.overall)}</p>
               </div>
-              <div className="p-3 bg-blue-100 rounded-full">
-                <Award className="h-6 w-6 text-blue-600" />
+              <Award className="h-5 w-5 text-muted-foreground" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Rank Position</p>
+                <p className="text-2xl font-bold">#{userData.ranking.position}</p>
               </div>
+              <Trophy className="h-5 w-5 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
           <RecommendedJobs userData={userData} />
           
           {/* Applied Jobs Section */}
@@ -130,72 +107,43 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
                 <Briefcase className="h-5 w-5 mr-2 text-primary" />
                 Your Applications
               </CardTitle>
-              <CardDescription>
-                Track the status of your job applications
-              </CardDescription>
             </CardHeader>
             <CardContent>
               {userData.applications && userData.applications.length > 0 ? (
-                <div className="space-y-4">
-                  {userData.applications.map((application: any) => (
-                    <div key={application.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-2">
+                <div className="space-y-3">
+                  {userData.applications.slice(0, 5).map((application: any) => (
+                    <div key={application.id} className="border rounded-lg p-3">
+                      <div className="flex justify-between items-start">
                         <div>
-                          <h3 className="font-medium">
-                            {application.job?.title || application.position || 'Job Application'}
+                          <h3 className="font-medium text-sm">
+                            {application.job?.title || 'Job Application'}
                           </h3>
-                          <p className="text-sm text-muted-foreground">
-                            {application.job?.employer?.company || application.company || 'Company Name'}
-                          </p>
                           <p className="text-xs text-muted-foreground">
-                            Applied: {new Date(application.created_at).toLocaleDateString()}
+                            {application.job?.employer?.company || 'Company Name'}
                           </p>
                         </div>
-                        <div className="flex flex-col items-end gap-1">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            application.status === 'accepted' 
-                              ? 'bg-green-100 text-green-700' 
-                              : application.status === 'rejected'
-                              ? 'bg-red-100 text-red-700'
-                              : 'bg-yellow-100 text-yellow-700'
-                          }`}>
-                            {application.status === 'accepted' ? 'Accepted' : 
-                             application.status === 'rejected' ? 'Rejected' : 'Pending'}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {application.candidate_note && (
-                        <div className="bg-muted/30 p-3 rounded-md text-sm mb-3">
-                          <p className="italic">"{application.candidate_note}"</p>
-                        </div>
-                      )}
-                      
-                      <div className="flex gap-2">
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => navigate(`/job/${application.job_id}`)}
-                        >
-                          View Job
-                        </Button>
-                        {application.job?.employer_id && (
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => navigate(`/profile/${application.job.employer_id}/employer`)}
-                          >
-                            View Company
-                          </Button>
-                        )}
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          application.status === 'accepted' 
+                            ? 'bg-green-100 text-green-700' 
+                            : application.status === 'rejected'
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-yellow-100 text-yellow-700'
+                        }`}>
+                          {application.status}
+                        </span>
                       </div>
                     </div>
                   ))}
+                  {userData.applications.length > 5 && (
+                    <p className="text-xs text-muted-foreground text-center">
+                      +{userData.applications.length - 5} more applications
+                    </p>
+                  )}
                 </div>
               ) : (
-                <div className="text-center py-6">
-                  <p className="text-muted-foreground mb-4">No applications yet</p>
-                  <Button onClick={() => navigate('/jobs')}>Browse Jobs</Button>
+                <div className="text-center py-4">
+                  <p className="text-sm text-muted-foreground mb-2">No applications yet</p>
+                  <Button size="sm" onClick={() => navigate('/jobs')}>Browse Jobs</Button>
                 </div>
               )}
             </CardContent>
@@ -203,60 +151,22 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
         </div>
         
         <div className="space-y-6">
-          {/* Skills Overview */}
           <SkillsList />
           
-          {/* Rank Breakdown */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <BarChart3 className="h-5 w-5 mr-2 text-primary" />
-                Ranking Breakdown
-              </CardTitle>
-              <CardDescription>
-                Understand how your rank is calculated
-              </CardDescription>
+              <CardTitle className="text-base">Quick Actions</CardTitle>
             </CardHeader>
-            <CardContent>
-              <RankBreakdown user={userData} detailed={false} />
-              <Button 
-                variant="outline" 
-                className="w-full mt-4" 
-                onClick={() => navigate('/ranking-explanation')}
-              >
-                View Detailed Analysis
+            <CardContent className="space-y-2">
+              <Button size="sm" className="w-full" onClick={handleAddSkill}>
+                Add Skills
               </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Award className="h-5 w-5 mr-2 text-amber-500" />
-                Your Skills Ranking
-              </CardTitle>
-              <CardDescription>
-                Skills ranked by market demand and your proficiency
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <SkillRanking userData={userData} />
-              <div className="mt-4 space-y-2">
-                <Button 
-                  variant="outline" 
-                  className="w-full" 
-                  onClick={handleAddSkill}
-                >
-                  Add New Skills
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full" 
-                  onClick={() => navigate('/skills')}
-                >
-                  Take Skill Assessment
-                </Button>
-              </div>
+              <Button size="sm" variant="outline" className="w-full" onClick={() => navigate('/skills')}>
+                Take Assessment
+              </Button>
+              <Button size="sm" variant="outline" className="w-full" onClick={() => navigate('/ranking-explanation')}>
+                View Ranking Details
+              </Button>
             </CardContent>
           </Card>
         </div>
