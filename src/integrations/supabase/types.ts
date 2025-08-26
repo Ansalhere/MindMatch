@@ -731,6 +731,18 @@ export type Database = {
         Args: { post_id_param: string }
         Returns: number
       }
+      get_public_candidates: {
+        Args: { limit_num?: number }
+        Returns: {
+          avatar_url: string
+          company: string
+          id: string
+          location: string
+          name: string
+          rank_score: number
+          skills: string[]
+        }[]
+      }
       insert_newsletter_subscription: {
         Args: { email_address: string }
         Returns: undefined

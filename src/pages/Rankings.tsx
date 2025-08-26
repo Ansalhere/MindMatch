@@ -51,34 +51,20 @@ const Rankings = () => {
   const fetchRealRankings = async () => {
     try {
       const { data, error } = await supabase
-        .from('users')
-        .select(`
-          id,
-          name,
-          rank_score,
-          location,
-          company,
-          user_type,
-          skills:skills(name, level, experience_years),
-          education:education(institution, degree, field),
-          experiences:experiences(company, role, is_current)
-        `)
-        .eq('user_type', 'candidate')
-        .order('rank_score', { ascending: false })
-        .limit(100);
+        .rpc('get_public_candidates', { limit_num: 100 });
 
       if (!error && data) {
-        const mappedCandidates = data.map((user, index) => ({
+        const mappedCandidates = (data as any[]).map((user: any, index: number) => ({
           id: user.id,
           name: user.name || 'Anonymous User',
           rank_score: user.rank_score || 0,
           position: index + 1,
           location: user.location || 'Not specified',
-          company: user.company || user.experiences?.find(exp => exp.is_current)?.company,
-          skills: user.skills?.map(skill => skill.name) || [],
-          education: user.education?.[0] ? `${user.education[0].institution} - ${user.education[0].degree}` : undefined,
-          experience_years: user.experiences?.length || 0,
-          user_type: user.user_type
+          company: user.company || undefined,
+          skills: user.skills || [],
+          education: undefined,
+          experience_years: 0,
+          user_type: 'candidate'
         }));
         setRealCandidates(mappedCandidates);
       }

@@ -39,42 +39,23 @@ const Profiles = () => {
     try {
       setLoading(true);
       
-      // Fetch all candidates with ranking data (public viewing)
+      // Fetch public-safe candidate data via RPC (no sensitive columns)
       const { data: candidatesData, error: candidatesError } = await supabase
-        .from('users')
-        .select(`
-          id,
-          name,
-          email,
-          avatar_url,
-          current_ctc,
-          expected_ctc,
-          rank_score,
-          location,
-          bio,
-          skills(
-            name,
-            level,
-            experience_years
-          )
-        `)
-        .eq('user_type', 'candidate')
-        .order('rank_score', { ascending: false })
-        .limit(100);
+        .rpc('get_public_candidates', { limit_num: 100 });
 
       if (candidatesError) throw candidatesError;
 
       // Process candidates data with proper ranking positions
       const processedCandidates = candidatesData?.map((candidate, index) => ({
         ...candidate,
-        title: candidate.skills?.[0]?.name ? `${candidate.skills[0].name} Professional` : 'Software Professional',
+        title: candidate.skills?.[0] ? `${candidate.skills[0]} Professional` : 'Software Professional',
         location: candidate.location || getRandomGlobalCity(),
         ranking: {
           overall: candidate.rank_score || 0,
           position: index + 1, // Real rank position based on database order
           total: candidatesData.length
         },
-        skillsList: candidate.skills?.map((skill: any) => skill.name) || []
+        skillsList: candidate.skills || []
       })) || [];
 
       setCandidates(processedCandidates);
