@@ -45,6 +45,7 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
   };
 
   const getCompanyInitials = (companyName: string) => {
+    if (!companyName) return 'CO';
     return companyName
       .split(' ')
       .map(word => word[0])
