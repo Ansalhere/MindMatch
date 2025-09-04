@@ -85,6 +85,23 @@ export async function signIn(email: string, password: string) {
   }
 }
 
+export async function signInWithOAuth(provider: 'google' | 'linkedin_oidc') {
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`
+      }
+    });
+
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error: any) {
+    console.error(`Error signing in with ${provider}:`, error);
+    return { data: null, error };
+  }
+}
+
 export async function signOut() {
   try {
     
