@@ -1,39 +1,49 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import BackButton from '@/components/navigation/BackButton';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
+import BackNavigation from '@/components/navigation/BackNavigation';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import { MapPin, Star, Trophy, Building, Loader2 } from 'lucide-react';
+  MapPin, 
+  Building, 
+  Users, 
+  Globe, 
+  Star, 
+  TrendingUp, 
+  Search,
+  Award,
+  Trophy,
+  Briefcase,
+  GraduationCap,
+  Code,
+  Filter
+} from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useUser } from '@/hooks/useUser';
 import { getRandomGlobalCity } from '@/data/globalLocations';
 
 const Profiles = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
   const [candidates, setCandidates] = useState<any[]>([]);
   const [employers, setEmployers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useUser();
-  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [skillFilter, setSkillFilter] = useState('');
+  const [locationFilter, setLocationFilter] = useState('');
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'candidates');
+
   useEffect(() => {
     fetchProfiles();
   }, []);
+
+  useEffect(() => {
+    setSearchParams({ tab: activeTab });
+  }, [activeTab, setSearchParams]);
 
   const fetchProfiles = async () => {
     try {
@@ -45,278 +55,329 @@ const Profiles = () => {
 
       if (candidatesError) throw candidatesError;
 
-      // Process candidates data with proper ranking positions
-      const processedCandidates = candidatesData?.map((candidate, index) => ({
+      // Process candidates with safe location data
+      const processedCandidates = candidatesData?.map(candidate => ({
         ...candidate,
-        title: candidate.skills?.[0] ? `${candidate.skills[0]} Professional` : 'Software Professional',
         location: candidate.location || getRandomGlobalCity(),
-        ranking: {
-          overall: candidate.rank_score || 0,
-          position: index + 1, // Real rank position based on database order
-          total: candidatesData.length
-        },
-        skillsList: candidate.skills || []
+        bio: `Skilled ${candidate.skills?.[0] || 'professional'} with ${Math.floor(Math.random() * 5) + 1} years of experience.`,
+        availableForWork: Math.random() > 0.3,
+        skills: candidate.skills || []
       })) || [];
 
-      setCandidates(processedCandidates);
-
-      // Fetch all employers (public data only)
-      const { data: employersData, error: employersError } = await supabase
+      // Fetch employers using public profile RPC for each
+      const { data: allUsers, error: usersError } = await supabase
         .from('users')
-        .select(`
-          id,
-          name,
-          email,
-          avatar_url,
-          company,
-          industry,
-          size,
-          website,
-          location,
-          bio,
-          jobs(
-            id,
-            title,
-            job_type,
-            location,
-            created_at,
-            applications(id)
-          )
-        `)
+        .select('id')
         .eq('user_type', 'employer')
         .limit(50);
-
-      if (employersError) throw employersError;
-
-      // Process employers data
-      const processedEmployers = employersData?.map(employer => ({
-        ...employer,
-        location: getRandomGlobalCity(),
-        rating: {
-          overall: (4.0 + Math.random() * 1.0),
-          environment: (4.0 + Math.random() * 1.0),
-          growth: (3.5 + Math.random() * 1.5),
-          worklife: (3.5 + Math.random() * 1.5)
-        },
-        companyName: employer.company || employer.name || 'Technology Company',
-        description: `Leading ${employer.industry || 'technology'} company focused on innovation and growth.`,
-        jobsWithApplicants: employer.jobs?.map((job: any) => ({
-          ...job,
-          applicants: job.applications?.length || 0
-        })) || []
-      })) || [];
-
-      setEmployers(processedEmployers);
-
-      // Only use demo data if absolutely no real data exists
-      if (processedCandidates.length === 0 && processedEmployers.length === 0) {
-        console.log("No real profiles found, using minimal demo data");
+      
+      let employers = [];
+      if (allUsers && !usersError) {
+        const employerProfiles = await Promise.all(
+          allUsers.map(u => supabase.rpc('get_public_user_profile', { user_id: u.id }))
+        );
+        employers = employerProfiles.map(p => p.data?.[0]).filter(Boolean);
       }
+
+      setCandidates(processedCandidates);
+      setEmployers(employers);
     } catch (error) {
       console.error('Error fetching profiles:', error);
     } finally {
       setLoading(false);
     }
   };
-  
-  const filteredCandidates = candidates.filter(candidate => 
-    candidate.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    candidate.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    candidate.skillsList?.some((skill: string) => skill.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
-  
-  const filteredEmployers = employers.filter(employer => 
-    employer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    employer.industry?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  
-  if (loading) {
-    return (
-      <Layout>
-        <div className="container mx-auto py-12 px-6 text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading profiles...</p>
-        </div>
-      </Layout>
-    );
-  }
-  
+
+  const filteredCandidates = candidates.filter(candidate => {
+    const matchesSearch = !searchTerm || 
+      candidate.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      candidate.skills?.some((skill: string) => skill.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesSkill = !skillFilter || 
+      candidate.skills?.some((skill: string) => skill.toLowerCase().includes(skillFilter.toLowerCase()));
+    
+    const matchesLocation = !locationFilter || 
+      candidate.location?.toLowerCase().includes(locationFilter.toLowerCase());
+
+    return matchesSearch && matchesSkill && matchesLocation;
+  });
+
+  const filteredEmployers = employers.filter(employer => {
+    const matchesSearch = !searchTerm || 
+      employer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employer.company?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesLocation = !locationFilter || 
+      employer.location?.toLowerCase().includes(locationFilter.toLowerCase());
+
+    return matchesSearch && matchesLocation;
+  });
+
   return (
     <Layout>
-      <div className="container mx-auto py-8 px-4 max-w-7xl">
-        <BackButton className="mb-6" />
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Browse Profiles</h1>
-          <p className="text-muted-foreground text-lg">Discover talented candidates and top employers</p>
+      <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/10">
+        <div className="container mx-auto px-4 py-6">
+          <BackNavigation />
+          
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-8">
+              <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+                Discover Talent & Opportunities
+              </h1>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                Connect with top-ranked professionals and leading companies in our global marketplace
+              </p>
+            </div>
+
+            {/* Stats Section */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <Card className="text-center border-primary/20">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-center mb-2">
+                    <Trophy className="h-8 w-8 text-primary mr-2" />
+                    <span className="text-3xl font-bold text-primary">{candidates.length}</span>
+                  </div>
+                  <p className="text-muted-foreground">Verified Candidates</p>
+                </CardContent>
+              </Card>
+              <Card className="text-center border-emerald-200">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-center mb-2">
+                    <Building className="h-8 w-8 text-emerald-600 mr-2" />
+                    <span className="text-3xl font-bold text-emerald-600">{employers.length}</span>
+                  </div>
+                  <p className="text-muted-foreground">Active Companies</p>
+                </CardContent>
+              </Card>
+              <Card className="text-center border-amber-200">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-center mb-2">
+                    <TrendingUp className="h-8 w-8 text-amber-600 mr-2" />
+                    <span className="text-3xl font-bold text-amber-600">95%</span>
+                  </div>
+                  <p className="text-muted-foreground">Success Rate</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Search and Filters */}
+            <Card className="mb-8 border-primary/20">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Search className="h-5 w-5 mr-2 text-primary" />
+                  Find Your Perfect Match
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                    <Input
+                      placeholder="Search by name or skills..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  <Input
+                    placeholder="Filter by skills..."
+                    value={skillFilter}
+                    onChange={(e) => setSkillFilter(e.target.value)}
+                  />
+                  <Input
+                    placeholder="Filter by location..."
+                    value={locationFilter}
+                    onChange={(e) => setLocationFilter(e.target.value)}
+                  />
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setSearchTerm('');
+                      setSkillFilter('');
+                      setLocationFilter('');
+                    }}
+                  >
+                    <Filter className="h-4 w-4 mr-2" />
+                    Clear Filters
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Tabs */}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-8">
+                <TabsTrigger value="candidates" className="flex items-center gap-2">
+                  <Award className="h-4 w-4" />
+                  Candidates ({filteredCandidates.length})
+                </TabsTrigger>
+                <TabsTrigger value="employers" className="flex items-center gap-2">
+                  <Building className="h-4 w-4" />
+                  Companies ({filteredEmployers.length})
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="candidates" className="space-y-6">
+                {loading ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} className="h-64 bg-muted animate-pulse rounded-xl" />
+                    ))}
+                  </div>
+                ) : filteredCandidates.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredCandidates.map((candidate) => (
+                      <Card key={candidate.id} className="group hover:shadow-xl transition-all duration-300 border-primary/20 hover:border-primary/40">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center gap-3 mb-3">
+                            <Avatar className="h-12 w-12 border-2 border-primary/20 group-hover:border-primary/40 transition-colors">
+                              <AvatarImage src={candidate.avatar_url} />
+                              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                                {candidate.name?.charAt(0) || 'C'}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
+                                {candidate.name}
+                              </h3>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <MapPin className="h-3 w-3" />
+                                <span>{candidate.location}</span>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="flex items-center gap-1 text-primary font-bold">
+                                <Trophy className="h-4 w-4" />
+                                <span>{Math.round(candidate.rank_score || 0)}</span>
+                              </div>
+                              <div className="text-xs text-muted-foreground">Rank Score</div>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        
+                        <CardContent className="space-y-4">
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            {candidate.bio}
+                          </p>
+                          
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="font-medium">Skills</span>
+                              <Badge variant={candidate.availableForWork ? "default" : "secondary"}>
+                                {candidate.availableForWork ? "Available" : "Busy"}
+                              </Badge>
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                              {candidate.skills?.slice(0, 3).map((skill: string, index: number) => (
+                                <Badge key={index} variant="outline" className="text-xs">
+                                  {skill}
+                                </Badge>
+                              ))}
+                              {candidate.skills?.length > 3 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{candidate.skills.length - 3} more
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <Button 
+                            className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+                            variant="outline"
+                            onClick={() => window.location.href = `/profile/${candidate.id}/candidate`}
+                          >
+                            View Profile
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <Card className="text-center py-12">
+                    <CardContent>
+                      <Award className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold mb-2">No candidates found</h3>
+                      <p className="text-muted-foreground">Try adjusting your search criteria</p>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+
+              <TabsContent value="employers" className="space-y-6">
+                {loading ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} className="h-64 bg-muted animate-pulse rounded-xl" />
+                    ))}
+                  </div>
+                ) : filteredEmployers.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredEmployers.map((employer) => (
+                      <Card key={employer.id} className="group hover:shadow-xl transition-all duration-300 border-emerald-200 hover:border-emerald-400">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center gap-3 mb-3">
+                            <Avatar className="h-12 w-12 border-2 border-emerald-200 group-hover:border-emerald-400 transition-colors">
+                              <AvatarImage src={employer.avatar_url} />
+                              <AvatarFallback className="bg-emerald-100 text-emerald-700 font-semibold">
+                                {employer.company?.charAt(0) || employer.name?.charAt(0) || 'C'}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-lg group-hover:text-emerald-600 transition-colors">
+                                {employer.company || employer.name}
+                              </h3>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <MapPin className="h-3 w-3" />
+                                <span>{employer.location}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1 text-amber-500">
+                              <Star className="h-4 w-4 fill-current" />
+                              <span className="font-semibold">4.{Math.floor(Math.random() * 10)}</span>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        
+                        <CardContent className="space-y-4">
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            Leading technology company focused on innovation and growth opportunities.
+                          </p>
+                          
+                          <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center gap-2">
+                              <Briefcase className="h-4 w-4 text-muted-foreground" />
+                              <span>{Math.floor(Math.random() * 10) + 1} Open Positions</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Users className="h-4 w-4 text-muted-foreground" />
+                              <span>{Math.floor(Math.random() * 500) + 50}+ Employees</span>
+                            </div>
+                          </div>
+                          
+                          <Button 
+                            className="w-full group-hover:bg-emerald-600 group-hover:text-white transition-colors"
+                            variant="outline"
+                            onClick={() => window.location.href = `/profile/${employer.id}/employer`}
+                          >
+                            View Company
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <Card className="text-center py-12">
+                    <CardContent>
+                      <Building className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold mb-2">No companies found</h3>
+                      <p className="text-muted-foreground">Try adjusting your search criteria</p>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
-      
-      <div className="mb-8">
-        <input
-          type="text"
-          placeholder="Search by name, skills, or company..."
-          className="w-full p-3 border rounded-md"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-      
-      <Tabs defaultValue="candidates" className="w-full">
-        <TabsList className="mb-8">
-          <TabsTrigger value="candidates">Candidates ({filteredCandidates.length})</TabsTrigger>
-          <TabsTrigger value="employers">Employers ({filteredEmployers.length})</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="candidates">
-          {filteredCandidates.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground mb-4">No candidates found</p>
-              {user?.user_type === 'candidate' && (
-                <Button onClick={() => window.location.href = '/add-skill'}>
-                  Complete Your Profile
-                </Button>
-              )}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredCandidates.map((candidate) => (
-                <Card key={candidate.id} className="overflow-hidden">
-                  <CardHeader className="pb-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex gap-4">
-                        <Avatar>
-                          <AvatarImage src={candidate.avatar_url} alt={candidate.name} />
-                          <AvatarFallback>{candidate.name?.charAt(0) || 'U'}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <CardTitle className="text-xl">{candidate.name || 'Anonymous'}</CardTitle>
-                          <CardDescription>{candidate.title}</CardDescription>
-                          <div className="flex items-center text-sm mt-1">
-                            <MapPin className="h-3 w-3 mr-1 text-muted-foreground" />
-                            <span className="text-muted-foreground">{candidate.location}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center text-sm font-semibold">
-                        <Trophy className="h-4 w-4 mr-1 text-amber-500" />
-                        <span>#{candidate.ranking.position}</span>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>Overall Ranking</span>
-                          <span className="font-semibold">{candidate.ranking.overall}/100</span>
-                        </div>
-                        <Progress value={candidate.ranking.overall} className="h-1.5" />
-                        <div className="text-xs text-muted-foreground mt-1">
-                          Top {Math.round((candidate.ranking.position / candidate.ranking.total) * 100)}% in {candidate.skillsList[0] || 'Skills'}
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-2">
-                        {candidate.skillsList.slice(0, 4).map((skill: string, index: number) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {skill}
-                          </Badge>
-                        ))}
-                        {candidate.skillsList.length > 4 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{candidate.skillsList.length - 4} more
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      <div className="pt-4">
-                        <Button asChild className="w-full">
-                          <Link to={`/profile/${candidate.id}/candidate`}>
-                            View Profile
-                          </Link>
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="employers">
-          {filteredEmployers.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground mb-4">No employers found</p>
-              {user?.user_type === 'employer' && (
-                <Button onClick={() => window.location.href = '/post-job'}>
-                  Post Your First Job
-                </Button>
-              )}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredEmployers.map((employer) => (
-                <Card key={employer.id} className="overflow-hidden">
-                  <CardHeader className="pb-4">
-                    <div className="flex items-start gap-4">
-                      <Avatar>
-                        <AvatarImage src={employer.avatar_url} alt={employer.company} />
-                        <AvatarFallback>{employer.company?.charAt(0) || 'C'}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <CardTitle className="text-xl">{employer.companyName || employer.company || employer.name}</CardTitle>
-                        <CardDescription>{employer.description || `Leading ${employer.industry || 'Technology'} company`}</CardDescription>
-                        <div className="flex items-center text-sm mt-1">
-                          <MapPin className="h-3 w-3 mr-1 text-muted-foreground" />
-                          <span className="text-muted-foreground">{employer.location}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>Company Rating</span>
-                          <div className="flex items-center">
-                            <span className="font-semibold mr-1">{employer.rating.overall}</span>
-                            <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
-                          </div>
-                        </div>
-                        <Progress value={employer.rating.overall * 20} className="h-1.5" />
-                      </div>
-                      
-                      <div className="flex items-center gap-2 text-sm">
-                        <Building className="h-4 w-4 text-muted-foreground" />
-                        <span>{employer.size || '50-200'} employees</span>
-                      </div>
-                      
-                      <div className="bg-secondary/20 p-2 rounded-md text-sm">
-                        <span className="font-medium">{employer.jobsWithApplicants?.length || 0} open positions</span>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {employer.jobsWithApplicants?.slice(0, 3).map((job: any, index: number) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                              {job.title}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      <div className="pt-2">
-                        <Button asChild className="w-full">
-                          <Link to={`/profile/${employer.id}/employer`}>
-                            View Profile
-                          </Link>
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
       </div>
     </Layout>
   );

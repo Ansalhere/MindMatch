@@ -113,13 +113,26 @@ export async function getCurrentUser() {
 
 export async function getUserProfile(userId: string) {
   try {
+    // Use secure RPC to get candidate profile without sensitive data for non-owners
+    const { data: rpcData, error: rpcError } = await supabase.rpc('get_public_candidate_profile', { candidate_id: userId });
+    
+    if (rpcError && rpcError.code !== 'PGRST116') {
+      throw rpcError;
+    }
+    
+    // If RPC returned data, use it (non-sensitive fields only for employers/public)
+    if (rpcData && rpcData.length > 0) {
+      return { profile: rpcData[0], error: null };
+    }
+    
+    // Try direct access (will only work if user owns the profile)
     const { data, error } = await supabase
       .from('users')
       .select('*')
       .eq('id', userId)
       .single();
 
-    if (error) throw error;
+    if (error && error.code !== 'PGRST116') throw error;
     return { profile: data, error: null };
   } catch (error: any) {
     console.error("Error fetching user profile:", error);
@@ -248,10 +261,13 @@ export async function getJobs() {
     
     if (employerIds.length > 0) {
       try {
-        const { data: employersData, error: employersError } = await supabase
-          .from('users')
-          .select('id, name, company')
-          .in('id', employerIds);
+        const { data: employersData, error: employersError } = await Promise.all(
+          employerIds.map(id => supabase.rpc('get_public_user_profile', { user_id: id }))
+        ).then(results => {
+          const data = results.map(r => r.data?.[0]).filter(Boolean);
+          const error = results.find(r => r.error)?.error;
+          return { data, error };
+        });
 
         if (!employersError && employersData && employersData.length > 0) {
           const employersMap = employersData.reduce((map: Record<string, any>, employer) => {
@@ -495,14 +511,11 @@ export async function getJobById(jobId: string) {
     
     if (jobData && jobData.employer_id) {
       try {
-        const { data: employerData } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', jobData.employer_id)
-          .single();
-          
-        if (employerData) {
-          jobWithDetails.employer = employerData;
+        const { data: employerData } = await supabase.rpc('get_public_user_profile', { user_id: jobData.employer_id });
+        const employer = employerData && employerData.length > 0 ? employerData[0] : null;
+        
+        if (employer) {
+          jobWithDetails.employer = employer;
         }
       } catch (employerError) {
         console.warn("Could not fetch employer data:", employerError);

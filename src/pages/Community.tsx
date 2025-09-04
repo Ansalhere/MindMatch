@@ -68,18 +68,15 @@ const Community = () => {
       // Fetch user data separately for each post
       const postsWithAuthors = await Promise.all(
         (data || []).map(async (post) => {
-          const { data: userData } = await supabase
-            .from('users')
-            .select('name, user_type, company, location')
-            .eq('id', post.author_id)
-            .single();
+          const { data: userData } = await supabase.rpc('get_public_user_profile', { user_id: post.author_id });
+          const userProfile = userData && userData.length > 0 ? userData[0] : null;
 
           return {
             ...post,
-            author_name: userData?.name || 'Anonymous',
-            author_type: userData?.user_type || 'candidate',
-            author_company: userData?.company,
-            author_location: userData?.location,
+            author_name: userProfile?.name || 'Anonymous',
+            author_type: userProfile?.user_type || 'candidate',
+            author_company: userProfile?.company,
+            author_location: userProfile?.location,
             comments: post.comments_count || 0
           };
         })

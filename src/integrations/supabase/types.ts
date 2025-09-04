@@ -731,6 +731,19 @@ export type Database = {
         Args: { post_id_param: string }
         Returns: number
       }
+      get_public_candidate_profile: {
+        Args: { candidate_id: string }
+        Returns: {
+          avatar_url: string
+          company: string
+          id: string
+          is_profile_public: boolean
+          location: string
+          name: string
+          rank_score: number
+          user_type: string
+        }[]
+      }
       get_public_candidates: {
         Args: { limit_num?: number }
         Returns: {
@@ -741,6 +754,17 @@ export type Database = {
           name: string
           rank_score: number
           skills: string[]
+        }[]
+      }
+      get_public_user_profile: {
+        Args: { user_id: string }
+        Returns: {
+          avatar_url: string
+          company: string
+          id: string
+          location: string
+          name: string
+          user_type: string
         }[]
       }
       insert_newsletter_subscription: {

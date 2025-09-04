@@ -238,14 +238,18 @@ const CandidateProfile = ({ profile, currentUser }: { profile: any; currentUser:
               <MapPin className="h-4 w-4 text-muted-foreground" />
               <span>{profile.location}</span>
             </div>
-            <div className="flex items-center gap-3">
-              <Mail className="h-4 w-4 text-muted-foreground" />
-              <span>{profile.email}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Phone className="h-4 w-4 text-muted-foreground" />
-              <span>{profile.phone}</span>
-            </div>
+            {profile.email && (
+              <div className="flex items-center gap-3">
+                <Mail className="h-4 w-4 text-muted-foreground" />
+                <span>{profile.email}</span>
+              </div>
+            )}
+            {profile.phone && (
+              <div className="flex items-center gap-3">
+                <Phone className="h-4 w-4 text-muted-foreground" />
+                <span>{profile.phone}</span>
+              </div>
+            )}
             {profile.education && profile.education.length > 0 && (
               <div className="flex items-center gap-3">
                 <GraduationCap className="h-4 w-4 text-muted-foreground" />
@@ -425,12 +429,14 @@ const EmployerProfile = ({ profile }: { profile: any }) => {
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span>San Francisco, CA</span>
+              <span>{profile.location || 'Location not specified'}</span>
             </div>
-            <div className="flex items-center gap-3">
-              <Mail className="h-4 w-4 text-muted-foreground" />
-              <span>{profile.email}</span>
-            </div>
+            {profile.email && (
+              <div className="flex items-center gap-3">
+                <Mail className="h-4 w-4 text-muted-foreground" />
+                <span>{profile.email}</span>
+              </div>
+            )}
             {profile.website && (
               <div className="flex items-center gap-3">
                 <Building className="h-4 w-4 text-muted-foreground" />
