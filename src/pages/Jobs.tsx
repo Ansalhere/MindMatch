@@ -16,7 +16,7 @@ const Jobs = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
-  const [jobTypeFilter, setJobTypeFilter] = useState('');
+  const [jobTypeFilter, setJobTypeFilter] = useState('all');
 
   useEffect(() => {
     const fetchJobs = async () => {
