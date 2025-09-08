@@ -14,9 +14,10 @@ interface EmployerDashboardProps {
   userData: any;
   realJobs?: any[];
   loadingJobs?: boolean;
+  currentSubscription?: any;
 }
 
-const EmployerDashboard = ({ userData, realJobs = [], loadingJobs = false }: EmployerDashboardProps) => {
+const EmployerDashboard = ({ userData, realJobs = [], loadingJobs = false, currentSubscription }: EmployerDashboardProps) => {
   const navigate = useNavigate();
   
   const jobsToDisplay = realJobs.length > 0 ? realJobs : userData.jobs;
@@ -56,6 +57,43 @@ const EmployerDashboard = ({ userData, realJobs = [], loadingJobs = false }: Emp
   
   return (
     <>
+      {userData && (currentSubscription ? (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Building className="h-5 w-5 mr-2 text-primary" />
+              Current Package
+            </CardTitle>
+            <CardDescription>Your active subscription details</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap items-center gap-4">
+              <Badge variant="secondary">{currentSubscription.package?.name || 'Custom Plan'}</Badge>
+              <span className="text-sm text-muted-foreground">
+                Status: <strong>{currentSubscription.payment_status || 'paid'}</strong>
+              </span>
+              {currentSubscription.expires_at && (
+                <span className="text-sm text-muted-foreground">
+                  Expires: {new Date(currentSubscription.expires_at).toLocaleDateString()}
+                </span>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Building className="h-5 w-5 mr-2 text-primary" />
+              No Active Package
+            </CardTitle>
+            <CardDescription>Select a plan to unlock more features</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => navigate('/packages')}>View Plans</Button>
+          </CardContent>
+        </Card>
+      ))}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <StatCard 
           title="Active Job Posts" 

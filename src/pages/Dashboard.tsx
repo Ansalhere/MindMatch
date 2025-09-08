@@ -10,6 +10,7 @@ import Layout from '@/components/Layout';
 import CandidateDashboard from '@/components/dashboard/CandidateDashboard';
 import EmployerDashboard from '@/components/dashboard/EmployerDashboard';
 import { Card, CardContent } from "@/components/ui/card";
+import { supabase } from '@/integrations/supabase/client';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const Dashboard = () => {
   const [employerJobs, setEmployerJobs] = useState<any[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(false);
   const [candidateApplications, setCandidateApplications] = useState<any[]>([]);
+  const [currentSubscription, setCurrentSubscription] = useState<any | null>(null);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -29,6 +31,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (user && user.user_type === 'employer') {
       fetchEmployerJobs(user.id);
+      fetchEmployerSubscription(user.id);
     }
   }, [user]);
 
@@ -60,6 +63,33 @@ const Dashboard = () => {
       console.error("Error fetching employer jobs:", error);
     } finally {
       setLoadingJobs(false);
+    }
+  };
+
+  const fetchEmployerSubscription = async (employerId: string) => {
+    try {
+      const { data: subs, error: subErr } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', employerId)
+        .eq('is_active', true)
+        .order('end_date', { ascending: false })
+        .limit(1);
+      if (subErr) throw subErr;
+      if (subs && subs.length > 0) {
+        const sub = subs[0];
+        const { data: pkg, error: pkgErr } = await supabase
+          .from('packages')
+          .select('*')
+          .eq('id', sub.package_id)
+          .maybeSingle();
+        if (pkgErr) throw pkgErr;
+        setCurrentSubscription({ ...sub, package: pkg });
+      } else {
+        setCurrentSubscription(null);
+      }
+    } catch (error) {
+      console.error('Error fetching subscription:', error);
     }
   };
 
@@ -166,6 +196,7 @@ const Dashboard = () => {
             userData={mockUserData} 
             realJobs={employerJobs} 
             loadingJobs={loadingJobs} 
+            currentSubscription={currentSubscription}
           />
         )}
         

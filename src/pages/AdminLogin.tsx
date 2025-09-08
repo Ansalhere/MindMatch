@@ -41,7 +41,7 @@ const AdminLogin = () => {
       
       if (signInData?.user && signInData?.session) {
         toast({ title: "Success", description: "Admin login successful!" });
-        navigate('/dashboard', { replace: true });
+        navigate('/super-admin', { replace: true });
       } else {
         throw new Error('Login failed. Please try again.');
       }
