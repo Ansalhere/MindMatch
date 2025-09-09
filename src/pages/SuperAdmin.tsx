@@ -112,6 +112,26 @@ const SuperAdmin = () => {
     }
   };
 
+  const toggleJobStatus = async (jobId: string, field: string, currentValue: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .update({ [field]: !currentValue })
+        .eq('id', jobId);
+      
+      if (error) throw error;
+      
+      setJobs(jobs.map(job => 
+        job.id === jobId ? { ...job, [field]: !currentValue } : job
+      ));
+      
+      toast.success(`Job ${field} updated successfully`);
+    } catch (error) {
+      console.error(`Error updating job ${field}:`, error);
+      toast.error(`Failed to update job ${field}`);
+    }
+  };
+
   const deleteMessage = async (messageId: string) => {
     try {
       const { error } = await supabase
@@ -163,8 +183,8 @@ const SuperAdmin = () => {
     );
   }
 
-  // Redirect if not admin (this shouldn't happen due to useEffect, but safety check)
-  if (!user || user.user_type !== 'admin') {
+  // Redirect if not admin or super_admin (this shouldn't happen due to useEffect, but safety check)
+  if (!user || !['admin', 'super_admin'].includes(user.user_type)) {
     return null;
   }
 
@@ -241,6 +261,7 @@ const SuperAdmin = () => {
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Type</TableHead>
+                      <TableHead>Company</TableHead>
                       <TableHead>Rank</TableHead>
                       <TableHead>Premium</TableHead>
                       <TableHead>Actions</TableHead>
@@ -254,6 +275,7 @@ const SuperAdmin = () => {
                         <TableCell>
                           <Badge variant="outline">{user.user_type}</Badge>
                         </TableCell>
+                        <TableCell>{user.company || 'N/A'}</TableCell>
                         <TableCell>
                           {user.user_type === 'candidate' ? (
                             <Badge variant={user.rank_score > 70 ? 'default' : 'secondary'}>
@@ -278,6 +300,65 @@ const SuperAdmin = () => {
                             <Button 
                               size="sm" 
                               onClick={() => navigate(`/profile/${user.id}/${user.user_type}`)}
+                            >
+                              View
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="jobs">
+            <Card>
+              <CardHeader>
+                <CardTitle>Job Management</CardTitle>
+                <CardDescription>Manage all job postings across the platform</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Company</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Posted</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {jobs.map(job => (
+                      <TableRow key={job.id}>
+                        <TableCell className="font-medium">{job.title}</TableCell>
+                        <TableCell>{job.employer?.company || job.employer?.name || 'Unknown'}</TableCell>
+                        <TableCell>{job.location}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{job.job_type}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={job.is_active ? 'default' : 'secondary'}>
+                            {job.is_active ? 'Active' : 'Inactive'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{new Date(job.created_at).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => toggleJobStatus(job.id, 'is_active', job.is_active)}
+                            >
+                              {job.is_active ? 'Deactivate' : 'Activate'}
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              onClick={() => navigate(`/job/${job.id}`)}
                             >
                               View
                             </Button>
