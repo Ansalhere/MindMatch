@@ -212,10 +212,12 @@ const SuperAdmin = () => {
         </div>
         
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4 max-w-2xl">
+          <TabsList className="grid w-full grid-cols-6 max-w-4xl">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="jobs">Jobs</TabsTrigger>
+            <TabsTrigger value="content">Content</TabsTrigger>
+            <TabsTrigger value="system">System</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
           
@@ -373,6 +375,143 @@ const SuperAdmin = () => {
           </TabsContent>
           
           
+          <TabsContent value="content">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Messages Management</CardTitle>
+                  <CardDescription>Monitor and manage platform communications</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {messages.slice(0, 10).map(message => (
+                      <div key={message.id} className="flex justify-between items-start p-3 border rounded-lg">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">
+                            {message.sender?.name} → {message.receiver?.name}
+                          </p>
+                          <p className="text-sm text-muted-foreground truncate">{message.subject}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(message.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => deleteMessage(message.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Notifications Management</CardTitle>
+                  <CardDescription>System notifications and alerts</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {notifications.slice(0, 10).map(notification => (
+                      <div key={notification.id} className="flex justify-between items-start p-3 border rounded-lg">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{notification.title}</p>
+                          <p className="text-sm text-muted-foreground truncate">{notification.message}</p>
+                          <p className="text-xs text-muted-foreground">
+                            To: {notification.user?.name} | {new Date(notification.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => deleteNotification(notification.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="system">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Database Actions</CardTitle>
+                  <CardDescription>Perform system maintenance operations</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => {
+                      supabase.rpc('calculate_candidate_rank', { user_id: 'all' });
+                      toast.success("Rank recalculation started");
+                    }}
+                  >
+                    <Database className="mr-2 h-4 w-4" />
+                    Recalculate All User Rankings
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => {
+                      // Clean up old notifications
+                      supabase.from('notifications').delete().lt('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+                      toast.success("Old notifications cleaned up");
+                    }}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Clean Old Notifications (30+ days)
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => navigate('/supabase-admin')}
+                  >
+                    <Shield className="mr-2 h-4 w-4" />
+                    Advanced Database Management
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Platform Analytics</CardTitle>
+                  <CardDescription>System performance and usage statistics</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="text-center p-3 border rounded-lg">
+                        <div className="text-lg font-bold">{messages.length}</div>
+                        <div className="text-sm text-muted-foreground">Total Messages</div>
+                      </div>
+                      <div className="text-center p-3 border rounded-lg">
+                        <div className="text-lg font-bold">{notifications.length}</div>
+                        <div className="text-sm text-muted-foreground">Total Notifications</div>
+                      </div>
+                      <div className="text-center p-3 border rounded-lg">
+                        <div className="text-lg font-bold">{users.filter(u => u.is_premium).length}</div>
+                        <div className="text-sm text-muted-foreground">Premium Users</div>
+                      </div>
+                      <div className="text-center p-3 border rounded-lg">
+                        <div className="text-lg font-bold">{Math.round(users.filter(u => u.rank_score > 0).reduce((acc, u) => acc + (u.rank_score || 0), 0) / users.filter(u => u.rank_score > 0).length || 0)}</div>
+                        <div className="text-sm text-muted-foreground">Avg Rank Score</div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
           <TabsContent value="settings">
             <Card>
               <CardHeader>
@@ -402,6 +541,25 @@ const SuperAdmin = () => {
                       </div>
                     </div>
                     <Button className="mt-4">Update Algorithm Weights</Button>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-medium mb-3">Platform Configuration</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Max Job Applications per User</label>
+                        <Input type="number" defaultValue="50" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Job Post Duration (Days)</label>
+                        <Input type="number" defaultValue="30" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Minimum Rank for Premium Jobs</label>
+                        <Input type="number" defaultValue="60" />
+                      </div>
+                    </div>
+                    <Button className="mt-4">Update Platform Settings</Button>
                   </div>
                 </div>
               </CardContent>

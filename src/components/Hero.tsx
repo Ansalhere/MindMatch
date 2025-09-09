@@ -19,7 +19,7 @@ const Hero = () => {
         {/* Hero Text */}
         <div className={`md:max-w-[50%] space-y-6 md:space-y-8 text-center md:text-left mb-12 md:mb-0 transition-all duration-700 ${loaded ? 'opacity-100' : 'opacity-0 translate-y-10'}`}>
           <div className="inline-block overflow-hidden rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
-            🚀 Revolutionary AI-Powered Platform - Disrupting $100B+ Talent Market
+            ✨ Smart Career Platform - Where Fresh Talent Meets Opportunity
           </div>
           
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight">
@@ -27,29 +27,25 @@ const Hero = () => {
           </h1>
           
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight leading-tight">
-            The Future of <span className="text-primary">Talent Intelligence</span>
+            Bridging <span className="text-primary">Talent & Opportunity</span>
           </h2>
           
           <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl">
-            <strong className="text-foreground">Revolutionizing global talent acquisition</strong> with advanced AI algorithms that deliver 94% precision matching. Our proprietary technology transforms how enterprises discover, evaluate, and engage top-tier fresh talent at scale.
+            In today's competitive job market, fresh graduates and entry-level professionals need a platform that truly understands their potential. FresherPools connects emerging talent with forward-thinking employers through intelligent matching and comprehensive skill assessment.
           </p>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 my-8 p-6 bg-gradient-to-r from-primary/5 to-primary/10 rounded-2xl border border-primary/20">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6 my-8 p-6 bg-gradient-to-r from-primary/5 to-primary/10 rounded-2xl border border-primary/20">
             <div className="text-center">
-              <div className="text-2xl font-bold text-primary">$2.4B</div>
-              <div className="text-xs text-muted-foreground">Market Opportunity</div>
+              <div className="text-2xl font-bold text-primary">Smart</div>
+              <div className="text-sm text-muted-foreground">AI-Powered Matching</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-primary">94%</div>
-              <div className="text-xs text-muted-foreground">Match Accuracy</div>
+              <div className="text-2xl font-bold text-primary">Fast</div>
+              <div className="text-sm text-muted-foreground">Quick Connections</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-primary">67%</div>
-              <div className="text-xs text-muted-foreground">Faster Hiring</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">10K+</div>
-              <div className="text-xs text-muted-foreground">Companies Ready</div>
+              <div className="text-2xl font-bold text-primary">Effective</div>
+              <div className="text-sm text-muted-foreground">Real Results</div>
             </div>
           </div>
           

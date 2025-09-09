@@ -9,6 +9,7 @@ import { Shield, Loader2, Building, UserCheck } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { signIn } from '@/lib/supabase';
 import { simpleLoginSchema, type SimpleLoginFormData } from '@/lib/validation';
+import { supabase } from '@/integrations/supabase/client';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Layout from '@/components/Layout';
 
@@ -40,6 +41,17 @@ const AdminLogin = () => {
       }
       
       if (signInData?.user && signInData?.session) {
+        // Check if user is admin
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('user_type')
+          .eq('id', signInData.user.id)
+          .single();
+        
+        if (userError || !userData || userData.user_type !== 'admin') {
+          throw new Error('Access denied. Admin privileges required.');
+        }
+        
         toast({ title: "Success", description: "Admin login successful!" });
         navigate('/super-admin', { replace: true });
       } else {
