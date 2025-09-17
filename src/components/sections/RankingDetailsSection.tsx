@@ -47,38 +47,38 @@ const RankingDetailsSection = ({ isVisible }: RankingDetailsSectionProps) => {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-b from-background to-secondary/10">
+    <section className="py-16 bg-gradient-to-b from-background via-secondary/5 to-background">
       <div className="container mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="text-center mb-12"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            How Our <span className="text-primary">Ranking System</span> Works
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Why Our <span className="gradient-text">Ranking System</span> Changes Everything
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            FresherPools revolutionizes hiring with the world's first comprehensive skill-based ranking system. 
-            No more bias, no more luck - just pure talent recognition.
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Traditional hiring is broken. We fix it with transparent, merit-based rankings that actually work.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {features.map((feature, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={isVisible ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: index * 0.1 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              className="group"
             >
-              <Card className="h-full border-2 hover:border-primary/20 transition-all duration-300 hover:shadow-lg">
-                <CardContent className="p-6">
-                  <div className={`inline-flex p-3 rounded-lg bg-primary/10 mb-4`}>
-                    <feature.icon className={`h-6 w-6 ${feature.color}`} />
+              <Card className="h-full hover-lift card-hover border-muted/50 group-hover:border-primary/30 transition-all duration-300">
+                <CardContent className="p-6 space-y-4">
+                  <div className="inline-flex p-3 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
+                    <feature.icon className="h-5 w-5 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+                  <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">{feature.title}</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
                 </CardContent>
               </Card>
             </motion.div>
@@ -86,28 +86,27 @@ const RankingDetailsSection = ({ isVisible }: RankingDetailsSectionProps) => {
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="bg-gradient-to-r from-primary/10 to-blue-500/10 rounded-2xl p-8 text-center"
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="bg-gradient-to-r from-primary/5 via-blue-500/5 to-primary/5 rounded-2xl p-8 text-center border border-primary/10"
         >
-          <h3 className="text-2xl font-bold mb-4">Ready to Discover Your Rank?</h3>
-          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Join thousands of professionals who have transformed their careers with our ranking system. 
-            Start building your profile today and see where you stand in your field.
+          <h3 className="text-xl font-bold mb-3">Ready to Get Ranked?</h3>
+          <p className="text-muted-foreground mb-6 max-w-xl mx-auto text-sm">
+            Join thousands who've already discovered their true market value through our AI-powered ranking system.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a
               href="/register"
-              className="inline-flex items-center justify-center px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-all duration-200 button-glow"
             >
-              Get My Ranking Now
+              Start My Ranking
             </a>
             <a
               href="/ranking-explanation"
-              className="inline-flex items-center justify-center px-6 py-3 border border-primary text-primary font-semibold rounded-lg hover:bg-primary hover:text-white transition-colors"
+              className="inline-flex items-center justify-center px-6 py-3 border-2 border-primary/20 text-primary font-semibold rounded-lg hover:bg-primary/5 transition-all duration-200"
             >
-              Learn More
+              How It Works
             </a>
           </div>
         </motion.div>
