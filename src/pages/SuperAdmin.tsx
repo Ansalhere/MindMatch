@@ -47,7 +47,13 @@ const SuperAdmin = () => {
     // Check if user is admin
     if (user === undefined) return; // Still loading
     
-    if (!user || !['admin', 'super_admin'].includes(user.user_type)) {
+    if (!user) {
+      navigate('/admin-login');
+      toast.error("Please log in to access admin panel.");
+      return;
+    }
+    
+    if (!['admin', 'super_admin'].includes(user.user_type)) {
       navigate('/');
       toast.error("Access denied. Admin privileges required.");
       return;

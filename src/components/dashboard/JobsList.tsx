@@ -8,9 +8,10 @@ interface JobsListProps {
   jobs: any[];
   userData: any;
   loading?: boolean;
+  onJobClick?: (jobId: string) => void;
 }
 
-const JobsList = ({ jobs, userData, loading = false }: JobsListProps) => {
+const JobsList = ({ jobs, userData, loading = false, onJobClick }: JobsListProps) => {
   const navigate = useNavigate();
   
   if (loading) {
@@ -41,12 +42,17 @@ const JobsList = ({ jobs, userData, loading = false }: JobsListProps) => {
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4">
         {jobs.map((job: any, index: number) => (
-          <ColorfulJobCard 
+          <div 
             key={job.id || index} 
-            job={job} 
-            compact={true}
-            showApplications={true}
-          />
+            onClick={() => onJobClick?.(job.id)}
+            className="cursor-pointer"
+          >
+            <ColorfulJobCard 
+              job={job} 
+              compact={true}
+              showApplications={true}
+            />
+          </div>
         ))}
       </div>
       

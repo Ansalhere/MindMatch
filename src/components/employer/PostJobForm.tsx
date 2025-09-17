@@ -24,22 +24,24 @@ import { Switch } from "@/components/ui/switch";
 interface PostJobFormProps {
   onSubmit: (formData: any) => Promise<void>;
   isSubmitting: boolean;
+  initialData?: any;
 }
 
-const PostJobForm = ({ onSubmit, isSubmitting }: PostJobFormProps) => {
-  const [jobTitle, setJobTitle] = useState("");
+const PostJobForm = ({ onSubmit, isSubmitting, initialData }: PostJobFormProps) => {
+  const [jobTitle, setJobTitle] = useState(initialData?.jobTitle || "");
   const [department, setDepartment] = useState("");
-  const [jobType, setJobType] = useState("full-time");
+  const [jobType, setJobType] = useState(initialData?.jobType || "full-time");
   const [workLocation, setWorkLocation] = useState("");
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState(initialData?.location || "");
   const [deadline, setDeadline] = useState("");
-  const [minSalary, setMinSalary] = useState("");
-  const [maxSalary, setMaxSalary] = useState("");
-  const [description, setDescription] = useState("");
-  const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
+  const [minSalary, setMinSalary] = useState(initialData?.salary?.min || "");
+  const [maxSalary, setMaxSalary] = useState(initialData?.salary?.max || "");
+  const [description, setDescription] = useState(initialData?.description || "");
+  const [requiredSkills, setRequiredSkills] = useState<string[]>(initialData?.requiredSkills || []);
   const [newSkill, setNewSkill] = useState("");
   const [rankRestriction, setRankRestriction] = useState(false);
   const [minRank, setMinRank] = useState<number>(500);
+  const [minExperience, setMinExperience] = useState(initialData?.minExperience || "");
 
   const handleAddSkill = () => {
     if (newSkill.trim() && !requiredSkills.includes(newSkill.trim())) {

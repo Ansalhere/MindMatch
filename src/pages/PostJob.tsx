@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PostJobForm from '@/components/employer/PostJobForm';
+import AIJobPostAssistant from '@/components/employer/AIJobPostAssistant';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from "sonner";
@@ -12,6 +13,7 @@ import Layout from '@/components/Layout';
 const PostJob = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState<any>({});
   const { user } = useUser();
 
   // Redirect if not logged in or not an employer
@@ -74,6 +76,10 @@ const PostJob = () => {
     }
   };
 
+  const handleAISuggestion = (suggestion: any) => {
+    setFormData(suggestion);
+  };
+
   return (
     <Layout>
       <div className="container mx-auto px-6 py-12">
@@ -89,10 +95,16 @@ const PostJob = () => {
         <div className="max-w-3xl mx-auto">
           <h1 className="text-3xl font-bold mb-2">Post a New Job on RankMe</h1>
           <p className="text-muted-foreground mb-8">
-            Find the best ranked candidates by posting your job requirements
+            Find the best ranked candidates by posting your job requirements. Use AI to generate professional job posts instantly.
           </p>
           
-          <PostJobForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+          <AIJobPostAssistant onSuggestion={handleAISuggestion} />
+          
+          <PostJobForm 
+            onSubmit={handleSubmit} 
+            isSubmitting={isSubmitting} 
+            initialData={formData}
+          />
         </div>
       </div>
     </Layout>
