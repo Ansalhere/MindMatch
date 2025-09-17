@@ -36,9 +36,9 @@ const RankingDemo = () => {
   }, [steps.length]);
 
   return (
-    <div className="relative">
+    <div className="relative w-full max-w-4xl mx-auto">
       {/* Main Demo Container */}
-      <Card className="relative overflow-hidden bg-gradient-to-br from-primary/5 to-blue-500/5 border-2 border-primary/20 p-8">
+      <Card className="relative overflow-hidden bg-gradient-to-br from-primary/5 to-blue-500/5 border-2 border-primary/20 p-8 w-full">
         <div className="space-y-6">
           {/* Header */}
           <div className="text-center space-y-2">
@@ -95,20 +95,14 @@ const RankingDemo = () => {
               )}
 
               {currentStep === 1 && (
-                <div className="space-y-3">
+                <div className="space-y-3 w-full">
                   {["Projects Completed", "Code Quality", "Learning Progress"].map((metric, index) => (
-                    <motion.div
-                      key={metric}
-                      initial={{ width: 0 }}
-                      animate={{ width: "100%" }}
-                      transition={{ delay: index * 0.2, duration: 0.8 }}
-                      className="space-y-1"
-                    >
+                    <div key={metric} className="space-y-1 w-full">
                       <div className="flex justify-between text-sm">
                         <span>{metric}</span>
                         <span>{85 + index * 5}%</span>
                       </div>
-                      <div className="bg-muted rounded-full h-2 overflow-hidden">
+                      <div className="bg-muted rounded-full h-2 overflow-hidden w-full">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${85 + index * 5}%` }}
@@ -116,7 +110,7 @@ const RankingDemo = () => {
                           className="bg-primary h-full rounded-full"
                         />
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               )}

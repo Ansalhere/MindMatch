@@ -185,9 +185,15 @@ We offer competitive compensation, flexible working arrangements, and excellent 
           <div className="mt-6 p-4 border rounded-lg bg-muted/30">
             <div className="flex items-center justify-between mb-4">
               <h4 className="font-semibold">AI Suggestions</h4>
-              <Button size="sm" onClick={applyAllSuggestions}>
-                Apply All
-              </Button>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={generateJobPost}>
+                  <RefreshCw className="h-3 w-3 mr-1" />
+                  Regenerate
+                </Button>
+                <Button size="sm" onClick={applyAllSuggestions}>
+                  Apply All
+                </Button>
+              </div>
             </div>
             
             <div className="space-y-3 text-sm">

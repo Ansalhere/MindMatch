@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -42,6 +42,20 @@ const PostJobForm = ({ onSubmit, isSubmitting, initialData }: PostJobFormProps) 
   const [rankRestriction, setRankRestriction] = useState(false);
   const [minRank, setMinRank] = useState<number>(500);
   const [minExperience, setMinExperience] = useState(initialData?.minExperience || "");
+
+  // Update form when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      setJobTitle(initialData.jobTitle || "");
+      setJobType(initialData.jobType || "full-time");
+      setLocation(initialData.location || "");
+      setDescription(initialData.description || "");
+      setRequiredSkills(initialData.requiredSkills || []);
+      setMinSalary(initialData.salary?.min || "");
+      setMaxSalary(initialData.salary?.max || "");
+      setMinExperience(initialData.minExperience || "");
+    }
+  }, [initialData]);
 
   const handleAddSkill = () => {
     if (newSkill.trim() && !requiredSkills.includes(newSkill.trim())) {
