@@ -9,6 +9,7 @@ import HowItWorksSection from '@/components/sections/HowItWorksSection';
 import TestimonialsSection from '@/components/sections/TestimonialsSection';
 import StatsSection from '@/components/sections/StatsSection';
 import CTASection from '@/components/sections/CTASection';
+import RankingDetailsSection from '@/components/sections/RankingDetailsSection';
 import QuickUserPanel from '@/components/home/QuickUserPanel';
 import FeaturedJobs from '@/components/home/FeaturedJobs';
 import SEOHead from '@/components/SEOHead';
@@ -88,6 +89,9 @@ const Index = () => {
             </div>
             <div id="ranking-system" className="py-12">
               <RankingShowcase isVisible={rankingVisible} />
+            </div>
+            <div id="ranking-details">
+              <RankingDetailsSection isVisible={rankingVisible} />
             </div>
             <div id="how-it-works">
               <HowItWorksSection isVisible={howItWorksVisible} />

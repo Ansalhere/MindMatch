@@ -36,6 +36,7 @@ import AdminLogin from "./pages/AdminLogin";
 import EmployerLogin from "./pages/EmployerLogin";
 import EditProfile from "./pages/EditProfile";
 import LoginSelector from "./components/navigation/LoginSelector";
+import AdminSetup from "./components/AdminSetup";
 import { AuthProvider } from "./hooks/useUser";
 
 const queryClient = new QueryClient();
@@ -78,6 +79,7 @@ const App = () => (
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin-setup" element={<AdminSetup />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

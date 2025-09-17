@@ -71,7 +71,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/candidates" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                <Link to="/profiles" className="text-muted-foreground hover:text-primary transition-colors text-sm">
                   Browse Candidates
                 </Link>
               </li>
@@ -126,8 +126,8 @@ const Footer = () => {
             <Link to="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Terms
             </Link>
-            <Link to="/cookies" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Cookies
+            <Link to="/admin-setup" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Admin
             </Link>
           </div>
         </div>

@@ -31,21 +31,39 @@ const Hero = () => {
           </h2>
           
           <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl">
-            In today's competitive job market, fresh graduates and entry-level professionals need a platform that truly understands their potential. FresherPools connects emerging talent with forward-thinking employers through intelligent matching and comprehensive skill assessment.
+            In today's competitive job market, fresh graduates and entry-level professionals need a platform that truly understands their potential. FresherPools connects emerging talent with forward-thinking employers through our revolutionary ranking system.
           </p>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6 my-8 p-6 bg-gradient-to-r from-primary/5 to-primary/10 rounded-2xl border border-primary/20">
+          <div className="bg-gradient-to-r from-primary/10 to-blue-500/10 rounded-2xl p-6 my-8 border border-primary/20">
+            <h3 className="text-xl font-bold text-primary mb-4 text-center">🎯 Revolutionary Ranking System</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div className="bg-white/50 rounded-lg p-4">
+                <strong className="text-primary">Smart Skill Assessment:</strong> Our AI analyzes your technical skills, certifications, education, and experience to create a comprehensive ranking score from 0-100.
+              </div>
+              <div className="bg-white/50 rounded-lg p-4">
+                <strong className="text-primary">Fair & Transparent:</strong> Unlike traditional hiring where connections matter more than skills, our ranking ensures the best candidates rise to the top based purely on merit.
+              </div>
+              <div className="bg-white/50 rounded-lg p-4">
+                <strong className="text-primary">Employer Confidence:</strong> Recruiters can instantly identify top talent with verified rankings, making hiring decisions faster and more accurate.
+              </div>
+              <div className="bg-white/50 rounded-lg p-4">
+                <strong className="text-primary">Career Growth:</strong> Track your ranking improvement over time as you gain new skills and experience, opening doors to better opportunities.
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-3 gap-6 my-8 p-6 bg-gradient-to-r from-primary/5 to-primary/10 rounded-2xl border border-primary/20">
             <div className="text-center">
-              <div className="text-2xl font-bold text-primary">Smart</div>
-              <div className="text-sm text-muted-foreground">AI-Powered Matching</div>
+              <div className="text-2xl font-bold text-primary">98%</div>
+              <div className="text-sm text-muted-foreground">Accuracy in Matching</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-primary">Fast</div>
-              <div className="text-sm text-muted-foreground">Quick Connections</div>
+              <div className="text-2xl font-bold text-primary">5x</div>
+              <div className="text-sm text-muted-foreground">Faster Hiring Process</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-primary">Effective</div>
-              <div className="text-sm text-muted-foreground">Real Results</div>
+              <div className="text-2xl font-bold text-primary">50k+</div>
+              <div className="text-sm text-muted-foreground">Successful Placements</div>
             </div>
           </div>
           

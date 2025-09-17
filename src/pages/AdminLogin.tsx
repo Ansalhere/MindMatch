@@ -41,19 +41,47 @@ const AdminLogin = () => {
       }
       
       if (signInData?.user && signInData?.session) {
-        // Check if user is admin
+        // Check if user exists in our users table first
         const { data: userData, error: userError } = await supabase
           .from('users')
-          .select('user_type')
-          .eq('id', signInData.user.id)
+          .select('user_type, email')
+          .eq('email', signInData.user.email)
           .single();
         
-        if (userError || !userData || userData.user_type !== 'admin') {
-          throw new Error('Access denied. Admin privileges required.');
-        }
+        console.log('Admin check - userData:', userData, 'userError:', userError);
         
-        toast({ title: "Success", description: "Admin login successful!" });
-        navigate('/super-admin', { replace: true });
+        // Special case for admin@fresherpools.com - create admin user if doesn't exist
+        if (signInData.user.email === 'admin@fresherpools.com') {
+          if (userError && userError.code === 'PGRST116') {
+            // User doesn't exist in users table, create it
+            console.log('Creating admin user in users table');
+            const { error: insertError } = await supabase
+              .from('users')
+              .insert({
+                id: signInData.user.id,
+                email: 'admin@fresherpools.com',
+                name: 'Super Administrator',
+                user_type: 'admin',
+                company: 'FresherPools',
+                location: 'India',
+                bio: 'System Administrator with full access to platform management',
+                is_premium: true,
+                rank_score: 100
+              });
+            
+            if (insertError) {
+              console.error('Error creating admin user:', insertError);
+              throw new Error('Failed to create admin profile. Please contact support.');
+            }
+          } else if (!userData || userData.user_type !== 'admin') {
+            throw new Error('Access denied. Admin privileges required.');
+          }
+          
+          toast({ title: "Success", description: "Admin login successful!" });
+          navigate('/super-admin', { replace: true });
+        } else {
+          throw new Error('Access denied. Admin email required.');
+        }
       } else {
         throw new Error('Login failed. Please try again.');
       }
