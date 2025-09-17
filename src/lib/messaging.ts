@@ -22,19 +22,29 @@ export async function sendMessage(
 
     if (messageError) throw messageError;
 
-    // Create notification for recipient
-    const { error: notificationError } = await supabase
+    // Create notification for recipient (check if not already exists to prevent duplicates)
+    const { data: existingNotif } = await supabase
       .from('notifications')
-      .insert({
-        user_id: receiverId,
-        title: 'New Message Received',
-        message: `You have received a new message: ${subject}`,
-        type: 'message',
-        related_id: messageData.id,
-        related_type: 'message'
-      });
+      .select('id')
+      .eq('user_id', receiverId)
+      .eq('related_id', messageData.id)
+      .eq('type', 'message')
+      .maybeSingle();
 
-    if (notificationError) throw notificationError;
+    if (!existingNotif) {
+      const { error: notificationError } = await supabase
+        .from('notifications')
+        .insert({
+          user_id: receiverId,
+          title: 'New Message Received',
+          message: `You have received a new message: ${subject}`,
+          type: 'message',
+          related_id: messageData.id,
+          related_type: 'message'
+        });
+
+      if (notificationError) throw notificationError;
+    }
 
     return { data: messageData, error: null };
   } catch (error) {

@@ -68,117 +68,223 @@ const RankingDemo = () => {
             </div>
           </div>
 
-          {/* Animated Content */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentStep}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.5 }}
-              className="space-y-4"
-            >
+          {/* Animated Content - Fixed Height Container */}
+          <div className="h-64 relative overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentStep}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.5 }}
+                className="absolute inset-0 flex items-center justify-center"
+              >
               {currentStep === 0 && (
-                <div className="grid grid-cols-2 gap-3">
-                  {["React", "Python", "Design", "ML"].map((skill, index) => (
-                    <motion.div
-                      key={skill}
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="bg-primary/10 text-primary px-3 py-2 rounded-lg text-center text-sm font-medium"
-                    >
-                      {skill}
-                    </motion.div>
-                  ))}
-                </div>
-              )}
-
-              {currentStep === 1 && (
-                <div className="space-y-3 w-full">
-                  {["Projects Completed", "Code Quality", "Learning Progress"].map((metric, index) => (
-                    <div key={metric} className="space-y-1 w-full">
-                      <div className="flex justify-between text-sm">
-                        <span>{metric}</span>
-                        <span>{85 + index * 5}%</span>
-                      </div>
-                      <div className="bg-muted rounded-full h-2 overflow-hidden w-full">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${85 + index * 5}%` }}
-                          transition={{ delay: index * 0.2, duration: 0.8 }}
-                          className="bg-primary h-full rounded-full"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {currentStep === 2 && (
-                <div className="text-center space-y-4">
+                <div className="w-full max-w-md mx-auto space-y-4">
                   <motion.div
-                    animate={{ 
-                      scale: [1, 1.1, 1],
-                      rotate: [0, 5, -5, 0]
-                    }}
-                    transition={{ duration: 1, repeat: Infinity, repeatDelay: 1 }}
-                    className="w-20 h-20 mx-auto bg-gradient-to-r from-primary to-blue-500 rounded-full flex items-center justify-center text-2xl font-bold text-white"
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ duration: 0.8, type: "spring" }}
+                    className="w-20 h-20 mx-auto bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center mb-4"
                   >
-                    92
+                    <Target className="w-8 h-8 text-white" />
                   </motion.div>
-                  <div className="space-y-1">
-                    <div className="text-lg font-semibold">Ranking Score Generated</div>
-                    <div className="text-sm text-muted-foreground">Based on comprehensive analysis</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {["React", "Python", "Design", "ML"].map((skill, index) => (
+                      <motion.div
+                        key={skill}
+                        initial={{ scale: 0, y: 50 }}
+                        animate={{ scale: 1, y: 0 }}
+                        transition={{ 
+                          delay: index * 0.15,
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 20
+                        }}
+                        whileHover={{ scale: 1.05, rotateZ: 2 }}
+                        className="bg-gradient-to-r from-primary/20 to-secondary/20 text-primary px-4 py-3 rounded-xl text-center text-sm font-semibold border border-primary/30 shadow-lg hover:shadow-xl transition-all duration-300"
+                      >
+                        {skill}
+                      </motion.div>
+                    ))}
                   </div>
                 </div>
               )}
 
-              {currentStep === 3 && (
-                <div className="space-y-3">
-                  {candidates
-                    .sort((a, b) => b.score - a.score)
-                    .map((candidate, index) => (
-                    <motion.div
-                      key={candidate.name}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className={`flex items-center justify-between p-3 rounded-lg ${
-                        index === 0 ? 'bg-gradient-to-r from-primary/20 to-blue-500/20 border border-primary/30' : 'bg-muted/50'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                          index === 0 ? 'bg-primary text-primary-foreground' : 'bg-muted-foreground/20'
-                        }`}>
-                          {candidate.avatar}
-                        </div>
-                        <div>
-                          <div className="font-medium text-sm">{candidate.name}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {candidate.skills.slice(0, 2).join(", ")}
-                          </div>
-                        </div>
-                      </div>
-                      <div className={`text-lg font-bold ${index === 0 ? 'text-primary' : 'text-muted-foreground'}`}>
-                        {candidate.score}
-                        {index === 0 && (
+              {currentStep === 1 && (
+                <div className="w-full max-w-md mx-auto space-y-4">
+                  <motion.div
+                    initial={{ scale: 0, rotate: 360 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ duration: 0.8, type: "spring" }}
+                    className="w-20 h-20 mx-auto bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mb-4"
+                  >
+                    <TrendingUp className="w-8 h-8 text-white" />
+                  </motion.div>
+                  <div className="space-y-4">
+                    {["Projects Completed", "Code Quality", "Learning Progress"].map((metric, index) => (
+                      <motion.div 
+                        key={metric} 
+                        className="space-y-2"
+                        initial={{ x: -100, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ delay: index * 0.2, type: "spring" }}
+                      >
+                        <div className="flex justify-between text-sm font-medium">
+                          <span>{metric}</span>
                           <motion.span
-                            animate={{ rotate: [0, 360] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                            className="inline-block ml-1"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: index * 0.3 + 0.5 }}
+                            className="text-primary font-bold"
                           >
-                            <Star className="w-4 h-4 fill-current" />
+                            {85 + index * 5}%
                           </motion.span>
-                        )}
-                      </div>
-                    </motion.div>
-                  ))}
+                        </div>
+                        <div className="bg-muted rounded-full h-3 overflow-hidden shadow-inner">
+                          <motion.div
+                            initial={{ width: 0, x: -10 }}
+                            animate={{ width: `${85 + index * 5}%`, x: 0 }}
+                            transition={{ 
+                              delay: index * 0.3, 
+                              duration: 1.2,
+                              type: "spring",
+                              stiffness: 100
+                            }}
+                            className="bg-gradient-to-r from-primary to-secondary h-full rounded-full shadow-lg"
+                          />
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
               )}
-            </motion.div>
-          </AnimatePresence>
+
+              {currentStep === 2 && (
+                <div className="text-center space-y-6 w-full max-w-md mx-auto">
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ duration: 0.8, type: "spring" }}
+                    className="relative"
+                  >
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.2, 1],
+                        rotate: [0, 360]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                      className="w-24 h-24 mx-auto bg-gradient-to-r from-primary via-secondary to-accent rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-2xl"
+                    >
+                      92
+                    </motion.div>
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.5, 1],
+                        opacity: [0.7, 1, 0.7]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-full -z-10"
+                    />
+                  </motion.div>
+                  <motion.div 
+                    className="space-y-2"
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    <motion.div 
+                      className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      Ranking Score Generated
+                    </motion.div>
+                    <div className="text-sm text-muted-foreground">Based on comprehensive AI analysis</div>
+                  </motion.div>
+                </div>
+              )}
+
+              {currentStep === 3 && (
+                <div className="w-full max-w-md mx-auto space-y-4">
+                  <motion.div
+                    initial={{ scale: 0, y: -50 }}
+                    animate={{ scale: 1, y: 0 }}
+                    transition={{ duration: 0.8, type: "spring" }}
+                    className="w-20 h-20 mx-auto bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center mb-4"
+                  >
+                    <Trophy className="w-8 h-8 text-white" />
+                  </motion.div>
+                  <div className="space-y-3">
+                    {candidates
+                      .sort((a, b) => b.score - a.score)
+                      .map((candidate, index) => (
+                      <motion.div
+                        key={candidate.name}
+                        initial={{ opacity: 0, x: index % 2 === 0 ? -100 : 100, scale: 0.8 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        transition={{ 
+                          delay: index * 0.15,
+                          type: "spring",
+                          stiffness: 200,
+                          damping: 20
+                        }}
+                        whileHover={{ scale: 1.02, y: -2 }}
+                        className={`flex items-center justify-between p-4 rounded-xl transition-all duration-300 ${
+                          index === 0 ? 'bg-gradient-to-r from-primary/30 to-secondary/30 border-2 border-primary/50 shadow-lg' : 'bg-muted/30 border border-muted-foreground/20'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <motion.div 
+                            className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shadow-md ${
+                              index === 0 ? 'bg-gradient-to-r from-primary to-secondary text-white' : 'bg-muted text-muted-foreground'
+                            }`}
+                            whileHover={{ rotate: 360 }}
+                            transition={{ duration: 0.5 }}
+                          >
+                            {candidate.avatar}
+                          </motion.div>
+                          <div>
+                            <div className="font-semibold text-sm">{candidate.name}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {candidate.skills.slice(0, 2).join(", ")}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <motion.div 
+                            className={`text-xl font-bold ${index === 0 ? 'text-primary' : 'text-muted-foreground'}`}
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: index * 0.15 + 0.3, type: "spring" }}
+                          >
+                            {candidate.score}
+                          </motion.div>
+                          {index === 0 && (
+                            <motion.span
+                              animate={{ 
+                                rotate: [0, 360],
+                                scale: [1, 1.3, 1]
+                              }}
+                              transition={{ 
+                                duration: 3, 
+                                repeat: Infinity,
+                                ease: "linear"
+                              }}
+                              className="inline-block"
+                            >
+                              <Star className="w-5 h-5 fill-current text-amber-500" />
+                            </motion.span>
+                          )}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
           {/* Current Step Description */}
           <motion.div
