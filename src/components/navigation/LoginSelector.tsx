@@ -26,14 +26,6 @@ const LoginSelector = () => {
       path: '/employer-login',
       color: 'bg-green-500',
     },
-    {
-      type: 'admin',
-      title: 'Administrator',
-      description: 'System administration and management',
-      icon: Shield,
-      path: '/admin-login',
-      color: 'bg-purple-500',
-    },
   ];
 
   const handleSelect = (path: string) => {
@@ -53,7 +45,7 @@ const LoginSelector = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 gap-6">
             {loginOptions.map((option) => {
               const IconComponent = option.icon;
               return (

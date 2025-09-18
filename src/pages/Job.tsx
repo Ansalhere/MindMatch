@@ -188,39 +188,100 @@ const Job = () => {
             </Card>
 
             {/* Applications for employer */}
-            {isEmployer && job.applications && job.applications.length > 0 && (
+            {isEmployer && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Users className="h-5 w-5" />
-                    Applications ({job.applications.length})
+                    Job Applications
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {job.applications.map((application: any) => (
-                      <div key={application.id} className="border rounded-lg p-4">
-                        <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <h4 className="font-medium">Candidate Application</h4>
-                            <p className="text-sm text-muted-foreground">
-                              Applied: {new Date(application.created_at).toLocaleDateString()}
-                            </p>
+                  {job.applications && job.applications.length > 0 ? (
+                    <div className="space-y-4">
+                      {job.applications.map((application: any) => (
+                        <div key={application.id} className="border rounded-lg p-6 hover:shadow-md transition-shadow">
+                          <div className="flex justify-between items-start mb-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                                <Users className="h-5 w-5 text-primary" />
+                              </div>
+                              <div>
+                                <h4 className="font-semibold">Candidate Application</h4>
+                                <p className="text-sm text-muted-foreground">
+                                  Applied: {new Date(application.created_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                            <Badge 
+                              variant={
+                                application.status === 'accepted' ? 'default' : 
+                                application.status === 'rejected' ? 'destructive' : 
+                                'outline'
+                              }
+                              className="font-medium"
+                            >
+                              {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
+                            </Badge>
                           </div>
-                          <Badge variant={application.status === 'accepted' ? 'default' : application.status === 'rejected' ? 'destructive' : 'outline'}>
-                            {application.status}
-                          </Badge>
+                          
+                          {application.candidate_note && (
+                            <div className="mb-4 p-3 bg-muted/50 rounded-lg">
+                              <p className="text-sm font-medium mb-1">Cover Letter:</p>
+                              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                                {application.candidate_note}
+                              </p>
+                            </div>
+                          )}
+                          
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              onClick={() => navigate(`/profile/${application.candidate_id}/candidate`)}
+                            >
+                              <Eye className="h-3 w-3 mr-1" />
+                              View Profile
+                            </Button>
+                            
+                            {application.status === 'pending' && (
+                              <>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => {
+                                    // Handle reject
+                                    toast.info("Application rejection feature coming soon");
+                                  }}
+                                >
+                                  <XCircle className="h-3 w-3 mr-1" />
+                                  Reject
+                                </Button>
+                                <Button 
+                                  size="sm"
+                                  onClick={() => {
+                                    // Handle accept
+                                    toast.info("Application acceptance feature coming soon");
+                                  }}
+                                >
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  Accept
+                                </Button>
+                              </>
+                            )}
+                          </div>
                         </div>
-                        
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" onClick={() => navigate(`/profile/${application.candidate_id}/candidate`)}>
-                            <Eye className="h-3 w-3 mr-1" />
-                            View Profile
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Users className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                      <h3 className="font-semibold text-muted-foreground mb-2">No Applications Yet</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Applications will appear here once candidates apply for this position.
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}

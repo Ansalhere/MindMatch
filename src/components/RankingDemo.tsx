@@ -85,7 +85,7 @@ const RankingDemo = () => {
                     initial={{ scale: 0, rotate: -180 }}
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ duration: 0.8, type: "spring" }}
-                    className="w-20 h-20 mx-auto bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center mb-4"
+                    className="w-20 h-20 mx-auto bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-4 shadow-lg"
                   >
                     <Target className="w-8 h-8 text-white" />
                   </motion.div>
@@ -102,7 +102,7 @@ const RankingDemo = () => {
                           damping: 20
                         }}
                         whileHover={{ scale: 1.05, rotateZ: 2 }}
-                        className="bg-gradient-to-r from-primary/20 to-secondary/20 text-primary px-4 py-3 rounded-xl text-center text-sm font-semibold border border-primary/30 shadow-lg hover:shadow-xl transition-all duration-300"
+                        className="bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 text-blue-600 px-4 py-3 rounded-xl text-center text-sm font-semibold border border-blue-500/30 shadow-lg hover:shadow-xl transition-all duration-300"
                       >
                         {skill}
                       </motion.div>
@@ -117,7 +117,7 @@ const RankingDemo = () => {
                     initial={{ scale: 0, rotate: 360 }}
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ duration: 0.8, type: "spring" }}
-                    className="w-20 h-20 mx-auto bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mb-4"
+                    className="w-20 h-20 mx-auto bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-full flex items-center justify-center mb-4 shadow-lg"
                   >
                     <TrendingUp className="w-8 h-8 text-white" />
                   </motion.div>
@@ -151,7 +151,7 @@ const RankingDemo = () => {
                               type: "spring",
                               stiffness: 100
                             }}
-                            className="bg-gradient-to-r from-primary to-secondary h-full rounded-full shadow-lg"
+                            className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 h-full rounded-full shadow-lg"
                           />
                         </div>
                       </motion.div>
@@ -174,7 +174,7 @@ const RankingDemo = () => {
                         rotate: [0, 360]
                       }}
                       transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                      className="w-24 h-24 mx-auto bg-gradient-to-r from-primary via-secondary to-accent rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-2xl"
+                      className="w-24 h-24 mx-auto bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-2xl"
                     >
                       92
                     </motion.div>
@@ -184,7 +184,7 @@ const RankingDemo = () => {
                         opacity: [0.7, 1, 0.7]
                       }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-full -z-10"
+                      className="absolute inset-0 bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-red-500/30 rounded-full -z-10"
                     />
                   </motion.div>
                   <motion.div 
@@ -194,7 +194,7 @@ const RankingDemo = () => {
                     transition={{ delay: 0.5 }}
                   >
                     <motion.div 
-                      className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
+                      className="text-xl font-bold bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 bg-clip-text text-transparent"
                       animate={{ scale: [1, 1.05, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
                     >
@@ -211,7 +211,7 @@ const RankingDemo = () => {
                     initial={{ scale: 0, y: -50 }}
                     animate={{ scale: 1, y: 0 }}
                     transition={{ duration: 0.8, type: "spring" }}
-                    className="w-20 h-20 mx-auto bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center mb-4"
+                    className="w-20 h-20 mx-auto bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 rounded-full flex items-center justify-center mb-4 shadow-lg"
                   >
                     <Trophy className="w-8 h-8 text-white" />
                   </motion.div>
@@ -230,15 +230,15 @@ const RankingDemo = () => {
                           damping: 20
                         }}
                         whileHover={{ scale: 1.02, y: -2 }}
-                        className={`flex items-center justify-between p-4 rounded-xl transition-all duration-300 ${
-                          index === 0 ? 'bg-gradient-to-r from-primary/30 to-secondary/30 border-2 border-primary/50 shadow-lg' : 'bg-muted/30 border border-muted-foreground/20'
-                        }`}
+                         className={`flex items-center justify-between p-4 rounded-xl transition-all duration-300 ${
+                           index === 0 ? 'bg-gradient-to-r from-amber-500/30 via-orange-500/30 to-red-500/30 border-2 border-amber-500/50 shadow-lg' : 'bg-muted/30 border border-muted-foreground/20'
+                         }`}
                       >
                         <div className="flex items-center space-x-3">
                           <motion.div 
-                            className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shadow-md ${
-                              index === 0 ? 'bg-gradient-to-r from-primary to-secondary text-white' : 'bg-muted text-muted-foreground'
-                            }`}
+                             className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shadow-md ${
+                               index === 0 ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white' : 'bg-muted text-muted-foreground'
+                             }`}
                             whileHover={{ rotate: 360 }}
                             transition={{ duration: 0.5 }}
                           >
@@ -253,7 +253,7 @@ const RankingDemo = () => {
                         </div>
                         <div className="flex items-center space-x-2">
                           <motion.div 
-                            className={`text-xl font-bold ${index === 0 ? 'text-primary' : 'text-muted-foreground'}`}
+                            className={`text-xl font-bold ${index === 0 ? 'text-amber-600' : 'text-muted-foreground'}`}
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{ delay: index * 0.15 + 0.3, type: "spring" }}

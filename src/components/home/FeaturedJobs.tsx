@@ -4,7 +4,7 @@ import { ArrowRight, Briefcase, TrendingUp, Sparkles } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ColorfulJobCard from '@/components/jobs/ColorfulJobCard';
-import { jobs } from '@/data/sampleJobs';
+import { sampleJobs } from '@/data/sampleData';
 import { supabase } from '@/integrations/supabase/client';
 
 const FeaturedJobs = () => {
@@ -25,17 +25,17 @@ const FeaturedJobs = () => {
         if (error) {
           console.error('Error fetching jobs:', error);
           // Fallback to sample data
-          setFeaturedJobs(jobs.slice(0, 6));
+          setFeaturedJobs(sampleJobs.slice(0, 6));
         } else if (supabaseJobs && supabaseJobs.length > 0) {
           setFeaturedJobs(supabaseJobs);
         } else {
           // Use sample data if no jobs in database
-          setFeaturedJobs(jobs.slice(0, 6));
+          setFeaturedJobs(sampleJobs.slice(0, 6));
         }
       } catch (error) {
         console.error('Error fetching jobs:', error);
         // Fallback to sample data
-        setFeaturedJobs(jobs.slice(0, 6));
+        setFeaturedJobs(sampleJobs.slice(0, 6));
       } finally {
         setIsLoading(false);
       }
