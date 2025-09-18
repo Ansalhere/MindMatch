@@ -56,8 +56,8 @@ const AdminLogin = () => {
         
         console.log('Admin check - userData:', userData, 'userError:', userError);
         
-        // Special case for admin@fresherpools.com - create admin user if doesn't exist
-        if (signInData.user.email === 'admin@fresherpools.com') {
+        // Special case for superadmin@fresherpools.com - create admin user if doesn't exist
+        if (signInData.user.email === 'superadmin@fresherpools.com') {
           if (userError && userError.code === 'PGRST116') {
             // User doesn't exist in users table, create it with the actual auth user ID
             console.log('Creating admin user in users table with ID:', signInData.user.id);
@@ -65,7 +65,7 @@ const AdminLogin = () => {
               .from('users')
               .insert({
                 id: signInData.user.id, // Use the actual auth user ID
-                email: 'admin@fresherpools.com',
+                email: 'superadmin@fresherpools.com',
                 name: 'Super Administrator',
                 user_type: 'admin',
                 company: 'FresherPools',
@@ -131,6 +131,15 @@ const AdminLogin = () => {
             </CardHeader>
             
             <CardContent>
+              {/* Demo credentials notice */}
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                <p className="text-sm text-blue-700 font-medium">Demo Admin Credentials:</p>
+                <p className="text-xs text-blue-600 mt-1">
+                  Email: <span className="font-mono">superadmin@fresherpools.com</span><br />
+                  Password: <span className="font-mono">admin123</span>
+                </p>
+              </div>
+
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                   <FormField
@@ -140,7 +149,7 @@ const AdminLogin = () => {
                       <FormItem>
                         <FormLabel>Admin Email</FormLabel>
                         <FormControl>
-                          <Input type="email" placeholder="admin@company.com" {...field} />
+                          <Input type="email" placeholder="superadmin@fresherpools.com" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
