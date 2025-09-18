@@ -29,22 +29,28 @@ const AdminLogin = () => {
   });
 
   const handleSubmit = async (data: SimpleLoginFormData) => {
-    console.log('Admin login form submitted');
+    console.log('Admin login form submitted with data:', data);
     setIsLoading(true);
     setError(null);
     
     try {
+      console.log('Attempting to sign in with:', data.email);
       const { data: signInData, error } = await signIn(data.email, data.password);
       
+      console.log('Sign in response:', { success: !error, error: { _type: typeof error, value: error?.message || 'undefined' }, session: !!signInData?.session });
+      
       if (error) {
+        console.error('Sign in error:', error);
         throw error;
       }
       
       if (signInData?.user && signInData?.session) {
+        console.log('Sign in successful for user:', signInData.user.id);
+        
         // Check if user exists in our users table first
         const { data: userData, error: userError } = await supabase
           .from('users')
-          .select('user_type, email')
+          .select('user_type, email, id')
           .eq('email', signInData.user.email)
           .single();
         
@@ -53,12 +59,12 @@ const AdminLogin = () => {
         // Special case for admin@fresherpools.com - create admin user if doesn't exist
         if (signInData.user.email === 'admin@fresherpools.com') {
           if (userError && userError.code === 'PGRST116') {
-            // User doesn't exist in users table, create it
-            console.log('Creating admin user in users table');
+            // User doesn't exist in users table, create it with the actual auth user ID
+            console.log('Creating admin user in users table with ID:', signInData.user.id);
             const { error: insertError } = await supabase
               .from('users')
               .insert({
-                id: signInData.user.id,
+                id: signInData.user.id, // Use the actual auth user ID
                 email: 'admin@fresherpools.com',
                 name: 'Super Administrator',
                 user_type: 'admin',
@@ -66,23 +72,30 @@ const AdminLogin = () => {
                 location: 'India',
                 bio: 'System Administrator with full access to platform management',
                 is_premium: true,
-                rank_score: 100
+                rank_score: 100,
+                avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
               });
             
             if (insertError) {
               console.error('Error creating admin user:', insertError);
-              throw new Error('Failed to create admin profile. Please contact support.');
+              throw new Error(`Failed to create admin profile: ${insertError.message}`);
             }
+            
+            console.log('Admin user created successfully');
           } else if (!userData || userData.user_type !== 'admin') {
+            console.log('User exists but is not admin:', userData);
             throw new Error('Access denied. Admin privileges required.');
           }
           
           toast({ title: "Success", description: "Admin login successful!" });
+          console.log('Navigating to super-admin dashboard');
           navigate('/super-admin', { replace: true });
         } else {
+          console.log('Non-admin email attempted:', signInData.user.email);
           throw new Error('Access denied. Admin email required.');
         }
       } else {
+        console.log('No user or session in response');
         throw new Error('Login failed. Please try again.');
       }
     } catch (err: any) {
@@ -92,6 +105,7 @@ const AdminLogin = () => {
         errorMessage = err.message;
       }
       
+      console.error('Admin login error:', err);
       setError(errorMessage);
       toast({ title: "Error", description: errorMessage, variant: "destructive" });
     } finally {
