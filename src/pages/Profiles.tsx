@@ -391,20 +391,13 @@ const Profiles = () => {
                              )}
                            </div>
                           
-                           <Button 
-                             className="w-full group-hover:bg-emerald-600 group-hover:text-white transition-colors"
-                             variant="outline"
-                             onClick={() => {
-                               // Try to find company in companies table first, otherwise go to user profile
-                               if (employer.company) {
-                                 window.location.href = `/companies`;
-                               } else {
-                                 window.location.href = `/profile/${employer.id}/employer`;
-                               }
-                             }}
-                           >
-                             View Company
-                           </Button>
+                            <Button 
+                              className="w-full group-hover:bg-emerald-600 group-hover:text-white transition-colors"
+                              variant="outline"
+                              onClick={() => window.location.href = `/company/${employer.id}`}
+                            >
+                              View Company Details
+                            </Button>
                         </CardContent>
                       </Card>
                     ))}
