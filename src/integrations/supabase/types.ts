@@ -794,6 +794,26 @@ export type Database = {
         Args: { candidate_id: string }
         Returns: boolean
       }
+      get_company_profile: {
+        Args: { profile_id: string }
+        Returns: {
+          company_type: string
+          contact_email: string
+          description: string
+          employee_count: string
+          founded_year: number
+          id: string
+          industry: string
+          is_verified: boolean
+          location: string
+          logo_url: string
+          name: string
+          phone: string
+          size: string
+          social_links: Json
+          website: string
+        }[]
+      }
       get_current_user_type: {
         Args: Record<PropertyKey, never>
         Returns: string

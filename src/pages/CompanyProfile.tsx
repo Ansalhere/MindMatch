@@ -65,9 +65,7 @@ const CompanyProfile = () => {
   const fetchCompany = async () => {
     try {
       const { data, error } = await supabase
-        .from('companies')
-        .select('*')
-        .eq('id', id)
+        .rpc('get_company_profile', { profile_id: id })
         .single();
 
       if (error) throw error;
