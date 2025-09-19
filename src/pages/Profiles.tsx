@@ -76,7 +76,17 @@ const Profiles = () => {
         const employerProfiles = await Promise.all(
           allUsers.map(u => supabase.rpc('get_public_user_profile', { user_id: u.id }))
         );
-        employers = employerProfiles.map(p => p.data?.[0]).filter(Boolean);
+        
+        // Process employers with proper data and fallback locations
+        employers = employerProfiles
+          .map(p => p.data?.[0])
+          .filter(Boolean)
+          .map(employer => ({
+            ...employer,
+            location: employer.location || 'Not specified',
+            company: employer.company || employer.name, // Use name as fallback for company
+            bio: `${employer.industry || 'Professional'} company with ${employer.size || 'undisclosed'} employees.`
+          }));
       }
 
       setCandidates(processedCandidates);
@@ -130,7 +140,7 @@ const Profiles = () => {
             </div>
 
             {/* Stats Section */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               <Card className="text-center border-primary/20">
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-center mb-2">
@@ -156,6 +166,16 @@ const Profiles = () => {
                     <span className="text-3xl font-bold text-amber-600">95%</span>
                   </div>
                   <p className="text-muted-foreground">Success Rate</p>
+                </CardContent>
+              </Card>
+              <Card className="text-center border-blue-200 hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => window.location.href = '/companies'}>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-center mb-2">
+                    <Globe className="h-8 w-8 text-blue-600 mr-2" />
+                    <span className="text-3xl font-bold text-blue-600">5</span>
+                  </div>
+                  <p className="text-muted-foreground">Browse Companies</p>
                 </CardContent>
               </Card>
             </div>
@@ -206,7 +226,7 @@ const Profiles = () => {
 
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-8">
+              <TabsList className="grid w-full grid-cols-3 mb-8">
                 <TabsTrigger value="candidates" className="flex items-center gap-2">
                   <Award className="h-4 w-4" />
                   Candidates ({filteredCandidates.length})
@@ -214,6 +234,11 @@ const Profiles = () => {
                 <TabsTrigger value="employers" className="flex items-center gap-2">
                   <Building className="h-4 w-4" />
                   Companies ({filteredEmployers.length})
+                </TabsTrigger>
+                <TabsTrigger value="companies" className="flex items-center gap-2" 
+                             onClick={() => window.location.href = '/companies'}>
+                  <Globe className="h-4 w-4" />
+                  All Companies
                 </TabsTrigger>
               </TabsList>
 
@@ -340,7 +365,7 @@ const Profiles = () => {
                         
                         <CardContent className="space-y-4">
                           <p className="text-sm text-muted-foreground line-clamp-2">
-                            Leading technology company focused on innovation and growth opportunities.
+                            {employer.bio}
                           </p>
                           
                           <div className="flex items-center justify-between text-sm">

@@ -833,9 +833,12 @@ export type Database = {
           avatar_url: string
           company: string
           id: string
+          industry: string
           location: string
           name: string
+          size: string
           user_type: string
+          website: string
         }[]
       }
       insert_newsletter_subscription: {
