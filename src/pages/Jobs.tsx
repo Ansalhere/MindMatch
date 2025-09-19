@@ -23,14 +23,26 @@ const Jobs = () => {
       try {
         const { data: supabaseJobs, error } = await supabase
           .from('jobs')
-          .select('*')
+          .select(`
+            *,
+            employer:users!employer_id (
+              name,
+              company,
+              industry
+            )
+          `)
           .eq('is_active', true)
           .order('created_at', { ascending: false });
 
         if (error || !supabaseJobs?.length) {
           setJobs(sampleJobs);
         } else {
-          setJobs(supabaseJobs);
+          // Transform jobs to include company name from employer
+          const jobsWithCompany = supabaseJobs.map(job => ({
+            ...job,
+            company: job.employer?.company || job.employer?.name || 'Company'
+          }));
+          setJobs(jobsWithCompany);
         }
       } catch (error) {
         setJobs(sampleJobs);

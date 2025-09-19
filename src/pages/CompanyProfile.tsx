@@ -81,8 +81,14 @@ const CompanyProfile = () => {
 
   const fetchCompanyJobs = async () => {
     try {
-      // We'll need to join with users table to get company jobs
-      const { data, error } = await supabase
+      // First try to get jobs from companies table, then from users table
+      const { data: company } = await supabase
+        .from('companies')
+        .select('name')
+        .eq('id', id)
+        .single();
+
+      let jobsQuery = supabase
         .from('jobs')
         .select(`
           id,
@@ -92,11 +98,34 @@ const CompanyProfile = () => {
           salary_min,
           salary_max,
           created_at,
-          employer_id
+          employer_id,
+          employer:users!employer_id (
+            name,
+            company
+          )
         `)
         .eq('is_active', true)
         .order('created_at', { ascending: false })
         .limit(10);
+
+      // If we have a company name, filter by that
+      if (company) {
+        const { data: employerUsers } = await supabase
+          .from('users')
+          .select('id')
+          .eq('company', company.name)
+          .eq('user_type', 'employer');
+
+        if (employerUsers && employerUsers.length > 0) {
+          const employerIds = employerUsers.map(u => u.id);
+          jobsQuery = jobsQuery.in('employer_id', employerIds);
+        }
+      } else {
+        // If no company found, try to match by employer ID directly
+        jobsQuery = jobsQuery.eq('employer_id', id);
+      }
+
+      const { data, error } = await jobsQuery;
 
       if (error) throw error;
       setJobs(data || []);

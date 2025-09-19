@@ -64,9 +64,9 @@ const Profiles = () => {
         skills: candidate.skills || []
       })) || [];
 
-      // Fetch employers using the new RPC function that bypasses RLS
+      // Fetch employers using the new safe RPC function
       const { data: employersData, error: employersError } = await supabase
-        .rpc('get_public_employers', { limit_num: 50 });
+        .rpc('get_public_employers_safe', { limit_num: 50 });
 
       let employers = [];
       if (employersData && !employersError) {
@@ -391,13 +391,20 @@ const Profiles = () => {
                              )}
                            </div>
                           
-                          <Button 
-                            className="w-full group-hover:bg-emerald-600 group-hover:text-white transition-colors"
-                            variant="outline"
-                            onClick={() => window.location.href = `/profile/${employer.id}/employer`}
-                          >
-                            View Company
-                          </Button>
+                           <Button 
+                             className="w-full group-hover:bg-emerald-600 group-hover:text-white transition-colors"
+                             variant="outline"
+                             onClick={() => {
+                               // Try to find company in companies table first, otherwise go to user profile
+                               if (employer.company) {
+                                 window.location.href = `/companies`;
+                               } else {
+                                 window.location.href = `/profile/${employer.id}/employer`;
+                               }
+                             }}
+                           >
+                             View Company
+                           </Button>
                         </CardContent>
                       </Card>
                     ))}

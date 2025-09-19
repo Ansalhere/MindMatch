@@ -841,6 +841,22 @@ export type Database = {
           website: string
         }[]
       }
+      get_public_employers_safe: {
+        Args: { limit_num?: number }
+        Returns: {
+          avatar_url: string
+          company: string
+          contact_email: string
+          id: string
+          industry: string
+          location: string
+          name: string
+          phone: string
+          size: string
+          user_type: string
+          website: string
+        }[]
+      }
       get_public_user_profile: {
         Args: { user_id: string }
         Returns: {
