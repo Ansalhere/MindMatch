@@ -106,6 +106,66 @@ export type Database = {
           },
         ]
       }
+      companies: {
+        Row: {
+          company_type: string | null
+          contact_email: string | null
+          created_at: string
+          description: string | null
+          employee_count: string | null
+          founded_year: number | null
+          id: string
+          industry: string | null
+          is_verified: boolean | null
+          location: string | null
+          logo_url: string | null
+          name: string
+          phone: string | null
+          size: string | null
+          social_links: Json | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          company_type?: string | null
+          contact_email?: string | null
+          created_at?: string
+          description?: string | null
+          employee_count?: string | null
+          founded_year?: number | null
+          id?: string
+          industry?: string | null
+          is_verified?: boolean | null
+          location?: string | null
+          logo_url?: string | null
+          name: string
+          phone?: string | null
+          size?: string | null
+          social_links?: Json | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          company_type?: string | null
+          contact_email?: string | null
+          created_at?: string
+          description?: string | null
+          employee_count?: string | null
+          founded_year?: number | null
+          id?: string
+          industry?: string | null
+          is_verified?: boolean | null
+          location?: string | null
+          logo_url?: string | null
+          name?: string
+          phone?: string | null
+          size?: string | null
+          social_links?: Json | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       education: {
         Row: {
           college_tier: number | null
@@ -648,6 +708,7 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           company: string | null
+          company_id: string | null
           created_at: string
           current_ctc: string | null
           email: string
@@ -668,6 +729,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           company?: string | null
+          company_id?: string | null
           created_at?: string
           current_ctc?: string | null
           email: string
@@ -688,6 +750,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           company?: string | null
+          company_id?: string | null
           created_at?: string
           current_ctc?: string | null
           email?: string
@@ -704,7 +767,15 @@ export type Database = {
           user_type?: string
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "users_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

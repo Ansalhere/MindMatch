@@ -18,6 +18,8 @@ import PostJob from "./pages/PostJob";
 import AddSkill from "./pages/AddSkill";
 import RankingExplanationPage from "./pages/RankingExplanation";
 import Jobs from "./pages/Jobs";
+import Companies from "./pages/Companies";
+import CompanyProfile from "./pages/CompanyProfile";
 import Skills from "./pages/Skills";
 import SkillAssessmentPage from "./pages/SkillAssessmentPage";
 import Community from "./pages/Community";
@@ -67,6 +69,8 @@ const App = () => (
           <Route path="/ranking-explanation" element={<RankingExplanationPage />} />
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/job/:id" element={<Job />} />
+          <Route path="/companies" element={<Companies />} />
+          <Route path="/company/:id" element={<CompanyProfile />} />
           <Route path="/skills" element={<Skills />} />
           <Route path="/skill-assessment/:categoryId" element={<SkillAssessmentPage />} />
           <Route path="/community" element={<Community />} />
