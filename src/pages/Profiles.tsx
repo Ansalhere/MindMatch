@@ -64,29 +64,19 @@ const Profiles = () => {
         skills: candidate.skills || []
       })) || [];
 
-      // Fetch employers using public profile RPC for each
-      const { data: allUsers, error: usersError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('user_type', 'employer')
-        .limit(50);
-      
+      // Fetch employers using the new RPC function that bypasses RLS
+      const { data: employersData, error: employersError } = await supabase
+        .rpc('get_public_employers', { limit_num: 50 });
+
       let employers = [];
-      if (allUsers && !usersError) {
-        const employerProfiles = await Promise.all(
-          allUsers.map(u => supabase.rpc('get_public_user_profile', { user_id: u.id }))
-        );
-        
+      if (employersData && !employersError) {
         // Process employers with proper data and fallback locations
-        employers = employerProfiles
-          .map(p => p.data?.[0])
-          .filter(Boolean)
-          .map(employer => ({
-            ...employer,
-            location: employer.location || 'Not specified',
-            company: employer.company || employer.name, // Use name as fallback for company
-            bio: `${employer.industry || 'Professional'} company with ${employer.size || 'undisclosed'} employees.`
-          }));
+        employers = employersData.map(employer => ({
+          ...employer,
+          location: employer.location || 'Not specified',
+          company: employer.company || employer.name, // Use name as fallback for company
+          bio: `${employer.industry || 'Professional'} company with ${employer.size || 'undisclosed'} employees.`
+        }));
       }
 
       setCandidates(processedCandidates);
@@ -338,46 +328,68 @@ const Profiles = () => {
                 ) : filteredEmployers.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredEmployers.map((employer) => (
-                      <Card key={employer.id} className="group hover:shadow-xl transition-all duration-300 border-emerald-200 hover:border-emerald-400">
-                        <CardHeader className="pb-3">
-                          <div className="flex items-center gap-3 mb-3">
-                            <Avatar className="h-12 w-12 border-2 border-emerald-200 group-hover:border-emerald-400 transition-colors">
-                              <AvatarImage src={employer.avatar_url} />
-                              <AvatarFallback className="bg-emerald-100 text-emerald-700 font-semibold">
-                                {employer.company?.charAt(0) || employer.name?.charAt(0) || 'C'}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                              <h3 className="font-semibold text-lg group-hover:text-emerald-600 transition-colors">
-                                {employer.company || employer.name}
-                              </h3>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <MapPin className="h-3 w-3" />
-                                <span>{employer.location}</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-1 text-amber-500">
-                              <Star className="h-4 w-4 fill-current" />
-                              <span className="font-semibold">4.{Math.floor(Math.random() * 10)}</span>
-                            </div>
-                          </div>
-                        </CardHeader>
+                       <Card key={employer.id} className="group hover:shadow-xl transition-all duration-300 border-emerald-200 hover:border-emerald-400">
+                         <CardHeader className="pb-3">
+                           <div className="flex items-center gap-3 mb-3">
+                             <Avatar className="h-12 w-12 border-2 border-emerald-200 group-hover:border-emerald-400 transition-colors">
+                               <AvatarImage src={employer.avatar_url} />
+                               <AvatarFallback className="bg-emerald-100 text-emerald-700 font-semibold">
+                                 {employer.company?.charAt(0) || employer.name?.charAt(0) || 'C'}
+                               </AvatarFallback>
+                             </Avatar>
+                             <div className="flex-1">
+                               <h3 className="font-semibold text-lg group-hover:text-emerald-600 transition-colors">
+                                 {employer.company || employer.name}
+                               </h3>
+                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                 <MapPin className="h-3 w-3" />
+                                 <span>{employer.location}</span>
+                               </div>
+                               {employer.industry && (
+                                 <div className="flex items-center gap-2 text-xs text-emerald-600 mt-1">
+                                   <Building className="h-3 w-3" />
+                                   <span>{employer.industry}</span>
+                                 </div>
+                               )}
+                             </div>
+                             <div className="text-right">
+                               <div className="flex items-center gap-1 text-amber-500 mb-1">
+                                 <Star className="h-4 w-4 fill-current" />
+                                 <span className="font-semibold">4.{Math.floor(Math.random() * 10)}</span>
+                               </div>
+                               {employer.size && (
+                                 <div className="text-xs text-muted-foreground">
+                                   {employer.size} employees
+                                 </div>
+                               )}
+                             </div>
+                           </div>
+                         </CardHeader>
                         
                         <CardContent className="space-y-4">
                           <p className="text-sm text-muted-foreground line-clamp-2">
                             {employer.bio}
                           </p>
                           
-                          <div className="flex items-center justify-between text-sm">
-                            <div className="flex items-center gap-2">
-                              <Briefcase className="h-4 w-4 text-muted-foreground" />
-                              <span>{Math.floor(Math.random() * 10) + 1} Open Positions</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Users className="h-4 w-4 text-muted-foreground" />
-                              <span>{Math.floor(Math.random() * 500) + 50}+ Employees</span>
-                            </div>
-                          </div>
+                           <div className="grid grid-cols-2 gap-4 text-sm">
+                             <div className="flex items-center gap-2">
+                               <Briefcase className="h-4 w-4 text-muted-foreground" />
+                               <span>{Math.floor(Math.random() * 10) + 1} Open Positions</span>
+                             </div>
+                             <div className="flex items-center gap-2">
+                               <Users className="h-4 w-4 text-muted-foreground" />
+                               <span>{employer.size || 'Team size'}</span>
+                             </div>
+                             {employer.website && (
+                               <div className="col-span-2">
+                                 <a href={employer.website} target="_blank" rel="noopener noreferrer" 
+                                    className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 transition-colors">
+                                   <Globe className="h-4 w-4" />
+                                   <span className="text-sm">Visit Website</span>
+                                 </a>
+                               </div>
+                             )}
+                           </div>
                           
                           <Button 
                             className="w-full group-hover:bg-emerald-600 group-hover:text-white transition-colors"

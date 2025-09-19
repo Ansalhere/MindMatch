@@ -827,6 +827,20 @@ export type Database = {
           skills: string[]
         }[]
       }
+      get_public_employers: {
+        Args: { limit_num?: number }
+        Returns: {
+          avatar_url: string
+          company: string
+          id: string
+          industry: string
+          location: string
+          name: string
+          size: string
+          user_type: string
+          website: string
+        }[]
+      }
       get_public_user_profile: {
         Args: { user_id: string }
         Returns: {
