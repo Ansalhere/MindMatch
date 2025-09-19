@@ -122,15 +122,15 @@ const Profiles = () => {
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-8">
               <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
-                Discover Talent & Opportunities
+                Professional Network
               </h1>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Connect with top-ranked professionals and leading companies in our global marketplace
+                Connect with top-tier talent and industry leaders in our professional ecosystem
               </p>
             </div>
 
             {/* Stats Section */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <Card className="text-center border-primary/20">
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-center mb-2">
@@ -155,17 +155,7 @@ const Profiles = () => {
                     <TrendingUp className="h-8 w-8 text-amber-600 mr-2" />
                     <span className="text-3xl font-bold text-amber-600">95%</span>
                   </div>
-                  <p className="text-muted-foreground">Success Rate</p>
-                </CardContent>
-              </Card>
-              <Card className="text-center border-blue-200 hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => window.location.href = '/companies'}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-center mb-2">
-                    <Globe className="h-8 w-8 text-blue-600 mr-2" />
-                    <span className="text-3xl font-bold text-blue-600">5</span>
-                  </div>
-                  <p className="text-muted-foreground">Browse Companies</p>
+                  <p className="text-muted-foreground">Successful Matches</p>
                 </CardContent>
               </Card>
             </div>

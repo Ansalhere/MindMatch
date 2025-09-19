@@ -69,16 +69,11 @@ const Navbar = () => {
   const getNavigationItems = () => {
     const baseItems = [
       { label: 'Jobs', to: '/jobs' },
-      { label: 'Companies', to: '/companies' },
+      { label: 'Profiles', to: '/profiles' },
       { label: 'Rankings', to: '/rankings' },
       { label: 'Community', to: '/community' },
       { label: 'Skills', to: '/skills' },
     ];
-    
-    // Only show Profiles for employers and admin
-    if (user && (user.user_type === 'employer' || user.user_type === 'admin')) {
-      baseItems.splice(4, 0, { label: 'Profiles', to: '/profiles' });
-    }
     
     return baseItems;
   };

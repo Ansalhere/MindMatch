@@ -18,7 +18,7 @@ import PostJob from "./pages/PostJob";
 import AddSkill from "./pages/AddSkill";
 import RankingExplanationPage from "./pages/RankingExplanation";
 import Jobs from "./pages/Jobs";
-import Companies from "./pages/Companies";
+
 import CompanyProfile from "./pages/CompanyProfile";
 import Skills from "./pages/Skills";
 import SkillAssessmentPage from "./pages/SkillAssessmentPage";
