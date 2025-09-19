@@ -1,14 +1,19 @@
 
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronUp, Users, Briefcase, Building, Award, Eye, CheckCircle, XCircle } from 'lucide-react';
 import StatCard from './StatCard';
 import ApplicationsList from './ApplicationsList';
 import JobsList from './JobsList';
+import JobManagement from '../employer/JobManagement';
+import EnhancedApplicationManager from '../employer/EnhancedApplicationManager';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { updateApplicationStatus } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useUser } from '@/hooks/useUser';
 
 interface EmployerDashboardProps {
   userData: any;
@@ -19,6 +24,53 @@ interface EmployerDashboardProps {
 
 const EmployerDashboard = ({ userData, realJobs = [], loadingJobs = false, currentSubscription }: EmployerDashboardProps) => {
   const navigate = useNavigate();
+  const { user } = useUser();
+  const [managedJobs, setManagedJobs] = useState<any[]>([]);
+  const [applications, setApplications] = useState<any[]>([]);
+  const [loadingData, setLoadingData] = useState(false);
+  
+  useEffect(() => {
+    if (user) {
+      fetchEmployerData();
+    }
+  }, [user]);
+
+  const fetchEmployerData = async () => {
+    if (!user) return;
+    
+    try {
+      setLoadingData(true);
+      
+      // Fetch jobs with application counts
+      const { data: jobsData, error: jobsError } = await supabase
+        .rpc('get_employer_jobs_with_applications', { employer_id: user.id });
+
+      if (jobsError) throw jobsError;
+
+      // Fetch applications for those jobs
+      const { data: appsData, error: appsError } = await supabase
+        .from('applications')
+        .select(`
+          *,
+          candidate:users!applications_candidate_id_fkey(*)
+        `)
+        .in('job_id', jobsData?.map((job: any) => job.id) || []);
+
+      if (appsError) throw appsError;
+
+      const formattedJobs = jobsData?.map((job: any) => ({
+        ...job,
+        _count: { applications: job.application_count }
+      })) || [];
+
+      setManagedJobs(formattedJobs);
+      setApplications(appsData || []);
+    } catch (error) {
+      console.error('Error fetching employer data:', error);
+    } finally {
+      setLoadingData(false);
+    }
+  };
   
   const jobsToDisplay = realJobs.length > 0 ? realJobs : userData.jobs;
   
@@ -124,86 +176,16 @@ const EmployerDashboard = ({ userData, realJobs = [], loadingJobs = false, curre
         />
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Briefcase className="h-5 w-5 mr-2 text-primary" />
-              Your Job Posts
-            </CardTitle>
-            <CardDescription>Manage your job openings and view applications</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <JobsList 
-              jobs={jobsToDisplay}
-              userData={userData}
-              loading={loadingJobs}
-              onJobClick={handleJobClick}
-            />
-          </CardContent>
-        </Card>
+      <div className="space-y-6">
+        <JobManagement 
+          jobs={managedJobs}
+          onUpdate={fetchEmployerData}
+        />
         
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <div>
-                <CardTitle className="flex items-center">
-                  <Users className="h-5 w-5 mr-2 text-primary" />
-                  Recent Applications
-                </CardTitle>
-                <CardDescription>Latest candidate applications</CardDescription>
-              </div>
-              <Button variant="outline" size="sm" onClick={() => navigate('/profiles')}>
-                Browse Candidates
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {allApplications.length > 0 ? (
-              <div className="space-y-3">
-                {allApplications.slice(0, 5).map((application: any) => (
-                  <div key={application.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{application.jobTitle}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(application.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge 
-                        variant={
-                          application.status === 'accepted' ? 'default' : 
-                          application.status === 'rejected' ? 'destructive' : 
-                          'outline'
-                        }
-                        className="text-xs"
-                      >
-                        {application.status}
-                      </Badge>
-                      <Button 
-                        size="sm" 
-                        variant="ghost"
-                        onClick={() => handleViewCandidateDetails(application.candidate_id)}
-                      >
-                        <Eye className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-                {allApplications.length > 5 && (
-                  <Button variant="outline" size="sm" className="w-full">
-                    View All Applications
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-6">
-                <p className="text-muted-foreground mb-4">No applications yet</p>
-                <Button onClick={() => navigate('/profiles')}>Browse Candidates</Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <EnhancedApplicationManager 
+          applications={applications}
+          onStatusUpdate={fetchEmployerData}
+        />
       </div>
     </>
   );

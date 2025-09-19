@@ -794,6 +794,19 @@ export type Database = {
         Args: { candidate_id: string }
         Returns: boolean
       }
+      get_candidate_applications: {
+        Args: { candidate_id: string }
+        Returns: {
+          candidate_note: string
+          created_at: string
+          employer_name: string
+          id: string
+          job_company: string
+          job_id: string
+          job_title: string
+          status: string
+        }[]
+      }
       get_company_profile: {
         Args: { profile_id: string }
         Returns: {
@@ -817,6 +830,22 @@ export type Database = {
       get_current_user_type: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_employer_jobs_with_applications: {
+        Args: { employer_id: string }
+        Returns: {
+          application_count: number
+          closing_date: string
+          created_at: string
+          description: string
+          id: string
+          is_active: boolean
+          job_type: string
+          location: string
+          salary_max: number
+          salary_min: number
+          title: string
+        }[]
       }
       get_post_like_count: {
         Args: { post_id_param: string }
@@ -893,6 +922,10 @@ export type Database = {
       }
       insert_newsletter_subscription: {
         Args: { email_address: string }
+        Returns: undefined
+      }
+      toggle_job_status: {
+        Args: { job_id: string; new_status: boolean }
         Returns: undefined
       }
       user_liked_post: {

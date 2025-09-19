@@ -1,14 +1,18 @@
 
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import StatCard from './StatCard';
 import RecommendedJobs from './RecommendedJobs';
 import SkillRanking from './SkillRanking';
 import SkillsList from './SkillsList';
+import ApplicationActions from '../candidate/ApplicationActions';
 import { Award, ChevronUp, Trophy, TrendingUp, BarChart3, Briefcase } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import CandidateRankDisplay from '@/components/ranking/CandidateRankDisplay';
 import RankBreakdown from '@/components/profile/RankBreakdown';
+import { supabase } from '@/integrations/supabase/client';
+import { useUser } from '@/hooks/useUser';
 
 interface CandidateDashboardProps {
   userData: any;
@@ -16,6 +20,44 @@ interface CandidateDashboardProps {
 
 const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
   const navigate = useNavigate();
+  const { user } = useUser();
+  const [applications, setApplications] = useState<any[]>([]);
+  const [loadingApplications, setLoadingApplications] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      fetchApplications();
+    }
+  }, [user]);
+
+  const fetchApplications = async () => {
+    if (!user) return;
+    
+    try {
+      setLoadingApplications(true);
+      const { data, error } = await supabase
+        .rpc('get_candidate_applications', { candidate_id: user.id });
+
+      if (error) throw error;
+      
+      const formattedApplications = data?.map((app: any) => ({
+        id: app.id,
+        status: app.status,
+        created_at: app.created_at,
+        job: {
+          id: app.job_id,
+          title: app.job_title,
+          company: app.job_company
+        }
+      })) || [];
+      
+      setApplications(formattedApplications);
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+    } finally {
+      setLoadingApplications(false);
+    }
+  };
 
   const handleAddSkill = () => {
     navigate('/add-skill');
@@ -99,55 +141,10 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <RecommendedJobs userData={userData} />
-          
-          {/* Applied Jobs Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Briefcase className="h-5 w-5 mr-2 text-primary" />
-                Your Applications
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {userData.applications && userData.applications.length > 0 ? (
-                <div className="space-y-3">
-                  {userData.applications.slice(0, 5).map((application: any) => (
-                    <div key={application.id} className="border rounded-lg p-3">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-medium text-sm">
-                            {application.job?.title || 'Job Application'}
-                          </h3>
-                          <p className="text-xs text-muted-foreground">
-                            {application.job?.employer?.company || 'Company Name'}
-                          </p>
-                        </div>
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          application.status === 'accepted' 
-                            ? 'bg-green-100 text-green-700' 
-                            : application.status === 'rejected'
-                            ? 'bg-red-100 text-red-700'
-                            : 'bg-yellow-100 text-yellow-700'
-                        }`}>
-                          {application.status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                  {userData.applications.length > 5 && (
-                    <p className="text-xs text-muted-foreground text-center">
-                      +{userData.applications.length - 5} more applications
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-sm text-muted-foreground mb-2">No applications yet</p>
-                  <Button size="sm" onClick={() => navigate('/jobs')}>Browse Jobs</Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <ApplicationActions 
+            applications={applications}
+            onUpdate={fetchApplications}
+          />
         </div>
         
         <div className="space-y-6">
