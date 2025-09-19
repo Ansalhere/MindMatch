@@ -206,7 +206,7 @@ const Profiles = () => {
 
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-8">
+              <TabsList className="grid w-full grid-cols-2 mb-8">
                 <TabsTrigger value="candidates" className="flex items-center gap-2">
                   <Award className="h-4 w-4" />
                   Candidates ({filteredCandidates.length})
@@ -214,11 +214,6 @@ const Profiles = () => {
                 <TabsTrigger value="employers" className="flex items-center gap-2">
                   <Building className="h-4 w-4" />
                   Companies ({filteredEmployers.length})
-                </TabsTrigger>
-                <TabsTrigger value="companies" className="flex items-center gap-2" 
-                             onClick={() => window.location.href = '/companies'}>
-                  <Globe className="h-4 w-4" />
-                  All Companies
                 </TabsTrigger>
               </TabsList>
 
