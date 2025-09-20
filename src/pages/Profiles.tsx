@@ -70,13 +70,25 @@ const Profiles = () => {
 
       let employers = [];
       if (employersData && !employersError) {
-        // Process employers with proper data and fallback locations
-        employers = employersData.map(employer => ({
-          ...employer,
-          location: employer.location || 'Not specified',
-          company: employer.company || employer.name, // Use name as fallback for company
-          bio: `${employer.industry || 'Professional'} company with ${employer.size || 'undisclosed'} employees.`
-        }));
+        // Fetch job counts for each employer
+        const employersWithJobs = await Promise.all(
+          employersData.map(async (employer) => {
+            const { count } = await supabase
+              .from('jobs')
+              .select('*', { count: 'exact', head: true })
+              .eq('employer_id', employer.id)
+              .eq('is_active', true);
+            
+            return {
+              ...employer,
+              location: employer.location || 'Not specified',
+              company: employer.company || employer.name,
+              bio: `${employer.industry || 'Professional'} company with ${employer.size || 'undisclosed'} employees.`,
+              open_positions: count || 0
+            };
+          })
+        );
+        employers = employersWithJobs;
       }
 
       setCandidates(processedCandidates);
@@ -359,7 +371,7 @@ const Profiles = () => {
                            <div className="grid grid-cols-2 gap-4 text-sm">
                              <div className="flex items-center gap-2">
                                <Briefcase className="h-4 w-4 text-muted-foreground" />
-                               <span>{Math.floor(Math.random() * 10) + 1} Open Positions</span>
+                               <span>{employer.open_positions || 0} Open Positions</span>
                              </div>
                              <div className="flex items-center gap-2">
                                <Users className="h-4 w-4 text-muted-foreground" />

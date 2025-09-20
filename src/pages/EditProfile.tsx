@@ -97,12 +97,19 @@ const EditProfile = () => {
 
       if (error) throw error;
 
-      // Update email in auth if changed
-      if (data.email !== user.email) {
-        const { error: emailError } = await supabase.auth.updateUser({
-          email: data.email
-        });
-        if (emailError) throw emailError;
+      // Only update email in auth if changed and not empty
+      if (data.email !== user.email && data.email.trim()) {
+        try {
+          const { error: emailError } = await supabase.auth.updateUser({
+            email: data.email
+          });
+          if (emailError && !emailError.message.includes('email_change_token_already_issued')) {
+            throw emailError;
+          }
+        } catch (emailErr: any) {
+          console.warn('Email update warning:', emailErr);
+          // Don't block the profile update if only email fails
+        }
       }
 
       await refreshUser();

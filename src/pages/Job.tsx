@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   Building, 
   MapPin, 
@@ -47,6 +47,8 @@ interface Job {
 
 const Job = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const shouldAutoApply = searchParams.get('apply') === 'true';
   const navigate = useNavigate();
   const { user } = useUser();
   const [job, setJob] = useState<Job | null>(null);
@@ -54,6 +56,7 @@ const Job = () => {
   const [applying, setApplying] = useState(false);
   const [hasApplied, setHasApplied] = useState(false);
   const [coverLetter, setCoverLetter] = useState('');
+  const [showApplyForm, setShowApplyForm] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -323,59 +326,88 @@ const Job = () => {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Application Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  {hasApplied ? (
-                    <>
-                      <CheckCircle className="h-5 w-5 mr-2 text-green-600" />
-                      Application Submitted
-                    </>
-                  ) : (
-                    <>
-                      <Send className="h-5 w-5 mr-2" />
-                      Apply for this Job
-                    </>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {hasApplied ? (
-                  <div className="text-center py-4">
-                    <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-3" />
-                    <p className="text-sm text-muted-foreground">
-                      You have already applied for this position. The employer will contact you if you're selected.
-                    </p>
-                  </div>
-                ) : (
-                  <>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Cover Letter (Optional)</label>
-                      <Textarea
-                        placeholder="Tell the employer why you're interested in this position..."
-                        value={coverLetter}
-                        onChange={(e) => setCoverLetter(e.target.value)}
-                        rows={4}
-                      />
-                    </div>
-                    
+            {!showApplyForm ? (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center space-y-3">
                     <Button 
-                      onClick={handleApply} 
-                      disabled={applying}
+                      onClick={() => setShowApplyForm(true)}
+                      size="lg"
                       className="w-full"
                     >
-                      {applying ? 'Submitting...' : 'Apply Now'}
+                      <Send className="h-5 w-5 mr-2" />
+                      Apply for this Job
                     </Button>
-                    
-                    {!user && (
-                      <p className="text-xs text-muted-foreground text-center">
-                        You need to <Link to="/auth" className="text-primary hover:underline">log in</Link> to apply for jobs
-                      </p>
+                    <p className="text-xs text-muted-foreground">
+                      Click to view application form
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    {hasApplied ? (
+                      <>
+                        <CheckCircle className="h-5 w-5 mr-2 text-green-600" />
+                        Application Submitted
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-5 w-5 mr-2" />
+                        Apply for this Job
+                      </>
                     )}
-                  </>
-                )}
-              </CardContent>
-            </Card>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {hasApplied ? (
+                    <div className="text-center py-4">
+                      <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-3" />
+                      <p className="text-sm text-muted-foreground">
+                        You have already applied for this position. The employer will contact you if you're selected.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Cover Letter (Optional)</label>
+                        <Textarea
+                          placeholder="Tell the employer why you're interested in this position..."
+                          value={coverLetter}
+                          onChange={(e) => setCoverLetter(e.target.value)}
+                          rows={4}
+                        />
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline"
+                          onClick={() => setShowApplyForm(false)}
+                          className="w-full"
+                        >
+                          View Details
+                        </Button>
+                        <Button 
+                          onClick={handleApply} 
+                          disabled={applying}
+                          className="w-full"
+                        >
+                          {applying ? 'Submitting...' : 'Apply Now'}
+                        </Button>
+                      </div>
+                      
+                      {!user && (
+                        <p className="text-xs text-muted-foreground text-center">
+                          You need to <Link to="/auth" className="text-primary hover:underline">log in</Link> to apply for jobs
+                        </p>
+                      )}
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Company Info */}
             <Card>

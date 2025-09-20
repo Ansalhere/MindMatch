@@ -259,12 +259,20 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
             </div>
           )}
           
-          <Button asChild>
-            <Link to={`/job/${job.id}`}>
-              <Zap className="h-4 w-4 mr-2" />
-              Apply Now
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <Link to={`/job/${job.id}`}>
+                <Eye className="h-4 w-4 mr-1" />
+                View Details
+              </Link>
+            </Button>
+            <Button asChild size="sm">
+              <Link to={`/job/${job.id}?apply=true`}>
+                <Zap className="h-4 w-4 mr-1" />
+                Apply
+              </Link>
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

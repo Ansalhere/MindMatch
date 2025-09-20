@@ -200,24 +200,36 @@ const PostJobForm = ({ onSubmit, isSubmitting, initialData }: PostJobFormProps) 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="minSalary">Minimum Salary (₹/month)</Label>
-              <Input
-                id="minSalary"
-                type="number"
-                placeholder="e.g., 30000"
-                value={minSalary}
-                onChange={(e) => setMinSalary(e.target.value)}
-              />
+              <div className="relative">
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                  ₹
+                </div>
+                <Input
+                  id="minSalary"
+                  type="number"
+                  placeholder="30,000"
+                  className="pl-8"
+                  value={minSalary}
+                  onChange={(e) => setMinSalary(e.target.value)}
+                />
+              </div>
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="maxSalary">Maximum Salary (₹/month)</Label>
-              <Input
-                id="maxSalary"
-                type="number"
-                placeholder="e.g., 80000"
-                value={maxSalary}
-                onChange={(e) => setMaxSalary(e.target.value)}
-              />
+              <div className="relative">
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                  ₹
+                </div>
+                <Input
+                  id="maxSalary"
+                  type="number"
+                  placeholder="80,000"
+                  className="pl-8"
+                  value={maxSalary}
+                  onChange={(e) => setMaxSalary(e.target.value)}
+                />
+              </div>
             </div>
           </div>
           
