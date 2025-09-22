@@ -50,14 +50,16 @@ const PostJob = () => {
       const jobPostData = {
         title: formData.jobTitle,
         description: formData.description,
-        job_type: formData.jobType, // Use the value directly as it matches database enum
+        job_type: formData.jobType,
         location: formData.location || 'Remote',
         required_skills: formData.requiredSkills || [],
         closing_date: formData.deadline,
         salary_min: formData.salary?.min ? parseInt(formData.salary.min) : null,
         salary_max: formData.salary?.max ? parseInt(formData.salary.max) : null,
         min_rank_requirement: formData.rankRestriction ? formData.minRank : null,
-        min_experience: formData.minExperience || null
+        min_experience: formData.minExperience || null,
+        company_name: formData.companyName || null,
+        external_apply_url: formData.externalApplyUrl || null
       };
       
       console.log("Formatted job data for DB:", jobPostData);

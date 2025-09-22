@@ -38,6 +38,8 @@ interface Job {
   closing_date: string;
   created_at: string;
   employer_id: string;
+  company_name?: string;
+  external_apply_url?: string;
   employer?: {
     name: string;
     company: string;
@@ -408,16 +410,32 @@ const Job = () => {
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-center space-y-3">
-                      <Button 
-                        onClick={() => setShowApplyForm(true)}
-                        size="lg"
-                        className="w-full"
-                      >
-                        <Send className="h-5 w-5 mr-2" />
-                        Apply for this Job
-                      </Button>
+                      {job?.external_apply_url ? (
+                        <Button 
+                          asChild
+                          size="lg"
+                          className="w-full"
+                        >
+                          <a href={job.external_apply_url} target="_blank" rel="noopener noreferrer">
+                            <Send className="h-5 w-5 mr-2" />
+                            Apply on Company Website
+                          </a>
+                        </Button>
+                      ) : (
+                        <Button 
+                          onClick={() => setShowApplyForm(true)}
+                          size="lg"
+                          className="w-full"
+                        >
+                          <Send className="h-5 w-5 mr-2" />
+                          Apply for this Job
+                        </Button>
+                      )}
                       <p className="text-xs text-muted-foreground">
-                        Click to view application form
+                        {job?.external_apply_url 
+                          ? 'You will be redirected to the company\'s application page'
+                          : 'Click to view application form'
+                        }
                       </p>
                     </div>
                   </CardContent>

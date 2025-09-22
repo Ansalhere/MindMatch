@@ -269,9 +269,11 @@ export type Database = {
       jobs: {
         Row: {
           closing_date: string | null
+          company_name: string | null
           created_at: string
           description: string
           employer_id: string
+          external_apply_url: string | null
           id: string
           is_active: boolean | null
           job_type: string
@@ -285,9 +287,11 @@ export type Database = {
         }
         Insert: {
           closing_date?: string | null
+          company_name?: string | null
           created_at?: string
           description: string
           employer_id: string
+          external_apply_url?: string | null
           id?: string
           is_active?: boolean | null
           job_type: string
@@ -301,9 +305,11 @@ export type Database = {
         }
         Update: {
           closing_date?: string | null
+          company_name?: string | null
           created_at?: string
           description?: string
           employer_id?: string
+          external_apply_url?: string | null
           id?: string
           is_active?: boolean | null
           job_type?: string

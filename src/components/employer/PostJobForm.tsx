@@ -42,6 +42,8 @@ const PostJobForm = ({ onSubmit, isSubmitting, initialData }: PostJobFormProps) 
   const [rankRestriction, setRankRestriction] = useState(false);
   const [minRank, setMinRank] = useState<number>(500);
   const [minExperience, setMinExperience] = useState(initialData?.minExperience || "");
+  const [companyName, setCompanyName] = useState(initialData?.companyName || "");
+  const [externalApplyUrl, setExternalApplyUrl] = useState(initialData?.externalApplyUrl || "");
 
   // Update form when initialData changes
   useEffect(() => {
@@ -83,7 +85,10 @@ const PostJobForm = ({ onSubmit, isSubmitting, initialData }: PostJobFormProps) 
       description,
       requiredSkills,
       rankRestriction,
-      minRank: rankRestriction ? minRank : null
+      minRank: rankRestriction ? minRank : null,
+      minExperience,
+      companyName,
+      externalApplyUrl
     };
     
     // Call the parent's onSubmit handler
@@ -243,6 +248,20 @@ const PostJobForm = ({ onSubmit, isSubmitting, initialData }: PostJobFormProps) 
               onChange={(e) => setDescription(e.target.value)}
               required
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="externalApplyUrl">External Application URL (Optional)</Label>
+            <Input
+              id="externalApplyUrl"
+              type="url"
+              placeholder="https://company.com/careers/apply"
+              value={externalApplyUrl}
+              onChange={(e) => setExternalApplyUrl(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              If provided, candidates will be redirected to this URL instead of applying through our platform
+            </p>
           </div>
           
           <div className="space-y-2">

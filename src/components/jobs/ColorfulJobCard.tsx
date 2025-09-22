@@ -22,6 +22,8 @@ interface Job {
   created_at?: string;
   min_rank_requirement?: number;
   applications?: any[];
+  company_name?: string;
+  external_apply_url?: string;
 }
 
 interface ColorfulJobCardProps {
@@ -266,12 +268,21 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
                 View Details
               </Link>
             </Button>
-            <Button asChild size="sm" className="flex-1">
-              <Link to={`/job/${job.id}?apply=true`}>
-                <Zap className="h-4 w-4 mr-1" />
-                Apply
-              </Link>
-            </Button>
+            {job.external_apply_url ? (
+              <Button asChild size="sm" className="flex-1">
+                <a href={job.external_apply_url} target="_blank" rel="noopener noreferrer">
+                  <Zap className="h-4 w-4 mr-1" />
+                  Apply on Site
+                </a>
+              </Button>
+            ) : (
+              <Button asChild size="sm" className="flex-1">
+                <Link to={`/job/${job.id}?apply=true`}>
+                  <Zap className="h-4 w-4 mr-1" />
+                  Apply
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       </CardContent>
