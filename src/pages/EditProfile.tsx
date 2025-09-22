@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useUser } from '@/hooks/useUser';
 import Layout from '@/components/Layout';
 import { supabase } from '@/integrations/supabase/client';
+import ResumeUpload from '@/components/candidate/ResumeUpload';
 import * as z from 'zod';
 
 const profileSchema = z.object({
@@ -326,6 +327,12 @@ const EditProfile = () => {
               </form>
             </CardContent>
           </Card>
+
+          {user?.user_type === 'candidate' && (
+            <div className="mt-6">
+              <ResumeUpload />
+            </div>
+          )}
         </div>
       </div>
     </Layout>

@@ -721,6 +721,7 @@ export type Database = {
           name: string | null
           phone: string | null
           rank_score: number | null
+          resume_url: string | null
           size: string | null
           user_type: string
           website: string | null
@@ -742,6 +743,7 @@ export type Database = {
           name?: string | null
           phone?: string | null
           rank_score?: number | null
+          resume_url?: string | null
           size?: string | null
           user_type: string
           website?: string | null
@@ -763,6 +765,7 @@ export type Database = {
           name?: string | null
           phone?: string | null
           rank_score?: number | null
+          resume_url?: string | null
           size?: string | null
           user_type?: string
           website?: string | null

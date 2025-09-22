@@ -10,8 +10,11 @@ import {
   TrendingUp,
   Award,
   Eye,
-  Clock
+  Clock,
+  MessageCircle,
+  Download
 } from 'lucide-react';
+import ResumeDownload from './ResumeDownload';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,6 +36,7 @@ interface Application {
     location: string;
     rank_score: number;
     company: string;
+    resume_url?: string;
   };
 }
 
@@ -302,16 +306,30 @@ const EmployerJobView = ({ job, applications: initialApplications }: EmployerJob
                     </div>
                     
                     <div className="flex flex-col space-y-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        asChild
-                      >
-                        <Link to={`/candidate/${application.candidate_id}`}>
-                          <Eye className="h-4 w-4 mr-2" />
-                          View Profile
-                        </Link>
-                      </Button>
+                      <div className="flex gap-2 mb-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          asChild
+                          className="flex-1"
+                        >
+                          <Link to={`/candidate/${application.candidate_id}`}>
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Profile
+                          </Link>
+                        </Button>
+                        
+                        <Button variant="outline" size="sm" className="flex-1">
+                          <MessageCircle className="h-4 w-4 mr-2" />
+                          Contact
+                        </Button>
+                      </div>
+                      
+                      <ResumeDownload 
+                        candidateId={application.candidate_id}
+                        candidateName={application.candidate?.name || 'Unknown'}
+                        resumeUrl={application.candidate?.resume_url}
+                      />
                       
                       {application.status === 'pending' && (
                         <div className="flex space-x-2">

@@ -259,14 +259,14 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
             </div>
           )}
           
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" asChild>
+          <div className="flex gap-2 w-full">
+            <Button variant="outline" size="sm" asChild className="flex-1">
               <Link to={`/job/${job.id}`}>
                 <Eye className="h-4 w-4 mr-1" />
                 View Details
               </Link>
             </Button>
-            <Button asChild size="sm">
+            <Button asChild size="sm" className="flex-1">
               <Link to={`/job/${job.id}?apply=true`}>
                 <Zap className="h-4 w-4 mr-1" />
                 Apply
