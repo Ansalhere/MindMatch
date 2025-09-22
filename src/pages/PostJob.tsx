@@ -16,7 +16,7 @@ const PostJob = () => {
   const [formData, setFormData] = useState<any>({});
   const { user } = useUser();
 
-  // Redirect if not logged in or not an employer
+  // Redirect if not logged in or not an employer/admin
   if (user === null) {
     // If still loading, show loading state
     if (isSubmitting) {
@@ -34,8 +34,8 @@ const PostJob = () => {
     return null;
   }
 
-  if (user && user.user_type !== 'employer') {
-    toast.error("Only employers can post jobs");
+  if (user && user.user_type !== 'employer' && user.user_type !== 'admin') {
+    toast.error("Only employers and admins can post jobs");
     navigate('/dashboard');
     return null;
   }
@@ -106,6 +106,7 @@ const PostJob = () => {
             onSubmit={handleSubmit} 
             isSubmitting={isSubmitting} 
             initialData={formData}
+            isAdmin={user?.user_type === 'admin'}
           />
         </div>
       </div>

@@ -25,9 +25,10 @@ interface PostJobFormProps {
   onSubmit: (formData: any) => Promise<void>;
   isSubmitting: boolean;
   initialData?: any;
+  isAdmin?: boolean;
 }
 
-const PostJobForm = ({ onSubmit, isSubmitting, initialData }: PostJobFormProps) => {
+const PostJobForm = ({ onSubmit, isSubmitting, initialData, isAdmin = false }: PostJobFormProps) => {
   const [jobTitle, setJobTitle] = useState(initialData?.jobTitle || "");
   const [department, setDepartment] = useState("");
   const [jobType, setJobType] = useState(initialData?.jobType || "full-time");
@@ -118,6 +119,22 @@ const PostJobForm = ({ onSubmit, isSubmitting, initialData }: PostJobFormProps) 
               required
             />
           </div>
+          
+          {isAdmin && (
+            <div className="space-y-2">
+              <Label htmlFor="companyName">Company Name</Label>
+              <Input
+                id="companyName"
+                placeholder="e.g., Google, Microsoft, OpenAI"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                As an admin, you can post jobs on behalf of any company
+              </p>
+            </div>
+          )}
           
           <div className="space-y-2">
             <Label htmlFor="department">Department</Label>
