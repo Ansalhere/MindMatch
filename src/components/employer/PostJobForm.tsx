@@ -35,6 +35,7 @@ const PostJobForm = ({ onSubmit, isSubmitting, initialData, isAdmin = false }: P
   const [workLocation, setWorkLocation] = useState("");
   const [location, setLocation] = useState(initialData?.location || "");
   const [deadline, setDeadline] = useState("");
+  const [salarySpecified, setSalarySpecified] = useState(initialData?.salary?.min || initialData?.salary?.max ? true : false);
   const [minSalary, setMinSalary] = useState(initialData?.salary?.min || "");
   const [maxSalary, setMaxSalary] = useState(initialData?.salary?.max || "");
   const [description, setDescription] = useState(initialData?.description || "");
@@ -42,7 +43,8 @@ const PostJobForm = ({ onSubmit, isSubmitting, initialData, isAdmin = false }: P
   const [newSkill, setNewSkill] = useState("");
   const [rankRestriction, setRankRestriction] = useState(false);
   const [minRank, setMinRank] = useState<number>(500);
-  const [minExperience, setMinExperience] = useState(initialData?.minExperience || "");
+  const [minExperience, setMinExperience] = useState(initialData?.minExperience || "0");
+  const [maxExperience, setMaxExperience] = useState(initialData?.maxExperience || "");
   const [companyName, setCompanyName] = useState(initialData?.companyName || "");
   const [externalApplyUrl, setExternalApplyUrl] = useState(initialData?.externalApplyUrl || "");
 
@@ -54,9 +56,11 @@ const PostJobForm = ({ onSubmit, isSubmitting, initialData, isAdmin = false }: P
       setLocation(initialData.location || "");
       setDescription(initialData.description || "");
       setRequiredSkills(initialData.requiredSkills || []);
+      setSalarySpecified(initialData.salary?.min || initialData.salary?.max ? true : false);
       setMinSalary(initialData.salary?.min || "");
       setMaxSalary(initialData.salary?.max || "");
-      setMinExperience(initialData.minExperience || "");
+      setMinExperience(initialData.minExperience || "0");
+      setMaxExperience(initialData.maxExperience || "");
     }
   }, [initialData]);
 
@@ -82,12 +86,13 @@ const PostJobForm = ({ onSubmit, isSubmitting, initialData, isAdmin = false }: P
       workLocation,
       location,
       deadline,
-      salary: { min: minSalary, max: maxSalary },
+      salary: salarySpecified ? { min: minSalary, max: maxSalary } : null,
       description,
       requiredSkills,
       rankRestriction,
       minRank: rankRestriction ? minRank : null,
       minExperience,
+      maxExperience,
       companyName,
       externalApplyUrl
     };
@@ -219,39 +224,92 @@ const PostJobForm = ({ onSubmit, isSubmitting, initialData, isAdmin = false }: P
             </div>
           </div>
           
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-base">Salary Information</Label>
+                <p className="text-sm text-muted-foreground">Specify salary range or leave unspecified</p>
+              </div>
+              <Switch
+                checked={salarySpecified}
+                onCheckedChange={setSalarySpecified}
+              />
+            </div>
+            
+            {salarySpecified && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-4 border-l-2 border-primary/20">
+                <div className="space-y-2">
+                  <Label htmlFor="minSalary">Minimum Salary (₹/month)</Label>
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                      ₹
+                    </div>
+                    <Input
+                      id="minSalary"
+                      type="number"
+                      placeholder="30,000"
+                      className="pl-8"
+                      value={minSalary}
+                      onChange={(e) => setMinSalary(e.target.value)}
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="maxSalary">Maximum Salary (₹/month)</Label>
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                      ₹
+                    </div>
+                    <Input
+                      id="maxSalary"
+                      type="number"
+                      placeholder="80,000"
+                      className="pl-8"
+                      value={maxSalary}
+                      onChange={(e) => setMaxSalary(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="minSalary">Minimum Salary (₹/month)</Label>
-              <div className="relative">
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                  ₹
-                </div>
-                <Input
-                  id="minSalary"
-                  type="number"
-                  placeholder="30,000"
-                  className="pl-8"
-                  value={minSalary}
-                  onChange={(e) => setMinSalary(e.target.value)}
-                />
-              </div>
+              <Label htmlFor="minExperience">Minimum Experience (years)</Label>
+              <Select value={minExperience} onValueChange={setMinExperience} required>
+                <SelectTrigger id="minExperience">
+                  <SelectValue placeholder="Select minimum experience" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">Fresher (0 years)</SelectItem>
+                  <SelectItem value="1">1+ years</SelectItem>
+                  <SelectItem value="2">2+ years</SelectItem>
+                  <SelectItem value="3">3+ years</SelectItem>
+                  <SelectItem value="4">4+ years</SelectItem>
+                  <SelectItem value="5">5+ years</SelectItem>
+                  <SelectItem value="7">7+ years</SelectItem>
+                  <SelectItem value="10">10+ years</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="maxSalary">Maximum Salary (₹/month)</Label>
-              <div className="relative">
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                  ₹
-                </div>
-                <Input
-                  id="maxSalary"
-                  type="number"
-                  placeholder="80,000"
-                  className="pl-8"
-                  value={maxSalary}
-                  onChange={(e) => setMaxSalary(e.target.value)}
-                />
-              </div>
+              <Label htmlFor="maxExperience">Maximum Experience (years) - Optional</Label>
+              <Select value={maxExperience} onValueChange={setMaxExperience}>
+                <SelectTrigger id="maxExperience">
+                  <SelectValue placeholder="Select maximum experience" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">No maximum limit</SelectItem>
+                  <SelectItem value="2">Up to 2 years</SelectItem>
+                  <SelectItem value="5">Up to 5 years</SelectItem>
+                  <SelectItem value="8">Up to 8 years</SelectItem>
+                  <SelectItem value="12">Up to 12 years</SelectItem>
+                  <SelectItem value="15">Up to 15 years</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           
