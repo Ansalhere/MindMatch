@@ -224,7 +224,7 @@ We offer competitive compensation, flexible working arrangements, and excellent 
     // Look for experience ranges like "3-5 years"
     const rangeMatch = keywords.match(/(\d+)[-to]+(\d+)\s*years?/);
     if (rangeMatch) return rangeMatch[2];
-    return ''; // No max limit
+    return 'none'; // No max limit
   };
 
   const applyAllSuggestions = () => {

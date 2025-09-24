@@ -92,7 +92,7 @@ const PostJobForm = ({ onSubmit, isSubmitting, initialData, isAdmin = false }: P
       rankRestriction,
       minRank: rankRestriction ? minRank : null,
       minExperience,
-      maxExperience,
+      maxExperience: maxExperience === "none" ? "" : maxExperience,
       companyName,
       externalApplyUrl
     };
@@ -302,7 +302,7 @@ const PostJobForm = ({ onSubmit, isSubmitting, initialData, isAdmin = false }: P
                   <SelectValue placeholder="Select maximum experience" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No maximum limit</SelectItem>
+                  <SelectItem value="none">No maximum limit</SelectItem>
                   <SelectItem value="2">Up to 2 years</SelectItem>
                   <SelectItem value="5">Up to 5 years</SelectItem>
                   <SelectItem value="8">Up to 8 years</SelectItem>
