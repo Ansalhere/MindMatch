@@ -56,8 +56,13 @@ const AdminLogin = () => {
         
         console.log('Admin check - userData:', userData, 'userError:', userError);
         
-        // Special case for superadmin@fresherpools.com - create admin user if doesn't exist
-        if (signInData.user.email === 'superadmin@fresherpools.com') {
+        // Check if user has admin privileges
+        if (userData && userData.user_type === 'admin') {
+          toast({ title: "Success", description: "Admin login successful!" });
+          console.log('Navigating to super-admin dashboard');
+          navigate('/super-admin', { replace: true });
+        } else if (signInData.user.email === 'superadmin@fresherpools.com') {
+          // Special case for superadmin@fresherpools.com - create admin user if doesn't exist
           if (userError && userError.code === 'PGRST116') {
             // User doesn't exist in users table, create it with the actual auth user ID
             console.log('Creating admin user in users table with ID:', signInData.user.id);
@@ -82,17 +87,15 @@ const AdminLogin = () => {
             }
             
             console.log('Admin user created successfully');
+            toast({ title: "Success", description: "Admin login successful!" });
+            navigate('/super-admin', { replace: true });
           } else if (!userData || userData.user_type !== 'admin') {
             console.log('User exists but is not admin:', userData);
             throw new Error('Access denied. Admin privileges required.');
           }
-          
-          toast({ title: "Success", description: "Admin login successful!" });
-          console.log('Navigating to super-admin dashboard');
-          navigate('/super-admin', { replace: true });
         } else {
-          console.log('Non-admin email attempted:', signInData.user.email);
-          throw new Error('Access denied. Admin email required.');
+          console.log('Non-admin user attempted login:', signInData.user.email);
+          throw new Error('Access denied. Admin privileges required.');
         }
       } else {
         console.log('No user or session in response');
