@@ -24,6 +24,7 @@ interface Job {
   applications?: any[];
   company_name?: string;
   external_apply_url?: string;
+  min_experience?: string;
 }
 
 interface ColorfulJobCardProps {
@@ -90,6 +91,12 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
     return `${Math.ceil(diffDays / 30)}m ago`;
   };
 
+  const getExperienceText = () => {
+    const minExp = job.min_experience;
+    if (!minExp || minExp === '0') return 'Fresher';
+    return `${minExp}+ years`;
+  };
+
   const applicationCount = job.applications?.length || 0;
   const hasTopRankedCandidates = job.applications?.some((app: any) => 
     app.candidate_rank && app.candidate_rank <= 100
@@ -107,33 +114,30 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 mb-1">
                 <h3 className="font-semibold text-sm line-clamp-1">{job.title}</h3>
               </div>
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <p className="text-xs text-muted-foreground flex items-center gap-1 mb-1">
                 <Building2 className="h-3 w-3" />
                 <span className="line-clamp-1">{getCompanyName()}</span>
               </p>
-            </div>
-            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <MapPin className="h-3 w-3" />
-                <span className="line-clamp-1">{job.location}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                <span>{getPostedDate()}</span>
+              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  <span className="line-clamp-1">{job.location}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Briefcase className="h-3 w-3" />
+                  <span>{getExperienceText()}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  <span>{getPostedDate()}</span>
+                </div>
               </div>
             </div>
 
-            {formatSalary(job.salary_min, job.salary_max) && (
-              <div className="flex items-center gap-1 text-xs font-medium text-green-600">
-                <DollarSign className="h-3 w-3" />
-                {formatSalary(job.salary_min, job.salary_max)}
-              </div>
-            )}
-
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mt-2">
               {showApplications && (
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -175,10 +179,14 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
               </AvatarFallback>
             </Avatar>
             <div>
-              <h3 className="font-semibold text-lg leading-tight line-clamp-2">{job.title}</h3>
-              <p className="text-muted-foreground flex items-center gap-2">
+              <h3 className="font-semibold text-lg leading-tight line-clamp-2 mb-2">{job.title}</h3>
+              <p className="text-muted-foreground flex items-center gap-2 mb-1">
                 <Building2 className="h-4 w-4" />
                 {getCompanyName()}
+              </p>
+              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                <Briefcase className="h-4 w-4" />
+                Experience: {getExperienceText()}
               </p>
             </div>
           </div>
@@ -259,7 +267,7 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
             </div>
           )}
           
-          <div className="flex gap-2 w-full">
+          <div className="flex gap-2">
             <Button variant="outline" size="sm" asChild className="flex-1">
               <Link to={`/job/${job.id}`}>
                 <Eye className="h-4 w-4 mr-1" />

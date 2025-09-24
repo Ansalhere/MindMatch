@@ -25,13 +25,13 @@ const AIJobPostAssistant = ({ onSuggestion }: AIJobPostAssistantProps) => {
 
     setLoading(true);
     try {
-      // Simulate AI generation for now
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Enhanced rule-based generation for better accuracy
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
       const aiSuggestion = {
-        jobTitle: extractTitle(prompt),
+        jobTitle: inferJobTitle(prompt),
         description: generateDescription(prompt),
-        requiredSkills: generateSkills(prompt),
+        requiredSkills: inferSkills(prompt),
         jobType: inferJobType(prompt),
         workLocation: inferWorkLocation(prompt),
         location: inferLocation(prompt),
@@ -50,104 +50,231 @@ const AIJobPostAssistant = ({ onSuggestion }: AIJobPostAssistantProps) => {
     }
   };
 
-  const extractTitle = (text: string): string => {
+  const inferJobTitle = (text: string): string => {
     const keywords = text.toLowerCase();
-    const hasLevel = keywords.includes('senior') ? 'Senior ' : 
-                    keywords.includes('lead') ? 'Lead ' : 
-                    keywords.includes('junior') ? 'Junior ' :
-                    keywords.includes('principal') ? 'Principal ' : '';
     
-    if (keywords.includes('react') || keywords.includes('frontend')) return `${hasLevel}Frontend Developer`;
-    if (keywords.includes('backend') || keywords.includes('node')) return `${hasLevel}Backend Developer`;
-    if (keywords.includes('fullstack') || keywords.includes('full-stack')) return `${hasLevel}Full Stack Developer`;
-    if (keywords.includes('data scientist') || keywords.includes('ml') || keywords.includes('machine learning')) return `${hasLevel}Data Scientist`;
-    if (keywords.includes('devops') || keywords.includes('cloud') || keywords.includes('aws')) return `${hasLevel}DevOps Engineer`;
-    if (keywords.includes('designer') || keywords.includes('ui/ux') || keywords.includes('design')) return `${hasLevel}UI/UX Designer`;
-    if (keywords.includes('product manager') || keywords.includes('pm')) return `${hasLevel}Product Manager`;
-    if (keywords.includes('sales')) return `${hasLevel}Sales Executive`;
-    if (keywords.includes('marketing')) return `${hasLevel}Marketing Specialist`;
-    if (keywords.includes('qa') || keywords.includes('test')) return `${hasLevel}QA Engineer`;
-    if (keywords.includes('mobile') || keywords.includes('ios') || keywords.includes('android')) return `${hasLevel}Mobile Developer`;
-    return `${hasLevel}Software Developer`.trim();
+    // Check for seniority levels
+    const isSenior = keywords.includes('senior') || keywords.includes('sr.') || keywords.includes('lead');
+    const isJunior = keywords.includes('junior') || keywords.includes('jr.') || keywords.includes('entry');
+    const isPrincipal = keywords.includes('principal') || keywords.includes('architect');
+    
+    // Check for specific roles
+    if (keywords.includes('frontend') || keywords.includes('react') || keywords.includes('vue') || keywords.includes('angular')) {
+      if (isPrincipal) return 'Principal Frontend Developer';
+      if (isSenior) return 'Senior Frontend Developer';
+      if (isJunior) return 'Junior Frontend Developer';
+      return 'Frontend Developer';
+    }
+    if (keywords.includes('backend') || keywords.includes('node') || keywords.includes('python') || keywords.includes('java') || keywords.includes('api')) {
+      if (isPrincipal) return 'Principal Backend Developer';
+      if (isSenior) return 'Senior Backend Developer';
+      if (isJunior) return 'Junior Backend Developer';
+      return 'Backend Developer';
+    }
+    if (keywords.includes('fullstack') || keywords.includes('full stack') || keywords.includes('full-stack')) {
+      if (isPrincipal) return 'Principal Full Stack Developer';
+      if (isSenior) return 'Senior Full Stack Developer';
+      if (isJunior) return 'Junior Full Stack Developer';
+      return 'Full Stack Developer';
+    }
+    if (keywords.includes('data scientist') || keywords.includes('data science') || keywords.includes('ml') || keywords.includes('machine learning')) {
+      if (isSenior) return 'Senior Data Scientist';
+      return 'Data Scientist';
+    }
+    if (keywords.includes('product manager') || keywords.includes('pm')) {
+      if (isSenior) return 'Senior Product Manager';
+      return 'Product Manager';
+    }
+    if (keywords.includes('designer') || keywords.includes('ui/ux') || keywords.includes('design')) {
+      if (isSenior) return 'Senior UI/UX Designer';
+      return 'UI/UX Designer';
+    }
+    if (keywords.includes('devops') || keywords.includes('sre') || keywords.includes('infrastructure')) {
+      if (isSenior) return 'Senior DevOps Engineer';
+      return 'DevOps Engineer';
+    }
+    if (keywords.includes('qa') || keywords.includes('test') || keywords.includes('quality assurance')) {
+      if (isSenior) return 'Senior QA Engineer';
+      return 'QA Engineer';
+    }
+    if (keywords.includes('mobile') || keywords.includes('android') || keywords.includes('ios') || keywords.includes('react native')) {
+      if (isSenior) return 'Senior Mobile Developer';
+      return 'Mobile Developer';
+    }
+    
+    return isSenior ? 'Senior Software Developer' : 'Software Developer';
   };
 
   const generateDescription = (text: string): string => {
-    const title = extractTitle(text);
-    const keywords = text.toLowerCase();
+    const role = inferJobTitle(text);
+    const skills = inferSkills(text).slice(0, 5);
+    const experience = inferExperience(text);
+    const department = inferDepartment(text);
+    const workLocation = inferWorkLocation(text);
     
-    let responsibilities = "• Design and develop scalable applications\n• Collaborate with product managers and designers\n• Write clean, maintainable code\n• Participate in code reviews and team meetings";
-    let requirements = "• Strong problem-solving skills\n• Excellent communication abilities\n• Experience with relevant technologies\n• Ability to work in a fast-paced environment";
+    const experienceText = experience === '0' ? 'Fresh graduates and entry-level candidates' : `${experience}+ years of professional experience`;
+    const locationText = workLocation === 'remote' ? 'remote-first environment' : workLocation === 'hybrid' ? 'flexible hybrid setup' : 'collaborative office environment';
     
-    if (keywords.includes('frontend') || keywords.includes('react')) {
-      responsibilities += "\n• Build responsive user interfaces\n• Optimize application performance\n• Implement modern frontend architectures";
-      requirements += "\n• Proficiency in React, JavaScript, HTML, CSS\n• Experience with state management libraries\n• Knowledge of responsive design principles";
-    }
-    
-    if (keywords.includes('backend') || keywords.includes('api')) {
-      responsibilities += "\n• Design and implement RESTful APIs\n• Manage database operations and optimization\n• Ensure application security and scalability";
-      requirements += "\n• Experience with server-side technologies\n• Database design and management skills\n• Understanding of security best practices";
-    }
-    
-    if (keywords.includes('remote')) {
-      requirements += "\n• Excellent remote communication skills\n• Self-motivated and independent worker";
-    }
-    
-    return `We are seeking a talented ${title} to join our dynamic team. The ideal candidate will be responsible for developing high-quality applications, collaborating with cross-functional teams, and contributing to our innovative projects.
+    return `We are seeking a skilled ${role} to join our dynamic ${department} team in a ${locationText}.
 
-Key Responsibilities:
-${responsibilities}
-• Stay updated with latest technologies and best practices
+🚀 What You'll Do:
+• Design and develop scalable software solutions
+• Collaborate with product managers, designers, and engineers
+• Write clean, efficient, and well-documented code
+• Participate in code reviews and technical architecture discussions
+• Contribute to best practices and team knowledge sharing
 
-Requirements:
-${requirements}
-• Passion for learning and growth
+💼 What We're Looking For:
+• ${experienceText} in software development
+• Strong expertise in ${skills.slice(0, 3).join(', ')}${skills.length > 3 ? ` and ${skills.slice(3).join(', ')}` : ''}
+• Proven track record of delivering high-quality software
+• Excellent problem-solving and analytical skills
+• Strong communication and teamwork abilities
+• Passion for learning new technologies
 
-We offer competitive compensation, flexible working arrangements, and excellent growth opportunities in a collaborative environment.`;
+🎯 What We Offer:
+• Competitive compensation package
+• Health and wellness benefits
+• Professional development opportunities
+• ${workLocation === 'remote' ? 'Fully remote work flexibility' : workLocation === 'hybrid' ? 'Flexible hybrid work arrangement' : 'Modern office facilities'}
+• Collaborative and inclusive work culture
+• Cutting-edge technology and tools`;
   };
 
-  const generateSkills = (text: string): string[] => {
+  const inferSkills = (text: string): string[] => {
     const keywords = text.toLowerCase();
     const skills: string[] = [];
     
-    // Core tech skills
-    if (keywords.includes('react')) skills.push('React', 'JavaScript', 'HTML', 'CSS', 'TypeScript');
-    if (keywords.includes('angular')) skills.push('Angular', 'TypeScript', 'RxJS');
-    if (keywords.includes('vue')) skills.push('Vue.js', 'JavaScript', 'HTML', 'CSS');
-    if (keywords.includes('node')) skills.push('Node.js', 'Express', 'MongoDB', 'REST APIs');
-    if (keywords.includes('python')) skills.push('Python', 'Django', 'Flask', 'PostgreSQL');
-    if (keywords.includes('java')) skills.push('Java', 'Spring Boot', 'MySQL', 'Hibernate');
-    if (keywords.includes('dotnet') || keywords.includes('.net')) skills.push('.NET', 'C#', 'SQL Server');
-    if (keywords.includes('php')) skills.push('PHP', 'Laravel', 'MySQL');
+    // Frontend Technologies
+    if (keywords.includes('react')) skills.push('React');
+    if (keywords.includes('angular')) skills.push('Angular');
+    if (keywords.includes('vue')) skills.push('Vue.js');
+    if (keywords.includes('svelte')) skills.push('Svelte');
+    if (keywords.includes('next') || keywords.includes('nextjs')) skills.push('Next.js');
+    if (keywords.includes('nuxt')) skills.push('Nuxt.js');
+    if (keywords.includes('html')) skills.push('HTML5');
+    if (keywords.includes('css')) skills.push('CSS3');
+    if (keywords.includes('sass') || keywords.includes('scss')) skills.push('Sass/SCSS');
+    if (keywords.includes('tailwind')) skills.push('Tailwind CSS');
+    if (keywords.includes('bootstrap')) skills.push('Bootstrap');
+    if (keywords.includes('material') && keywords.includes('ui')) skills.push('Material-UI');
     
-    // Cloud & DevOps
-    if (keywords.includes('aws') || keywords.includes('cloud')) skills.push('AWS', 'Docker', 'Kubernetes');
-    if (keywords.includes('azure')) skills.push('Azure', 'Docker', 'CI/CD');
-    if (keywords.includes('gcp') || keywords.includes('google cloud')) skills.push('Google Cloud', 'Docker');
-    if (keywords.includes('devops')) skills.push('Docker', 'Kubernetes', 'Jenkins', 'Git');
+    // Programming Languages
+    if (keywords.includes('javascript') || keywords.includes('js')) skills.push('JavaScript');
+    if (keywords.includes('typescript') || keywords.includes('ts')) skills.push('TypeScript');
+    if (keywords.includes('python')) skills.push('Python');
+    if (keywords.includes('java') && !keywords.includes('javascript')) skills.push('Java');
+    if (keywords.includes('c#') || keywords.includes('csharp')) skills.push('C#');
+    if (keywords.includes('php')) skills.push('PHP');
+    if (keywords.includes('ruby')) skills.push('Ruby');
+    if (keywords.includes('go') || keywords.includes('golang')) skills.push('Go');
+    if (keywords.includes('rust')) skills.push('Rust');
+    if (keywords.includes('swift')) skills.push('Swift');
+    if (keywords.includes('kotlin')) skills.push('Kotlin');
     
-    // Data & ML
-    if (keywords.includes('data') || keywords.includes('analytics')) skills.push('Python', 'SQL', 'Pandas', 'NumPy');
-    if (keywords.includes('machine learning') || keywords.includes('ml')) skills.push('Python', 'TensorFlow', 'PyTorch', 'Scikit-learn');
+    // Backend Technologies
+    if (keywords.includes('node') || keywords.includes('nodejs')) skills.push('Node.js');
+    if (keywords.includes('express')) skills.push('Express.js');
+    if (keywords.includes('fastify')) skills.push('Fastify');
+    if (keywords.includes('django')) skills.push('Django');
+    if (keywords.includes('flask')) skills.push('Flask');
+    if (keywords.includes('fastapi')) skills.push('FastAPI');
+    if (keywords.includes('spring')) skills.push('Spring Boot');
+    if (keywords.includes('laravel')) skills.push('Laravel');
+    if (keywords.includes('rails')) skills.push('Ruby on Rails');
+    if (keywords.includes('.net')) skills.push('.NET');
     
-    // Mobile
-    if (keywords.includes('mobile') || keywords.includes('ios')) skills.push('Swift', 'iOS Development', 'Xcode');
-    if (keywords.includes('android')) skills.push('Kotlin', 'Android Development', 'Android Studio');
-    if (keywords.includes('react native')) skills.push('React Native', 'JavaScript', 'Mobile Development');
-    if (keywords.includes('flutter')) skills.push('Flutter', 'Dart', 'Mobile Development');
+    // Databases
+    if (keywords.includes('mongodb') || keywords.includes('mongo')) skills.push('MongoDB');
+    if (keywords.includes('mysql')) skills.push('MySQL');
+    if (keywords.includes('postgresql') || keywords.includes('postgres')) skills.push('PostgreSQL');
+    if (keywords.includes('redis')) skills.push('Redis');
+    if (keywords.includes('elasticsearch')) skills.push('Elasticsearch');
+    if (keywords.includes('sqlite')) skills.push('SQLite');
+    if (keywords.includes('oracle')) skills.push('Oracle Database');
+    if (keywords.includes('dynamodb')) skills.push('DynamoDB');
+    if (keywords.includes('cassandra')) skills.push('Apache Cassandra');
     
-    // Design
-    if (keywords.includes('design') || keywords.includes('ui/ux')) skills.push('Figma', 'Adobe Creative Suite', 'Prototyping', 'User Research');
+    // Cloud Platforms
+    if (keywords.includes('aws')) skills.push('AWS');
+    if (keywords.includes('azure')) skills.push('Microsoft Azure');
+    if (keywords.includes('gcp') || keywords.includes('google cloud')) skills.push('Google Cloud Platform');
+    if (keywords.includes('vercel')) skills.push('Vercel');
+    if (keywords.includes('netlify')) skills.push('Netlify');
+    if (keywords.includes('heroku')) skills.push('Heroku');
     
-    // QA
-    if (keywords.includes('qa') || keywords.includes('test')) skills.push('Test Automation', 'Selenium', 'Jest', 'Cypress');
+    // DevOps & Tools
+    if (keywords.includes('docker')) skills.push('Docker');
+    if (keywords.includes('kubernetes') || keywords.includes('k8s')) skills.push('Kubernetes');
+    if (keywords.includes('terraform')) skills.push('Terraform');
+    if (keywords.includes('jenkins')) skills.push('Jenkins');
+    if (keywords.includes('github actions')) skills.push('GitHub Actions');
+    if (keywords.includes('gitlab ci')) skills.push('GitLab CI/CD');
+    if (keywords.includes('ansible')) skills.push('Ansible');
     
-    // Always add core skills
-    if (!skills.includes('Git')) skills.push('Git');
+    // APIs & Architecture
+    if (keywords.includes('rest') || keywords.includes('restful')) skills.push('REST APIs');
+    if (keywords.includes('graphql')) skills.push('GraphQL');
+    if (keywords.includes('grpc')) skills.push('gRPC');
+    if (keywords.includes('microservices')) skills.push('Microservices Architecture');
+    if (keywords.includes('serverless')) skills.push('Serverless');
+    if (keywords.includes('websockets')) skills.push('WebSockets');
+    
+    // Testing
+    if (keywords.includes('jest')) skills.push('Jest');
+    if (keywords.includes('cypress')) skills.push('Cypress');
+    if (keywords.includes('selenium')) skills.push('Selenium');
+    if (keywords.includes('playwright')) skills.push('Playwright');
+    if (keywords.includes('unit test')) skills.push('Unit Testing');
+    
+    // Version Control & Collaboration
+    if (keywords.includes('git')) skills.push('Git');
+    if (keywords.includes('github')) skills.push('GitHub');
+    if (keywords.includes('gitlab')) skills.push('GitLab');
+    if (keywords.includes('bitbucket')) skills.push('Bitbucket');
+    
+    // Mobile Development
+    if (keywords.includes('react native')) skills.push('React Native');
+    if (keywords.includes('flutter')) skills.push('Flutter');
+    if (keywords.includes('android')) skills.push('Android Development');
+    if (keywords.includes('ios')) skills.push('iOS Development');
+    
+    // Data Science & AI
+    if (keywords.includes('machine learning') || keywords.includes('ml')) skills.push('Machine Learning');
+    if (keywords.includes('artificial intelligence') || keywords.includes('ai')) skills.push('Artificial Intelligence');
+    if (keywords.includes('tensorflow')) skills.push('TensorFlow');
+    if (keywords.includes('pytorch')) skills.push('PyTorch');
+    if (keywords.includes('pandas')) skills.push('Pandas');
+    if (keywords.includes('numpy')) skills.push('NumPy');
+    if (keywords.includes('scikit')) skills.push('Scikit-learn');
+    
+    // Methodologies
+    if (keywords.includes('agile')) skills.push('Agile');
+    if (keywords.includes('scrum')) skills.push('Scrum');
+    if (keywords.includes('kanban')) skills.push('Kanban');
+    if (keywords.includes('tdd')) skills.push('Test-Driven Development');
+    if (keywords.includes('ci/cd')) skills.push('CI/CD');
+    
+    // If no specific skills found, add defaults based on role type
     if (skills.length === 0) {
-      skills.push('JavaScript', 'Git', 'Problem Solving', 'Communication');
+      if (keywords.includes('frontend')) {
+        skills.push('JavaScript', 'React', 'HTML5', 'CSS3', 'TypeScript');
+      } else if (keywords.includes('backend')) {
+        skills.push('Node.js', 'Python', 'PostgreSQL', 'REST APIs', 'Docker');
+      } else if (keywords.includes('fullstack') || keywords.includes('full stack')) {
+        skills.push('JavaScript', 'React', 'Node.js', 'PostgreSQL', 'TypeScript');
+      } else if (keywords.includes('data')) {
+        skills.push('Python', 'SQL', 'Machine Learning', 'Pandas', 'NumPy');
+      } else if (keywords.includes('devops')) {
+        skills.push('Docker', 'Kubernetes', 'AWS', 'Terraform', 'CI/CD');
+      } else if (keywords.includes('mobile')) {
+        skills.push('React Native', 'JavaScript', 'Mobile Development', 'API Integration');
+      } else {
+        skills.push('JavaScript', 'HTML5', 'CSS3', 'Git');
+      }
     }
     
-    return [...new Set(skills)]; // Remove duplicates
+    return [...new Set(skills)].slice(0, 8); // Remove duplicates and limit to 8 skills
   };
 
   const inferJobType = (text: string): string => {
@@ -310,7 +437,7 @@ We offer competitive compensation, flexible working arrangements, and excellent 
               <div>
                 <span className="font-medium">Experience:</span> 
                 {suggestions.minExperience === '0' ? 'Fresher' : `${suggestions.minExperience}+ years`}
-                {suggestions.maxExperience && ` (max ${suggestions.maxExperience} years)`}
+                {suggestions.maxExperience && suggestions.maxExperience !== 'none' && ` (max ${suggestions.maxExperience} years)`}
               </div>
               
               <div>
