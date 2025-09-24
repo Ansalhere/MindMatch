@@ -1,3 +1,4 @@
+// Edit Job Page Component
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -8,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useUser } from '@/hooks/useUser';
 import Layout from '@/components/Layout';
 
+// EditJob Component - Allows editing of job postings
 const EditJob = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
