@@ -15,6 +15,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Packages from "./pages/Packages";
 import PostJob from "./pages/PostJob";
+import EditJob from "./pages/EditJob";
 import AddSkill from "./pages/AddSkill";
 import RankingExplanationPage from "./pages/RankingExplanation";
 import Jobs from "./pages/Jobs";
@@ -67,6 +68,7 @@ const App = () => (
           <Route path="/profiles" element={<Profiles />} />
           <Route path="/packages" element={<Packages />} />
           <Route path="/post-job" element={<PostJob />} />
+          <Route path="/edit-job/:id" element={<EditJob />} />
           <Route path="/add-skill" element={<AddSkill />} />
           <Route path="/ranking-explanation" element={<RankingExplanationPage />} />
           <Route path="/jobs" element={<Jobs />} />

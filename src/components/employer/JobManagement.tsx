@@ -210,8 +210,11 @@ const JobManagement = ({ jobs, onUpdate }: JobManagementProps) => {
                     )}
                   </Button>
                   
-                  <Button variant="outline" size="sm">
-                    <Edit3 className="h-4 w-4" />
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to={`/edit-job/${job.id}`}>
+                      <Edit3 className="h-4 w-4 mr-1" />
+                      Edit
+                    </Link>
                   </Button>
                   
                   <AlertDialog>

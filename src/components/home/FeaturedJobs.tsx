@@ -14,10 +14,16 @@ const FeaturedJobs = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        // Try to fetch from Supabase first
+        // Try to fetch from Supabase first with employer info
         const { data: supabaseJobs, error } = await supabase
           .from('jobs')
-          .select('*')
+          .select(`
+            *,
+            employer:users!employer_id (
+              name,
+              company
+            )
+          `)
           .eq('is_active', true)
           .order('created_at', { ascending: false })
           .limit(6);
@@ -27,7 +33,12 @@ const FeaturedJobs = () => {
           // Fallback to sample data
           setFeaturedJobs(sampleJobs.slice(0, 6));
         } else if (supabaseJobs && supabaseJobs.length > 0) {
-          setFeaturedJobs(supabaseJobs);
+          // Transform jobs to include company name
+          const transformedJobs = supabaseJobs.map(job => ({
+            ...job,
+            company: job.company_name || job.employer?.company || job.employer?.name || 'Company'
+          }));
+          setFeaturedJobs(transformedJobs);
         } else {
           // Use sample data if no jobs in database
           setFeaturedJobs(sampleJobs.slice(0, 6));

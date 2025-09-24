@@ -56,6 +56,11 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
       .slice(0, 2);
   };
 
+  // Get the correct company name - prioritize company_name for admin posts
+  const getCompanyName = () => {
+    return job.company_name || job.company || 'Company';
+  };
+
   const formatSalary = (min?: number, max?: number) => {
     if (!min && !max) return null;
     
@@ -78,45 +83,38 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffDays === 1) return 'Today';
+    if (diffDays === 1) return 'Posted today';
     if (diffDays === 2) return 'Yesterday';
-    if (diffDays <= 7) return `${diffDays} days ago`;
-    if (diffDays <= 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
-    return `${Math.ceil(diffDays / 30)} months ago`;
+    if (diffDays <= 7) return `${diffDays}d ago`;
+    if (diffDays <= 30) return `${Math.ceil(diffDays / 7)}w ago`;
+    return `${Math.ceil(diffDays / 30)}m ago`;
   };
 
-  const hasTopRankedCandidates = job.applications?.some(
-    (app: any) => app.candidate?.rank_score && app.candidate.rank_score > 80
-  );
-
   const applicationCount = job.applications?.length || 0;
+  const hasTopRankedCandidates = job.applications?.some((app: any) => 
+    app.candidate_rank && app.candidate_rank <= 100
+  );
 
   if (compact) {
     return (
-      <Card className="group hover-lift card-hover relative overflow-hidden">
-        <div className={`absolute inset-0 bg-gradient-to-br ${getJobTypeColor(job.job_type)} opacity-5 group-hover:opacity-10 transition-opacity`} />
-        
+      <Card className="group hover:shadow-lg transition-all duration-200 border-l-4" 
+            style={{ borderLeftColor: `var(--${getJobTypeColor(job.job_type).split(' ')[0].replace('from-', '')})` }}>
         <CardContent className="p-4">
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10">
-                <AvatarFallback className={`bg-gradient-to-br ${getJobTypeColor(job.job_type)} text-white text-xs font-bold`}>
-                  {getCompanyInitials(job.company)}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h3 className="font-semibold text-sm leading-tight line-clamp-1">{job.title}</h3>
-                <p className="text-xs text-muted-foreground">{job.company}</p>
+          <div className="flex items-start gap-3">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className={`bg-gradient-to-br ${getJobTypeColor(job.job_type)} text-white font-bold text-xs`}>
+                {getCompanyInitials(getCompanyName())}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-sm line-clamp-1">{job.title}</h3>
               </div>
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <Building2 className="h-3 w-3" />
+                <span className="line-clamp-1">{getCompanyName()}</span>
+              </p>
             </div>
-            <Badge 
-              className={`bg-gradient-to-r ${getJobTypeColor(job.job_type)} text-white border-0 text-xs px-2 py-1`}
-            >
-              {job.job_type}
-            </Badge>
-          </div>
-
-          <div className="space-y-2">
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <div className="flex items-center gap-1">
                 <MapPin className="h-3 w-3" />
@@ -173,14 +171,14 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
           <div className="flex items-center gap-4">
             <Avatar className="h-12 w-12">
               <AvatarFallback className={`bg-gradient-to-br ${getJobTypeColor(job.job_type)} text-white font-bold`}>
-                {getCompanyInitials(job.company)}
+                {getCompanyInitials(getCompanyName())}
               </AvatarFallback>
             </Avatar>
             <div>
               <h3 className="font-semibold text-lg leading-tight line-clamp-2">{job.title}</h3>
               <p className="text-muted-foreground flex items-center gap-2">
                 <Building2 className="h-4 w-4" />
-                {job.company}
+                {getCompanyName()}
               </p>
             </div>
           </div>
