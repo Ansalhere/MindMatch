@@ -320,7 +320,7 @@ export async function createJob(jobData: any) {
 
     const newJobData = {
       ...jobData,
-      employer_id: user.id,
+      employer_id: jobData.employer_id || user.id, // Allow admin to specify employer_id
       created_at: new Date(),
       is_active: true
     };

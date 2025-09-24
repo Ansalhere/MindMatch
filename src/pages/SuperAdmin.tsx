@@ -16,13 +16,16 @@ import {
   UserX,
   MessageSquare, 
   Bell, 
-  Database
+  Database,
+  Plus
 } from 'lucide-react';
 import { toast } from "sonner";
 import { useUser } from '@/hooks/useUser';
 import Layout from '@/components/Layout';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader } from "@/components/ui/loader";
+import PostJobForm from '@/components/employer/PostJobForm';
+import { createJob } from '@/lib/supabase';
 import {
   Table,
   TableBody,
@@ -39,6 +42,7 @@ const SuperAdmin = () => {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isSubmittingJob, setIsSubmittingJob] = useState(false);
   const navigate = useNavigate();
   const { user } = useUser();
 
@@ -172,6 +176,45 @@ const SuperAdmin = () => {
     }
   };
 
+  const handleAdminJobSubmit = async (formData: any) => {
+    setIsSubmittingJob(true);
+    try {
+      // Convert form data to job data format
+      const jobData = {
+        title: formData.jobTitle,
+        description: formData.description,
+        location: formData.location,
+        job_type: formData.jobType,
+        company_name: formData.companyName,
+        salary_min: formData.salary.min ? parseInt(formData.salary.min) : null,
+        salary_max: formData.salary.max ? parseInt(formData.salary.max) : null,
+        required_skills: formData.requiredSkills,
+        min_experience: formData.minExperience ? parseFloat(formData.minExperience) : null,
+        min_rank_requirement: formData.rankRestriction ? formData.minRank : null,
+        external_apply_url: formData.externalApplyUrl || null,
+        closing_date: formData.deadline || null,
+        employer_id: user?.id // Admin posts the job
+      };
+
+      const { job, error } = await createJob(jobData);
+      
+      if (error) {
+        throw error;
+      }
+
+      toast.success("Job posted successfully!");
+      
+      // Refresh jobs data
+      await fetchAllData();
+      
+    } catch (error: any) {
+      console.error("Error posting job:", error);
+      toast.error(error.message || "Failed to post job");
+    } finally {
+      setIsSubmittingJob(false);
+    }
+  };
+
   const filteredUsers = users.filter(user => 
     user.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
     user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -218,10 +261,11 @@ const SuperAdmin = () => {
         </div>
         
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-6 max-w-4xl">
+          <TabsList className="grid w-full grid-cols-7 max-w-5xl">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="jobs">Jobs</TabsTrigger>
+            <TabsTrigger value="post-job">Post Job</TabsTrigger>
             <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="system">System</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -376,6 +420,27 @@ const SuperAdmin = () => {
                     ))}
                   </TableBody>
                 </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="post-job">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Plus className="h-5 w-5" />
+                  Admin Job Posting
+                </CardTitle>
+                <CardDescription>
+                  Post jobs on behalf of any company with external application links
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PostJobForm 
+                  onSubmit={handleAdminJobSubmit}
+                  isSubmitting={isSubmittingJob}
+                  isAdmin={true}
+                />
               </CardContent>
             </Card>
           </TabsContent>
