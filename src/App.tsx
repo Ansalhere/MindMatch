@@ -35,6 +35,7 @@ import Job from "./pages/Job";
 import Admin from "./pages/Admin";
 import SuperAdmin from "./pages/SuperAdmin";
 import AdminLogin from "./pages/AdminLogin";
+import AdminSignup from "./pages/AdminSignup";
 import EmployerLogin from "./pages/EmployerLogin";
 import EditProfile from "./pages/EditProfile";
 import LoginSelector from "./components/navigation/LoginSelector";
@@ -58,6 +59,7 @@ const App = () => (
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/admin-signup" element={<AdminSignup />} />
           <Route path="/employer-login" element={<EmployerLogin />} />
           <Route path="/edit-profile" element={<EditProfile />} />
           <Route path="/profile/:id/:type" element={<Profile />} />

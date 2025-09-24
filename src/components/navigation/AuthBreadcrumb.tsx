@@ -13,6 +13,8 @@ const AuthBreadcrumb = () => {
         return { title: 'Employer Portal', subtitle: 'Access your hiring dashboard' };
       case '/admin-login':
         return { title: 'Admin Access', subtitle: 'Secure login for system administrators' };
+      case '/admin-signup':
+        return { title: 'Create Admin Account', subtitle: 'Set up administrator access' };
       case '/register':
         return { title: 'Create Account', subtitle: 'Join our platform today' };
       case '/auth-selector':
