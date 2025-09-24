@@ -168,35 +168,35 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
     <Card className="group hover-lift card-hover relative overflow-hidden h-full flex flex-col">
       <div className={`absolute inset-0 bg-gradient-to-br ${getJobTypeColor(job.job_type)} opacity-5 group-hover:opacity-10 transition-opacity`} />
       
-      <CardHeader className="pb-3 flex-shrink-0">
+      <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-4 flex-1 min-w-0">
-            <Avatar className="h-12 w-12 flex-shrink-0">
+          <div className="flex items-start gap-4 flex-1">
+            <Avatar className="h-12 w-12">
               <AvatarFallback className={`bg-gradient-to-br ${getJobTypeColor(job.job_type)} text-white font-bold`}>
                 {getCompanyInitials(getCompanyName())}
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1">
               <h3 className="font-semibold text-lg leading-tight line-clamp-2 mb-2">{job.title}</h3>
               <p className="text-muted-foreground flex items-center gap-2 mb-1">
-                <Building2 className="h-4 w-4 flex-shrink-0" />
+                <Building2 className="h-4 w-4" />
                 <span className="truncate">{getCompanyName()}</span>
               </p>
               <p className="text-sm text-muted-foreground flex items-center gap-1">
-                <Briefcase className="h-4 w-4 flex-shrink-0" />
+                <Briefcase className="h-4 w-4" />
                 <span>Experience: {getExperienceText()}</span>
               </p>
             </div>
           </div>
           
-          <div className="flex flex-col items-end gap-2 flex-shrink-0">
+          <div className="flex flex-col items-end gap-2">
             <Badge 
-              className={`bg-gradient-to-r ${getJobTypeColor(job.job_type)} text-white border-0 whitespace-nowrap`}
+              className={`bg-gradient-to-r ${getJobTypeColor(job.job_type)} text-white border-0`}
             >
               {job.job_type}
             </Badge>
             {job.min_rank_requirement && (
-              <Badge variant="outline" className="text-xs whitespace-nowrap">
+              <Badge variant="outline" className="text-xs">
                 <Star className="h-3 w-3 mr-1" />
                 Rank {job.min_rank_requirement}+
               </Badge>
