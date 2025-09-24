@@ -168,67 +168,68 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
     <Card className="group hover-lift card-hover relative overflow-hidden h-full flex flex-col">
       <div className={`absolute inset-0 bg-gradient-to-br ${getJobTypeColor(job.job_type)} opacity-5 group-hover:opacity-10 transition-opacity`} />
       
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-4 flex-1">
-            <Avatar className="h-12 w-12">
-              <AvatarFallback className={`bg-gradient-to-br ${getJobTypeColor(job.job_type)} text-white font-bold`}>
-                {getCompanyInitials(getCompanyName())}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <h3 className="font-semibold text-lg leading-tight line-clamp-2 mb-2">{job.title}</h3>
-              <p className="text-muted-foreground flex items-center gap-2 mb-1">
-                <Building2 className="h-4 w-4" />
-                <span className="truncate">{getCompanyName()}</span>
-              </p>
-              <p className="text-sm text-muted-foreground flex items-center gap-1">
-                <Briefcase className="h-4 w-4" />
-                <span>Experience: {getExperienceText()}</span>
-              </p>
+      {/* Header Section - Fixed Height */}
+      <CardHeader className="pb-4 space-y-3">
+        <div className="flex items-start gap-3">
+          <Avatar className="h-12 w-12 shrink-0">
+            <AvatarFallback className={`bg-gradient-to-br ${getJobTypeColor(job.job_type)} text-white font-bold`}>
+              {getCompanyInitials(getCompanyName())}
+            </AvatarFallback>
+          </Avatar>
+          <div className="min-w-0 flex-1">
+            <h3 className="font-semibold text-lg leading-tight line-clamp-2 mb-1">{job.title}</h3>
+            <div className="flex items-center gap-1 text-muted-foreground mb-1">
+              <Building2 className="h-4 w-4 shrink-0" />
+              <span className="text-sm truncate">{getCompanyName()}</span>
+            </div>
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <Briefcase className="h-4 w-4 shrink-0" />
+              <span className="text-sm">Experience: {getExperienceText()}</span>
             </div>
           </div>
-          
-          <div className="flex flex-col items-end gap-2">
-            <Badge 
-              className={`bg-gradient-to-r ${getJobTypeColor(job.job_type)} text-white border-0`}
-            >
-              {job.job_type}
-            </Badge>
-            {job.min_rank_requirement && (
-              <Badge variant="outline" className="text-xs">
-                <Star className="h-3 w-3 mr-1" />
-                Rank {job.min_rank_requirement}+
-              </Badge>
-            )}
-          </div>
+          <Badge className={`bg-gradient-to-r ${getJobTypeColor(job.job_type)} text-white border-0 shrink-0`}>
+            {job.job_type}
+          </Badge>
         </div>
+        
+        {job.min_rank_requirement && (
+          <div className="flex justify-end">
+            <Badge variant="outline" className="text-xs">
+              <Star className="h-3 w-3 mr-1" />
+              Rank {job.min_rank_requirement}+
+            </Badge>
+          </div>
+        )}
       </CardHeader>
 
-      <CardContent className="space-y-4 flex-1 flex flex-col">
-        <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+      {/* Content Section - Flexible Height */}
+      <CardContent className="flex-1 flex flex-col space-y-4 pb-4">
+        {/* Location, Date, Salary Row */}
+        <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
-            <MapPin className="h-4 w-4 flex-shrink-0" />
+            <MapPin className="h-4 w-4 shrink-0" />
             <span className="truncate">{job.location}</span>
           </div>
           <div className="flex items-center gap-1">
-            <Calendar className="h-4 w-4 flex-shrink-0" />
+            <Calendar className="h-4 w-4 shrink-0" />
             <span className="whitespace-nowrap">{getPostedDate()}</span>
           </div>
           {formatSalary(job.salary_min, job.salary_max) && (
             <div className="flex items-center gap-1 font-semibold text-green-600">
-              <DollarSign className="h-4 w-4 flex-shrink-0" />
+              <DollarSign className="h-4 w-4 shrink-0" />
               <span className="whitespace-nowrap">{formatSalary(job.salary_min, job.salary_max)}</span>
             </div>
           )}
         </div>
 
+        {/* Description */}
         {job.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
+          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
             {job.description}
           </p>
         )}
 
+        {/* Skills */}
         {job.required_skills && job.required_skills.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {job.required_skills.slice(0, 4).map((skill) => (
@@ -244,44 +245,50 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
           </div>
         )}
 
-        <div className="flex items-center justify-between pt-2 border-t mt-auto">
+        {/* Spacer to push footer to bottom */}
+        <div className="flex-1" />
+
+        {/* Footer Section - Fixed to Bottom */}
+        <div className="border-t pt-4 space-y-3">
           {showApplications ? (
-            <div className="flex items-center gap-4 flex-1 min-w-0">
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Users className="h-4 w-4 flex-shrink-0" />
-                <span className="whitespace-nowrap">{applicationCount} applications</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <Users className="h-4 w-4 shrink-0" />
+                  <span>{applicationCount} applications</span>
+                </div>
+                {hasTopRankedCandidates && (
+                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
+                    <Trophy className="h-3 w-3 mr-1" />
+                    Top talent
+                  </Badge>
+                )}
               </div>
-              {hasTopRankedCandidates && (
-                <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 whitespace-nowrap">
-                  <Trophy className="h-3 w-3 mr-1" />
-                  Top ranked candidates
-                </Badge>
-              )}
             </div>
           ) : (
-            <div className="flex items-center gap-1 text-sm text-muted-foreground flex-1">
-              <TrendingUp className="h-4 w-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">Growing fast</span>
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              <TrendingUp className="h-4 w-4 shrink-0" />
+              <span>Growing fast</span>
             </div>
           )}
           
-          <div className="flex gap-2 flex-shrink-0">
-            <Button variant="outline" size="sm" asChild>
-              <Link to={`/job/${job.id}`} className="whitespace-nowrap">
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" asChild className="flex-1">
+              <Link to={`/job/${job.id}`}>
                 <Eye className="h-4 w-4 mr-1" />
                 View Details
               </Link>
             </Button>
             {job.external_apply_url ? (
-              <Button asChild size="sm">
-                <a href={job.external_apply_url} target="_blank" rel="noopener noreferrer" className="whitespace-nowrap">
+              <Button asChild size="sm" className="flex-1">
+                <a href={job.external_apply_url} target="_blank" rel="noopener noreferrer">
                   <Zap className="h-4 w-4 mr-1" />
-                  Apply on Site
+                  Apply
                 </a>
               </Button>
             ) : (
-              <Button asChild size="sm">
-                <Link to={`/job/${job.id}?apply=true`} className="whitespace-nowrap">
+              <Button asChild size="sm" className="flex-1">
+                <Link to={`/job/${job.id}?apply=true`}>
                   <Zap className="h-4 w-4 mr-1" />
                   Apply
                 </Link>
