@@ -104,8 +104,9 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
 
   if (compact) {
     return (
-      <Card className="group hover:shadow-lg transition-all duration-200 border-l-4 h-full" 
-            style={{ borderLeftColor: `var(--${getJobTypeColor(job.job_type).split(' ')[0].replace('from-', '')})` }}>
+      <Card className="group hover:shadow-lg transition-all duration-200 border-l-4 h-full cursor-pointer" 
+            style={{ borderLeftColor: `var(--${getJobTypeColor(job.job_type).split(' ')[0].replace('from-', '')})` }}
+            onClick={() => window.open(`/job/${job.id}`, '_blank')}>
         <CardContent className="p-3 sm:p-4 h-full">
           <div className="flex items-start gap-2 sm:gap-3 mb-3">
             <Avatar className="h-8 w-8 flex-shrink-0">
@@ -161,7 +162,12 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
               </div>
             )}
             
-            <Button asChild size="sm" className="ml-auto">
+            <Button 
+              asChild 
+              size="sm" 
+              className="ml-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
               <Link to={`/job/${job.id}`}>
                 <Eye className="h-3 w-3 mr-1" />
                 <span className="hidden sm:inline">View</span>
@@ -174,7 +180,8 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
   }
 
   return (
-    <Card className="group hover-lift card-hover relative overflow-hidden h-full">
+    <Card className="group hover-lift card-hover relative overflow-hidden h-full cursor-pointer" 
+          onClick={() => window.open(`/job/${job.id}`, '_blank')}>
       <div className={`absolute inset-0 bg-gradient-to-br ${getJobTypeColor(job.job_type)} opacity-5 group-hover:opacity-10 transition-opacity`} />
       
       <CardHeader className="p-4 sm:p-5 pb-3">
@@ -269,21 +276,37 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
           )}
           
           <div className="flex flex-col sm:flex-row gap-2.5">
-            <Button variant="outline" size="sm" asChild className="flex-1 h-9">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              asChild 
+              className="flex-1 h-10 sm:h-9"
+              onClick={(e) => e.stopPropagation()}
+            >
               <Link to={`/job/${job.id}`}>
                 <Eye className="h-4 w-4 mr-2" />
                 View Details
               </Link>
             </Button>
             {job.external_apply_url ? (
-              <Button asChild size="sm" className="flex-1 h-9">
+              <Button 
+                asChild 
+                size="sm" 
+                className="flex-1 h-10 sm:h-9"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <a href={job.external_apply_url} target="_blank" rel="noopener noreferrer">
                   <Zap className="h-4 w-4 mr-2" />
                   Apply Now
                 </a>
               </Button>
             ) : (
-              <Button asChild size="sm" className="flex-1 h-9">
+              <Button 
+                asChild 
+                size="sm" 
+                className="flex-1 h-10 sm:h-9"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <Link to={`/job/${job.id}?apply=true`}>
                   <Zap className="h-4 w-4 mr-2" />
                   Apply Now

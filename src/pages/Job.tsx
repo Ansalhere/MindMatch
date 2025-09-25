@@ -247,8 +247,8 @@ const Job = () => {
   return (
     <Layout>
       <SEOHead 
-        title={`${job.title} at ${job.employer?.company || job.employer?.name} | FresherPools`}
-        description={`Apply for ${job.title} position at ${job.employer?.company || job.employer?.name} in ${job.location}. ${job.description.substring(0, 150)}...`}
+        title={`${job.title} at ${job.company_name || job.employer?.company || job.employer?.name} | FresherPools`}
+        description={`Apply for ${job.title} position at ${job.company_name || job.employer?.company || job.employer?.name} in ${job.location}. ${job.description.substring(0, 150)}...`}
       />
       
       <div className="container mx-auto px-4 py-8">
@@ -269,7 +269,7 @@ const Job = () => {
                 <div className="flex items-start gap-4">
                   <Avatar className="h-16 w-16">
                     <AvatarFallback className="bg-primary text-primary-foreground font-bold text-lg">
-                      {getCompanyInitials(job.employer?.company || job.employer?.name || 'Company')}
+                       {getCompanyInitials(job.company_name || job.employer?.company || job.employer?.name || 'Company')}
                     </AvatarFallback>
                   </Avatar>
                   
@@ -280,7 +280,7 @@ const Job = () => {
                     </div>
                     <div className="flex items-center gap-2 text-lg text-muted-foreground mb-3">
                       <Building className="h-5 w-5" />
-                      {job.employer?.company || job.employer?.name}
+                       {job.company_name || job.employer?.company || job.employer?.name}
                     </div>
                     
                     <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
@@ -329,7 +329,7 @@ const Job = () => {
                   <div className="flex items-start gap-4">
                     <Avatar className="h-16 w-16">
                       <AvatarFallback className="bg-primary text-primary-foreground font-bold text-lg">
-                        {getCompanyInitials(job.employer?.company || job.employer?.name || 'Company')}
+                        {getCompanyInitials(job.company_name || job.employer?.company || job.employer?.name || 'Company')}
                       </AvatarFallback>
                     </Avatar>
                     
@@ -337,7 +337,7 @@ const Job = () => {
                       <CardTitle className="text-2xl mb-2">{job.title}</CardTitle>
                       <div className="flex items-center gap-2 text-lg text-muted-foreground mb-3">
                         <Building className="h-5 w-5" />
-                        {job.employer?.company || job.employer?.name}
+                         {job.company_name || job.employer?.company || job.employer?.name}
                       </div>
                       
                       <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
