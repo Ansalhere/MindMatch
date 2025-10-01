@@ -8,6 +8,7 @@ import {
   FormLabel, 
   FormMessage 
 } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { 
@@ -51,7 +52,11 @@ const formSchema = z.object({
   size: z.string().min(1, "Please select company size"),
   website: z.string().url("Please enter a valid URL").or(z.string().length(0)),
   phone: z.string().optional(),
-  location: z.string().min(1, "Location is required")
+  location: z.string().min(1, "Location is required"),
+  founding_year: z.string().optional(),
+  company_type: z.string().optional(),
+  linkedin_url: z.string().url("Please enter a valid LinkedIn URL").or(z.string().length(0)),
+  description: z.string().min(20, "Company description must be at least 20 characters").optional().or(z.string().length(0)),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -75,7 +80,11 @@ const EmployerRegistrationForm = ({
       size: initialData.size || "",
       website: initialData.website || "",
       phone: initialData.phone || "",
-      location: initialData.location || ""
+      location: initialData.location || "",
+      founding_year: initialData.founding_year || "",
+      company_type: initialData.company_type || "",
+      linkedin_url: initialData.linkedin_url || "",
+      description: initialData.description || ""
     }
   });
 
@@ -201,6 +210,80 @@ const EmployerRegistrationForm = ({
             )}
           />
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="founding_year"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Founding Year</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="2010" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="company_type"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Company Type</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select company type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="startup">Startup</SelectItem>
+                    <SelectItem value="SME">Small/Medium Enterprise</SelectItem>
+                    <SelectItem value="enterprise">Large Enterprise</SelectItem>
+                    <SelectItem value="MNC">Multinational Corporation</SelectItem>
+                    <SelectItem value="nonprofit">Non-Profit</SelectItem>
+                    <SelectItem value="government">Government</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="linkedin_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>LinkedIn Company Page</FormLabel>
+              <FormControl>
+                <Input type="url" placeholder="https://linkedin.com/company/..." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Company Description</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="Brief description of your company, culture, and what you do..." 
+                  rows={3}
+                  {...field} 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? "Submitting..." : "Complete Registration"}

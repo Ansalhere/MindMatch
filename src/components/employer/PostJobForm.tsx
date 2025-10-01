@@ -237,38 +237,46 @@ const PostJobForm = ({ onSubmit, isSubmitting, initialData, isAdmin = false }: P
             </div>
             
             {salarySpecified && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-4 border-l-2 border-primary/20">
-                <div className="space-y-2">
-                  <Label htmlFor="minSalary">Minimum Salary (₹/month)</Label>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                      ₹
+              <div className="space-y-4 pl-4 border-l-2 border-primary/20">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="minSalary">Minimum CTC (Annual)</Label>
+                    <div className="relative">
+                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                        ₹
+                      </div>
+                      <Input
+                        id="minSalary"
+                        type="number"
+                        placeholder="600000"
+                        className="pl-8"
+                        value={minSalary}
+                        onChange={(e) => setMinSalary(e.target.value)}
+                      />
                     </div>
-                    <Input
-                      id="minSalary"
-                      type="number"
-                      placeholder="30,000"
-                      className="pl-8"
-                      value={minSalary}
-                      onChange={(e) => setMinSalary(e.target.value)}
-                    />
+                    <p className="text-xs text-muted-foreground">
+                      Annual salary in your currency (e.g., ₹6,00,000 or $60,000)
+                    </p>
                   </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="maxSalary">Maximum Salary (₹/month)</Label>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                      ₹
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="maxSalary">Maximum CTC (Annual)</Label>
+                    <div className="relative">
+                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                        ₹
+                      </div>
+                      <Input
+                        id="maxSalary"
+                        type="number"
+                        placeholder="1200000"
+                        className="pl-8"
+                        value={maxSalary}
+                        onChange={(e) => setMaxSalary(e.target.value)}
+                      />
                     </div>
-                    <Input
-                      id="maxSalary"
-                      type="number"
-                      placeholder="80,000"
-                      className="pl-8"
-                      value={maxSalary}
-                      onChange={(e) => setMaxSalary(e.target.value)}
-                    />
+                    <p className="text-xs text-muted-foreground">
+                      Annual salary in your currency (e.g., ₹12,00,000 or $120,000)
+                    </p>
                   </div>
                 </div>
               </div>
@@ -403,11 +411,14 @@ const PostJobForm = ({ onSubmit, isSubmitting, initialData, isAdmin = false }: P
                     <SelectValue placeholder="Select minimum rank" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="50">Top 50</SelectItem>
-                    <SelectItem value="100">Top 100</SelectItem>
-                    <SelectItem value="250">Top 250</SelectItem>
-                    <SelectItem value="500">Top 500</SelectItem>
-                    <SelectItem value="1000">Top 1000</SelectItem>
+                    <SelectItem value="10">Top 10 (Elite)</SelectItem>
+                    <SelectItem value="25">Top 25 (Expert)</SelectItem>
+                    <SelectItem value="50">Top 50 (Advanced)</SelectItem>
+                    <SelectItem value="100">Top 100 (Proficient)</SelectItem>
+                    <SelectItem value="250">Top 250 (Skilled)</SelectItem>
+                    <SelectItem value="500">Top 500 (Intermediate)</SelectItem>
+                    <SelectItem value="1000">Top 1000 (Entry-Advanced)</SelectItem>
+                    <SelectItem value="2500">Top 2500 (All Levels)</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground mt-1">

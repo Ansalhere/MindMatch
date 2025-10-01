@@ -24,12 +24,16 @@ const DetailedSignupForm = ({ onSubmit, isLoading }: DetailedSignupFormProps) =>
     expected_ctc: '',
     experience_level: '',
     industry_preference: '',
+    job_role: '',
+    notice_period: '',
     
     // Skills & Education (Step 3)
     primary_skills: '',
     education_level: '',
     bio: '',
     availability: '',
+    preferred_work_mode: '',
+    languages: '',
   });
 
   const updateFormData = (field: string, value: string) => {
@@ -121,31 +125,67 @@ const DetailedSignupForm = ({ onSubmit, isLoading }: DetailedSignupFormProps) =>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="current_ctc">Current CTC (Optional)</Label>
+                <Label htmlFor="current_ctc">Current CTC (Annual) - Optional</Label>
                 <div className="relative">
                   <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="current_ctc"
+                    type="number"
                     value={formData.current_ctc}
                     onChange={(e) => updateFormData('current_ctc', e.target.value)}
-                    placeholder="$75,000"
+                    placeholder="75000"
                     className="pl-10"
                   />
                 </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Your current annual salary (e.g., $75,000 or ₹12,00,000)
+                </p>
               </div>
               
               <div>
-                <Label htmlFor="expected_ctc">Expected CTC *</Label>
+                <Label htmlFor="expected_ctc">Expected CTC (Annual) *</Label>
                 <div className="relative">
                   <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="expected_ctc"
+                    type="number"
                     value={formData.expected_ctc}
                     onChange={(e) => updateFormData('expected_ctc', e.target.value)}
-                    placeholder="$90,000"
+                    placeholder="90000"
                     className="pl-10"
                   />
                 </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Your desired annual salary (e.g., $90,000 or ₹15,00,000)
+                </p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="job_role">Current/Target Job Role</Label>
+                <Input
+                  id="job_role"
+                  value={formData.job_role}
+                  onChange={(e) => updateFormData('job_role', e.target.value)}
+                  placeholder="e.g., Software Engineer, Data Analyst"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="notice_period">Notice Period</Label>
+                <Select onValueChange={(value) => updateFormData('notice_period', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select notice period" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="immediate">Immediate (0 days)</SelectItem>
+                    <SelectItem value="15_days">15 days</SelectItem>
+                    <SelectItem value="30_days">30 days</SelectItem>
+                    <SelectItem value="60_days">60 days</SelectItem>
+                    <SelectItem value="90_days">90 days</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             
@@ -233,20 +273,31 @@ const DetailedSignupForm = ({ onSubmit, isLoading }: DetailedSignupFormProps) =>
               />
             </div>
             
-            <div>
-              <Label htmlFor="availability">Availability</Label>
-              <Select onValueChange={(value) => updateFormData('availability', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="When can you start?" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="immediately">Immediately</SelectItem>
-                  <SelectItem value="2_weeks">2 weeks notice</SelectItem>
-                  <SelectItem value="1_month">1 month</SelectItem>
-                  <SelectItem value="2_months">2 months</SelectItem>
-                  <SelectItem value="3_months">3+ months</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="preferred_work_mode">Preferred Work Mode</Label>
+                <Select onValueChange={(value) => updateFormData('preferred_work_mode', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select work preference" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="remote">Remote Only</SelectItem>
+                    <SelectItem value="hybrid">Hybrid</SelectItem>
+                    <SelectItem value="onsite">On-site</SelectItem>
+                    <SelectItem value="flexible">Flexible/Open</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="languages">Languages Known</Label>
+                <Input
+                  id="languages"
+                  value={formData.languages}
+                  onChange={(e) => updateFormData('languages', e.target.value)}
+                  placeholder="e.g., English, Spanish, Hindi"
+                />
+              </div>
             </div>
           </div>
         )}

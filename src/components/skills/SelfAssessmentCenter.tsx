@@ -118,6 +118,69 @@ const assessmentCategories: AssessmentCategory[] = [
     skills: ['Communication', 'Problem Solving', 'Time Management', 'Emotional Intelligence', 'Adaptability'],
     estimatedTime: '20 minutes',
     difficulty: 'Beginner'
+  },
+  {
+    id: 'blockchain',
+    title: 'Blockchain & Web3',
+    description: 'Test your blockchain, cryptocurrency, and decentralized application knowledge',
+    icon: Code,
+    skills: ['Solidity', 'Ethereum', 'Smart Contracts', 'Web3.js', 'DeFi', 'NFTs'],
+    estimatedTime: '40 minutes',
+    difficulty: 'Advanced'
+  },
+  {
+    id: 'ai-ml',
+    title: 'AI & Deep Learning',
+    description: 'Advanced assessment of artificial intelligence and deep learning techniques',
+    icon: BarChart3,
+    skills: ['Neural Networks', 'NLP', 'Computer Vision', 'Reinforcement Learning', 'LLMs', 'TensorFlow'],
+    estimatedTime: '60 minutes',
+    difficulty: 'Advanced'
+  },
+  {
+    id: 'qa-testing',
+    title: 'Quality Assurance & Testing',
+    description: 'Evaluate your software testing, QA methodologies, and automation expertise',
+    icon: Shield,
+    skills: ['Test Automation', 'Jest', 'Selenium', 'Cypress', 'Performance Testing', 'API Testing'],
+    estimatedTime: '35 minutes',
+    difficulty: 'Intermediate'
+  },
+  {
+    id: 'business-analytics',
+    title: 'Business Intelligence & Analytics',
+    description: 'Test your BI tools, data visualization, and business analytics capabilities',
+    icon: BarChart3,
+    skills: ['Power BI', 'Tableau', 'Google Analytics', 'Excel', 'Data Visualization', 'KPIs'],
+    estimatedTime: '30 minutes',
+    difficulty: 'Intermediate'
+  },
+  {
+    id: 'game-dev',
+    title: 'Game Development',
+    description: 'Evaluate your game design, development, and graphics programming skills',
+    icon: Code,
+    skills: ['Unity', 'Unreal Engine', 'C#', 'C++', 'Game Physics', '3D Modeling'],
+    estimatedTime: '50 minutes',
+    difficulty: 'Advanced'
+  },
+  {
+    id: 'devops-cloud',
+    title: 'DevOps & Cloud Computing',
+    description: 'Assess your cloud infrastructure, CI/CD, and DevOps practices knowledge',
+    icon: Database,
+    skills: ['AWS', 'Azure', 'Docker', 'Kubernetes', 'CI/CD', 'Terraform', 'Jenkins'],
+    estimatedTime: '45 minutes',
+    difficulty: 'Advanced'
+  },
+  {
+    id: 'mobile-dev',
+    title: 'Mobile Application Development',
+    description: 'Test your mobile app development for iOS and Android platforms',
+    icon: Code,
+    skills: ['React Native', 'Flutter', 'Swift', 'Kotlin', 'iOS Development', 'Android Development'],
+    estimatedTime: '40 minutes',
+    difficulty: 'Intermediate'
   }
 ];
 
