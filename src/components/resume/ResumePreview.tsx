@@ -4,6 +4,8 @@ import ModernTemplate from './templates/ModernTemplate';
 import CreativeTemplate from './templates/CreativeTemplate';
 import MinimalTemplate from './templates/MinimalTemplate';
 import ExecutiveTemplate from './templates/ExecutiveTemplate';
+import TechTemplate from './templates/TechTemplate';
+import CompactTemplate from './templates/CompactTemplate';
 
 interface ResumePreviewProps {
   template: ResumeTemplate;
@@ -23,6 +25,10 @@ const ResumePreview = ({ template, data }: ResumePreviewProps) => {
         return <MinimalTemplate data={data} />;
       case 'executive':
         return <ExecutiveTemplate data={data} />;
+      case 'tech':
+        return <TechTemplate data={data} />;
+      case 'compact':
+        return <CompactTemplate data={data} />;
       default:
         return <ProfessionalTemplate data={data} />;
     }

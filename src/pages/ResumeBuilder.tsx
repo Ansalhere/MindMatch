@@ -10,7 +10,7 @@ import ResumePreview from '@/components/resume/ResumePreview';
 import TemplateSelector from '@/components/resume/TemplateSelector';
 import { useToast } from '@/hooks/use-toast';
 
-export type ResumeTemplate = 'professional' | 'modern' | 'creative' | 'minimal' | 'executive';
+export type ResumeTemplate = 'professional' | 'modern' | 'creative' | 'minimal' | 'executive' | 'tech' | 'compact';
 
 export interface ResumeData {
   personalInfo: {
@@ -78,12 +78,57 @@ const ResumeBuilder = () => {
     projects: [],
   });
 
-  const handleDownload = () => {
-    toast({
-      title: "Downloading Resume",
-      description: "Your resume is being prepared for download...",
-    });
-    // PDF generation logic will be implemented
+  const handleDownload = async () => {
+    try {
+      const { jsPDF } = await import('jspdf');
+      const html2canvas = (await import('html2canvas')).default;
+      
+      const resumeElement = document.querySelector('.resume-preview') as HTMLElement;
+      if (!resumeElement) {
+        toast({ title: "Error", description: "Resume preview not found", variant: "destructive" });
+        return;
+      }
+
+      toast({ title: "Preparing Download", description: "Generating your PDF resume..." });
+
+      // Capture the resume as canvas
+      const canvas = await html2canvas(resumeElement, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      
+      // Create PDF
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      
+      // Download
+      const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, '_') || 'Resume'}_${selectedTemplate}.pdf`;
+      pdf.save(fileName);
+
+      toast({
+        title: "Success!",
+        description: "Your resume has been downloaded successfully"
+      });
+    } catch (error) {
+      console.error('Error downloading resume:', error);
+      toast({
+        title: "Download Failed",
+        description: "There was an error creating your PDF. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (

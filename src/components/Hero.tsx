@@ -59,7 +59,7 @@ const Hero = () => {
                     </Link>
                   </Button>
                   <Button size="lg" variant="outline" className="px-6 lg:px-8 py-4 lg:py-6 text-base lg:text-lg border-2" asChild>
-                    <Link to="/dashboard">Dashboard</Link>
+                    <Link to="/resume-builder">Build Resume</Link>
                   </Button>
                 </>
               ) : (
@@ -70,7 +70,7 @@ const Hero = () => {
                     </Link>
                   </Button>
                   <Button size="lg" variant="outline" className="px-6 lg:px-8 py-4 lg:py-6 text-base lg:text-lg border-2" asChild>
-                    <Link to="/login">Try Demo</Link>
+                    <Link to="/resume-builder">Build Resume</Link>
                   </Button>
                 </>
               )}

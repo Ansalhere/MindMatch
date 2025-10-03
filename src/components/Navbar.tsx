@@ -73,6 +73,7 @@ const Navbar = () => {
       { label: 'Rankings', to: '/rankings' },
       { label: 'Community', to: '/community' },
       { label: 'Skills', to: '/skills' },
+      { label: 'Resume Builder', to: '/resume-builder' },
     ];
     
     return baseItems;

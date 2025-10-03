@@ -24,11 +24,25 @@ const templates = [
     preview: '/templates/modern.svg',
   },
   {
+    id: 'tech' as ResumeTemplate,
+    name: 'Tech Pro',
+    description: 'Tech-focused design with skills highlighted prominently',
+    badge: 'New',
+    preview: '/templates/tech.svg',
+  },
+  {
     id: 'creative' as ResumeTemplate,
     name: 'Creative',
     description: 'Bold and unique design for designers and artists',
-    badge: 'New',
+    badge: null,
     preview: '/templates/creative.svg',
+  },
+  {
+    id: 'compact' as ResumeTemplate,
+    name: 'Compact',
+    description: 'Space-efficient two-column layout for extensive experience',
+    badge: null,
+    preview: '/templates/compact.svg',
   },
   {
     id: 'minimal' as ResumeTemplate,
@@ -49,8 +63,8 @@ const templates = [
 const TemplateSelector = ({ selectedTemplate, onTemplateChange }: TemplateSelectorProps) => {
   return (
     <div className="mb-8">
-      <h2 className="text-xl font-semibold mb-4">Choose Your Template</h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <h2 className="text-xl font-semibold mb-4">Choose Your Template ({templates.length} Available)</h2>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
         {templates.map((template) => (
           <Card
             key={template.id}

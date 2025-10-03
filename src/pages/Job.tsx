@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { 
   Building, 
   MapPin, 
@@ -197,6 +198,8 @@ const Job = () => {
     return `Posted ${Math.ceil(diffDays / 30)} months ago`;
   };
 
+  const companyName = job?.company_name || job?.employer?.company || job?.employer?.name || 'Company';
+  
   const getCompanyInitials = (companyName: string) => {
     if (!companyName) return 'CO';
     return companyName
@@ -246,7 +249,17 @@ const Job = () => {
 
   return (
     <Layout>
-      <SEOHead 
+      <Helmet>
+        <meta property="og:title" content={`${job.title} - ${companyName}`} />
+        <meta property="og:description" content={job.description.substring(0, 160)} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`${window.location.origin}/job/${job.id}`} />
+        <meta property="og:site_name" content="RankMe.AI - Professional Job Platform" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${job.title} - ${companyName}`} />
+        <meta name="twitter:description" content={job.description.substring(0, 160)} />
+      </Helmet>
+      <SEOHead
         title={`${job.title} at ${job.company_name || job.employer?.company || job.employer?.name} | FresherPools`}
         description={`Apply for ${job.title} position at ${job.company_name || job.employer?.company || job.employer?.name} in ${job.location}. ${job.description.substring(0, 150)}...`}
       />
