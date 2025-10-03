@@ -111,6 +111,15 @@ const assessmentCategories: AssessmentCategory[] = [
     difficulty: 'Intermediate'
   },
   {
+    id: 'ai-ml',
+    title: 'Artificial Intelligence & ML',
+    description: 'Test your AI, machine learning, and deep learning expertise',
+    icon: Brain,
+    skills: ['Machine Learning', 'Neural Networks', 'NLP', 'Computer Vision', 'TensorFlow/PyTorch'],
+    estimatedTime: '60 minutes',
+    difficulty: 'Advanced'
+  },
+  {
     id: 'soft-skills',
     title: 'Soft Skills & Communication',
     description: 'Test your interpersonal, communication, and problem-solving abilities',

@@ -23,6 +23,7 @@ import Jobs from "./pages/Jobs";
 import CompanyProfile from "./pages/CompanyProfile";
 import Skills from "./pages/Skills";
 import SkillAssessmentPage from "./pages/SkillAssessmentPage";
+import ResumeBuilder from "./pages/ResumeBuilder";
 import Community from "./pages/Community";
 import Rankings from "./pages/Rankings";
 import Career from "./pages/Career";
@@ -77,6 +78,7 @@ const App = () => (
           <Route path="/company/:id" element={<CompanyProfile />} />
           <Route path="/skills" element={<Skills />} />
           <Route path="/skill-assessment/:categoryId" element={<SkillAssessmentPage />} />
+          <Route path="/resume-builder" element={<ResumeBuilder />} />
           <Route path="/community" element={<Community />} />
           <Route path="/rankings" element={<Rankings />} />
           <Route path="/resources" element={<Career />} />

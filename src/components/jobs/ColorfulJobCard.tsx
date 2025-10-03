@@ -67,7 +67,7 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
     
     const formatAmount = (amount: number) => {
       if (amount >= 100000) {
-        return `${(amount / 100000).toFixed(0)}L`;
+        return `${(amount / 100000).toFixed(1)}L`;
       }
       return `${(amount / 1000).toFixed(0)}K`;
     };
@@ -170,7 +170,7 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
             >
               <Link to={`/job/${job.id}`}>
                 <Eye className="h-3 w-3 mr-1" />
-                <span className="hidden sm:inline">View</span>
+                <span className="hidden sm:inline">Details</span>
               </Link>
             </Button>
           </div>
@@ -285,7 +285,7 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
             >
               <Link to={`/job/${job.id}`}>
                 <Eye className="h-4 w-4 mr-2" />
-                View Details
+                Full Details
               </Link>
             </Button>
             {job.external_apply_url ? (
