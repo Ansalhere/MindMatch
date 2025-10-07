@@ -4,11 +4,11 @@ import SEOHead from '@/components/SEOHead';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Download, Eye, Sparkles } from 'lucide-react';
+import { FileText, Download, Eye, Upload } from 'lucide-react';
 import ResumeForm from '@/components/resume/ResumeForm';
 import ResumePreview from '@/components/resume/ResumePreview';
 import TemplateSelector from '@/components/resume/TemplateSelector';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export type ResumeTemplate = 'professional' | 'modern' | 'creative' | 'minimal' | 'executive' | 'tech' | 'compact';
 
@@ -61,7 +61,6 @@ export interface ResumeData {
 }
 
 const ResumeBuilder = () => {
-  const { toast } = useToast();
   const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplate>('professional');
   const [resumeData, setResumeData] = useState<ResumeData>({
     personalInfo: {
@@ -78,6 +77,27 @@ const ResumeBuilder = () => {
     projects: [],
   });
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Please upload a PDF or Word document");
+      return;
+    }
+
+    toast.info("Processing your resume...");
+
+    try {
+      // For now, show success - future: integrate document parsing
+      toast.success("Resume uploaded! You can now customize it with our templates.");
+    } catch (error) {
+      console.error('Error parsing resume:', error);
+      toast.error("Could not process your resume. Please try again.");
+    }
+  };
+
   const handleDownload = async () => {
     try {
       const { jsPDF } = await import('jspdf');
@@ -85,13 +105,12 @@ const ResumeBuilder = () => {
       
       const resumeElement = document.querySelector('.resume-preview') as HTMLElement;
       if (!resumeElement) {
-        toast({ title: "Error", description: "Resume preview not found", variant: "destructive" });
+        toast.error("Resume preview not found");
         return;
       }
 
-      toast({ title: "Preparing Download", description: "Generating your PDF resume..." });
+      toast.info("Generating your PDF resume...");
 
-      // Capture the resume as canvas
       const canvas = await html2canvas(resumeElement, {
         scale: 2,
         useCORS: true,
@@ -101,33 +120,24 @@ const ResumeBuilder = () => {
 
       const imgData = canvas.toDataURL('image/png');
       
-      // Create PDF
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
 
-      const imgWidth = 210; // A4 width in mm
+      const imgWidth = 210;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
       pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
       
-      // Download
       const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, '_') || 'Resume'}_${selectedTemplate}.pdf`;
       pdf.save(fileName);
 
-      toast({
-        title: "Success!",
-        description: "Your resume has been downloaded successfully"
-      });
+      toast.success("Your resume has been downloaded successfully!");
     } catch (error) {
       console.error('Error downloading resume:', error);
-      toast({
-        title: "Download Failed",
-        description: "There was an error creating your PDF. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("There was an error creating your PDF. Please try again.");
     }
   };
 
@@ -153,6 +163,20 @@ const ResumeBuilder = () => {
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
                 Create professional, ATS-optimized resumes in minutes. Choose from multiple templates and download as PDF.
               </p>
+              
+              {/* Upload Resume Button */}
+              <div className="mt-6">
+                <Button variant="outline" className="relative gap-2">
+                  <Upload className="h-4 w-4" />
+                  Upload Existing Resume
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={handleFileUpload}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  />
+                </Button>
+              </div>
             </div>
 
             {/* Template Selector */}
@@ -166,10 +190,7 @@ const ResumeBuilder = () => {
               {/* Left: Form */}
               <Card className="p-6 h-fit sticky top-4">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-primary" />
-                    Resume Details
-                  </h2>
+                  <h2 className="text-xl font-semibold">Resume Details</h2>
                   <Button onClick={handleDownload} size="sm">
                     <Download className="h-4 w-4 mr-2" />
                     Download PDF

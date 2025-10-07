@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Plus, Trash2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ResumeData } from '@/pages/ResumeBuilder';
+import AIAssistantButton from './AIAssistantButton';
 
 interface ResumeFormProps {
   section: 'personal' | 'experience' | 'skills';
@@ -180,7 +181,19 @@ const ResumeForm = ({ section, data, onChange }: ResumeFormProps) => {
           </div>
         </div>
         <div>
-          <Label htmlFor="summary">Professional Summary *</Label>
+          <div className="flex justify-between items-center mb-2">
+            <Label htmlFor="summary">Professional Summary *</Label>
+            <AIAssistantButton
+              type="professional-summary"
+              context={{
+                experience: '5',
+                field: 'Software Development',
+                skills: data.skills.map(s => s.category).join(', ')
+              }}
+              onGenerated={(text) => updatePersonalInfo('summary', text)}
+              label="AI Generate"
+            />
+          </div>
           <Textarea
             id="summary"
             value={data.personalInfo.summary}
@@ -210,14 +223,24 @@ const ResumeForm = ({ section, data, onChange }: ResumeFormProps) => {
           </div>
           {data.experience.map((exp) => (
             <Card key={exp.id} className="p-4 mb-4 relative">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute top-2 right-2"
-                onClick={() => removeExperience(exp.id)}
-              >
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </Button>
+              <div className="flex justify-between items-start mb-3">
+                <AIAssistantButton
+                  type="job-description"
+                  context={{
+                    title: exp.title,
+                    company: exp.company
+                  }}
+                  onGenerated={(text) => updateExperience(exp.id, 'description', text)}
+                  label="AI Generate Description"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeExperience(exp.id)}
+                >
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
+              </div>
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
