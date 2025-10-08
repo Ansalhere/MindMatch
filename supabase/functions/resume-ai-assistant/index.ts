@@ -22,6 +22,19 @@ serve(async (req) => {
     let systemPrompt = '';
     let userPrompt = '';
 
+    // Handle resume parsing separately (no AI needed for basic template)
+    if (type === 'parse') {
+      return new Response(
+        JSON.stringify({ 
+          resumeData: {
+            personalInfo: { fullName: '', email: '', phone: '', location: '', summary: '' },
+            experience: [], education: [], skills: [], certifications: [], projects: []
+          }
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     switch (type) {
       case 'job-description':
         systemPrompt = 'You are a professional resume writer. Create compelling, achievement-focused job descriptions that highlight impact and results. Use action verbs and quantify achievements when possible.';

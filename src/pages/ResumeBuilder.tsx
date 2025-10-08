@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import SEOHead from '@/components/SEOHead';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Download, Eye, Upload } from 'lucide-react';
+import { FileText, Download, Eye, Upload, User } from 'lucide-react';
 import ResumeForm from '@/components/resume/ResumeForm';
 import ResumePreview from '@/components/resume/ResumePreview';
 import TemplateSelector from '@/components/resume/TemplateSelector';
 import { toast } from 'sonner';
+import { useUser } from '@/hooks/useUser';
+import { supabase } from '@/integrations/supabase/client';
 
 export type ResumeTemplate = 'professional' | 'modern' | 'creative' | 'minimal' | 'executive' | 'tech' | 'compact';
 
@@ -61,6 +63,7 @@ export interface ResumeData {
 }
 
 const ResumeBuilder = () => {
+  const { user } = useUser();
   const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplate>('professional');
   const [resumeData, setResumeData] = useState<ResumeData>({
     personalInfo: {
@@ -77,6 +80,98 @@ const ResumeBuilder = () => {
     projects: [],
   });
 
+  // Load user profile data on mount
+  useEffect(() => {
+    if (user?.id) {
+      loadUserProfile();
+    }
+  }, [user?.id]);
+
+  const loadUserProfile = async () => {
+    if (!user?.id) return;
+
+    try {
+      // Fetch user skills
+      const { data: skills } = await supabase
+        .from('skills')
+        .select('*')
+        .eq('user_id', user.id);
+
+      // Fetch experiences
+      const { data: experiences } = await supabase
+        .from('experiences')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('start_date', { ascending: false });
+
+      // Fetch education
+      const { data: education } = await supabase
+        .from('education')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('start_date', { ascending: false });
+
+      // Fetch certifications
+      const { data: certifications } = await supabase
+        .from('certifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('issue_date', { ascending: false });
+
+      // Transform and set data
+      const skillsGrouped = skills?.reduce((acc, skill) => {
+        const category = 'Technical Skills';
+        const existing = acc.find(s => s.category === category);
+        if (existing) {
+          existing.items.push(skill.name);
+        } else {
+          acc.push({ id: crypto.randomUUID(), category, items: [skill.name] });
+        }
+        return acc;
+      }, [] as ResumeData['skills']) || [];
+
+      setResumeData({
+        personalInfo: {
+          fullName: user.name || '',
+          email: user.email || '',
+          phone: user.phone || '',
+          location: user.location || '',
+          summary: user.bio || '',
+        },
+        experience: experiences?.map(exp => ({
+          id: exp.id,
+          title: exp.role,
+          company: exp.company,
+          location: exp.location || '',
+          startDate: exp.start_date,
+          endDate: exp.end_date || '',
+          current: exp.is_current || false,
+          description: exp.description || '',
+        })) || [],
+        education: education?.map(edu => ({
+          id: edu.id,
+          degree: edu.degree,
+          institution: edu.institution,
+          location: '',
+          graduationDate: edu.end_date || '',
+          gpa: edu.gpa?.toString() || '',
+        })) || [],
+        skills: skillsGrouped,
+        certifications: certifications?.map(cert => ({
+          id: cert.id,
+          name: cert.name,
+          issuer: cert.issuer,
+          date: cert.issue_date,
+        })) || [],
+        projects: [],
+      });
+
+      toast.success('Profile data loaded successfully!');
+    } catch (error) {
+      console.error('Error loading profile:', error);
+    }
+  };
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -84,17 +179,53 @@ const ResumeBuilder = () => {
     const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'];
     if (!allowedTypes.includes(file.type)) {
       toast.error("Please upload a PDF or Word document");
+      event.target.value = '';
       return;
     }
 
-    toast.info("Processing your resume...");
+    toast.info("Parsing your resume... This may take a moment.");
 
     try {
-      // For now, show success - future: integrate document parsing
-      toast.success("Resume uploaded! You can now customize it with our templates.");
-    } catch (error) {
+      // Upload to Supabase storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      const filePath = `temp/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('resumes')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('resumes')
+        .getPublicUrl(filePath);
+
+      // Call edge function to parse resume with AI
+      const { data, error } = await supabase.functions.invoke('resume-ai-assistant', {
+        body: { 
+          type: 'parse',
+          context: { fileUrl: publicUrl, fileName: file.name }
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.resumeData) {
+        setResumeData(data.resumeData);
+        toast.success("Resume parsed successfully! Review and customize as needed.");
+      } else {
+        toast.warning("Could not extract all data. Please fill in missing details.");
+      }
+
+      // Cleanup temp file
+      await supabase.storage.from('resumes').remove([filePath]);
+    } catch (error: any) {
       console.error('Error parsing resume:', error);
-      toast.error("Could not process your resume. Please try again.");
+      toast.error(error.message || "Could not process your resume. Please try again.");
+    } finally {
+      event.target.value = '';
     }
   };
 
@@ -164,8 +295,14 @@ const ResumeBuilder = () => {
                 Create professional, ATS-optimized resumes in minutes. Choose from multiple templates and download as PDF.
               </p>
               
-              {/* Upload Resume Button */}
-              <div className="mt-6">
+              {/* Action Buttons */}
+              <div className="mt-6 flex gap-3 justify-center">
+                {user && (
+                  <Button onClick={loadUserProfile} variant="outline" className="gap-2">
+                    <User className="h-4 w-4" />
+                    Load My Profile
+                  </Button>
+                )}
                 <Button variant="outline" className="relative gap-2">
                   <Upload className="h-4 w-4" />
                   Upload Existing Resume
