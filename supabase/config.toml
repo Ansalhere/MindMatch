@@ -1,1 +1,4 @@
 project_id = "grbtziyqindonbkkkfkc"
+
+[functions.notify-subscribers]
+verify_jwt = true

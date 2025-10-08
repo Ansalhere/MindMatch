@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { createJob } from '@/lib/supabase';
 import { useUser } from '@/hooks/useUser';
 import Layout from '@/components/Layout';
+import { supabase } from '@/integrations/supabase/client';
 
 const PostJob = () => {
   const navigate = useNavigate();
@@ -67,6 +68,29 @@ const PostJob = () => {
       const result = await createJob(jobPostData);
       
       if (result.error) throw result.error;
+
+      // Notify subscribers about the new job
+      try {
+        const jobId = result.job?.id;
+        const jobLink = jobId ? `${window.location.origin}/job/${jobId}` : window.location.origin;
+        await supabase.functions.invoke('notify-subscribers', {
+          body: {
+            type: 'job_posted',
+            data: {
+              title: formData.jobTitle,
+              description: formData.description.substring(0, 200) + '...',
+              link: jobLink,
+              companyName: formData.companyName || user?.company,
+              location: formData.location || 'Remote',
+              jobType: formData.jobType
+            }
+          }
+        });
+        console.log('Subscribers notified about new job');
+      } catch (notifyError) {
+        console.error('Failed to notify subscribers:', notifyError);
+        // Don't fail the job posting if notification fails
+      }
       
       toast.success("Job posted successfully!");
       navigate('/dashboard');

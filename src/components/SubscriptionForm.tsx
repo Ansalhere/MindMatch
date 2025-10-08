@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const SubscriptionForm = () => {
   const [email, setEmail] = useState('');
@@ -19,9 +20,18 @@ const SubscriptionForm = () => {
 
     setIsLoading(true);
     try {
-      // For now, we'll simulate the subscription since the database table isn't ready
-      // TODO: Replace with actual Supabase call once types are updated
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await supabase.rpc('insert_newsletter_subscription', {
+        email_address: email.trim().toLowerCase()
+      });
+      
+      if (error) {
+        if (error.message.includes('already subscribed')) {
+          toast.error('This email is already subscribed!');
+        } else {
+          throw error;
+        }
+        return;
+      }
       
       setIsSubscribed(true);
       toast.success('Successfully subscribed to our newsletter!');

@@ -370,18 +370,27 @@ export type Database = {
           email: string
           id: string
           is_active: boolean
+          preferences: Json | null
+          user_id: string | null
+          user_type: string | null
         }
         Insert: {
           created_at?: string
           email: string
           id?: string
           is_active?: boolean
+          preferences?: Json | null
+          user_id?: string | null
+          user_type?: string | null
         }
         Update: {
           created_at?: string
           email?: string
           id?: string
           is_active?: boolean
+          preferences?: Json | null
+          user_id?: string | null
+          user_type?: string | null
         }
         Relationships: []
       }
