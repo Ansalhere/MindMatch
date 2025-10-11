@@ -249,21 +249,41 @@ const Job = () => {
 
   return (
     <Layout>
-      <Helmet>
-        <meta property="og:title" content={`${job.title} - ${companyName}`} />
-        <meta property="og:description" content={job.description.substring(0, 160)} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={`${window.location.origin}/job/${job.id}`} />
-        <meta property="og:image" content={`${window.location.origin}/favicon.png`} />
-        <meta property="og:site_name" content="FresherPools - Professional Job Platform" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${job.title} - ${companyName}`} />
-        <meta name="twitter:description" content={job.description.substring(0, 160)} />
-        <meta name="twitter:image" content={`${window.location.origin}/favicon.png`} />
-      </Helmet>
       <SEOHead
-        title={`${job.title} at ${job.company_name || job.employer?.company || job.employer?.name} | FresherPools`}
-        description={`Apply for ${job.title} position at ${job.company_name || job.employer?.company || job.employer?.name} in ${job.location}. ${job.description.substring(0, 150)}...`}
+        title={`${job.title} at ${companyName} | FresherPools`}
+        description={job.description.substring(0, 160)}
+        canonical={`/job/${job.id}`}
+        type="article"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "JobPosting",
+          "title": job.title,
+          "description": job.description,
+          "datePosted": job.created_at,
+          "validThrough": job.closing_date,
+          "employmentType": job.job_type,
+          "hiringOrganization": {
+            "@type": "Organization",
+            "name": companyName
+          },
+          "jobLocation": {
+            "@type": "Place",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": job.location
+            }
+          },
+          "baseSalary": job.salary_min && job.salary_max ? {
+            "@type": "MonetaryAmount",
+            "currency": "INR",
+            "value": {
+              "@type": "QuantitativeValue",
+              "minValue": job.salary_min,
+              "maxValue": job.salary_max,
+              "unitText": "YEAR"
+            }
+          } : undefined
+        }}
       />
       
       <div className="container mx-auto px-4 py-8">
