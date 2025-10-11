@@ -238,13 +238,14 @@ const CandidateProfile = ({ profile, currentUser }: { profile: any; currentUser:
               <MapPin className="h-4 w-4 text-muted-foreground" />
               <span>{profile.location}</span>
             </div>
-            {profile.email && (
+            {/* Only show contact details to employers or profile owner */}
+            {profile.email && (currentUser?.user_type === 'employer' || currentUser?.id === profile.id) && (
               <div className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-muted-foreground" />
                 <span>{profile.email}</span>
               </div>
             )}
-            {profile.phone && (
+            {profile.phone && (currentUser?.user_type === 'employer' || currentUser?.id === profile.id) && (
               <div className="flex items-center gap-3">
                 <Phone className="h-4 w-4 text-muted-foreground" />
                 <span>{profile.phone}</span>

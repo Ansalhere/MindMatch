@@ -254,10 +254,12 @@ const Job = () => {
         <meta property="og:description" content={job.description.substring(0, 160)} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`${window.location.origin}/job/${job.id}`} />
-        <meta property="og:site_name" content="RankMe.AI - Professional Job Platform" />
+        <meta property="og:image" content={`${window.location.origin}/favicon.png`} />
+        <meta property="og:site_name" content="FresherPools - Professional Job Platform" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${job.title} - ${companyName}`} />
         <meta name="twitter:description" content={job.description.substring(0, 160)} />
+        <meta name="twitter:image" content={`${window.location.origin}/favicon.png`} />
       </Helmet>
       <SEOHead
         title={`${job.title} at ${job.company_name || job.employer?.company || job.employer?.name} | FresherPools`}
