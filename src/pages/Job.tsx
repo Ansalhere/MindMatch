@@ -11,7 +11,8 @@ import {
   Briefcase,
   ArrowLeft,
   Send,
-  CheckCircle
+  CheckCircle,
+  Share2
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -129,6 +130,23 @@ const Job = () => {
     } catch (error) {
       // No application found, which is fine
     }
+  };
+
+  // Generate shareable URL with meta info for social media
+  const getShareableUrl = () => {
+    if (!job) return window.location.href;
+    const baseUrl = window.location.origin + window.location.pathname;
+    const params = new URLSearchParams({
+      title: job.title,
+      desc: job.description.substring(0, 200)
+    });
+    return `${baseUrl}?${params.toString()}`;
+  };
+
+  const copyShareLink = () => {
+    const shareUrl = getShareableUrl();
+    navigator.clipboard.writeText(shareUrl);
+    toast.success("Shareable link copied! This link will show proper preview on WhatsApp and social media.");
   };
 
   const handleApply = async () => {
@@ -287,13 +305,19 @@ const Job = () => {
       />
       
       <div className="container mx-auto px-4 py-8">
-        {/* Back Button */}
-        <Button variant="ghost" asChild className="mb-6">
-          <Link to="/jobs">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Jobs
-          </Link>
-        </Button>
+        {/* Back Button and Share Link */}
+        <div className="flex items-center justify-between mb-6">
+          <Button variant="ghost" asChild>
+            <Link to="/jobs">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Jobs
+            </Link>
+          </Button>
+          <Button onClick={copyShareLink} variant="outline" size="sm">
+            <Share2 className="h-4 w-4 mr-2" />
+            Copy Share Link
+          </Button>
+        </div>
 
         {isEmployer ? (
           // Employer view - show applications and candidate suggestions

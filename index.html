@@ -4,18 +4,46 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FresherPools - AI-Powered Job Matching Platform for Fresh Talent</title>
-    <meta name="description" content="FresherPools - Connect fresh talent with employers through AI-powered job matching and skill verification" />
+    <title id="page-title">FresherPools - AI-Powered Job Matching Platform for Fresh Talent</title>
+    <meta id="page-description" name="description" content="FresherPools - Connect fresh talent with employers through AI-powered job matching and skill verification" />
     <meta name="author" content="FresherPools" />
 
-    <meta property="og:title" content="FresherPools - AI-Powered Job Matching Platform" />
-    <meta property="og:description" content="Connect fresh talent with employers through AI-powered job matching and skill verification" />
+    <meta id="og-title" property="og:title" content="FresherPools - AI-Powered Job Matching Platform" />
+    <meta id="og-description" property="og:description" content="Connect fresh talent with employers through AI-powered job matching and skill verification" />
     <meta property="og:type" content="website" />
+    <meta id="og-url" property="og:url" content="" />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@fresherpools" />
+    <meta id="twitter-title" name="twitter:title" content="FresherPools - AI-Powered Job Matching Platform" />
+    <meta id="twitter-description" name="twitter:description" content="Connect fresh talent with employers through AI-powered job matching and skill verification" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <script>
+      // Update meta tags from URL parameters for social media crawlers
+      (function() {
+        const params = new URLSearchParams(window.location.search);
+        const title = params.get('title');
+        const description = params.get('desc');
+        const url = window.location.href.split('?')[0];
+        
+        if (title) {
+          document.getElementById('page-title').textContent = title + ' | FresherPools';
+          document.getElementById('og-title').setAttribute('content', title + ' | FresherPools');
+          document.getElementById('twitter-title').setAttribute('content', title + ' | FresherPools');
+        }
+        
+        if (description) {
+          const shortDesc = description.substring(0, 160);
+          document.getElementById('page-description').setAttribute('content', shortDesc);
+          document.getElementById('og-description').setAttribute('content', shortDesc);
+          document.getElementById('twitter-description').setAttribute('content', shortDesc);
+        }
+        
+        document.getElementById('og-url').setAttribute('content', url);
+      })();
+    </script>
     
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4780726447163486"
