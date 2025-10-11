@@ -12,23 +12,23 @@ interface SEOHeadProps {
 }
 
 const SEOHead = ({
-  title = "RankMe.AI - The World's First Skill-Based Ranking Platform for Job Seekers",
-  description = "Join RankMe.AI and boost your career with our AI-powered skill ranking system. Showcase your expertise, get ranked by top employers, and land your dream job faster.",
-  keywords = "skill ranking, job search, AI career platform, skill assessment, professional ranking, job matching, career growth, skill verification, talent ranking, job seekers",
+  title = "FresherPools - AI-Powered Job Matching Platform for Fresh Talent",
+  description = "Connect fresh talent with employers through AI-powered job matching and skill verification",
+  keywords = "job search, fresher jobs, AI job matching, skill assessment, job platform, career growth, talent matching, job seekers",
   canonical,
-  image = "/og-image.jpg",
+  image = "https://lovable.dev/opengraph-image-p98pqg.png",
   type = "website",
   noIndex = false,
   structuredData
 }: SEOHeadProps) => {
-  const baseUrl = "https://rankme.ai";
+  const baseUrl = window.location.origin;
   const fullImageUrl = image.startsWith('http') ? image : `${baseUrl}${image}`;
-  const fullCanonicalUrl = canonical ? `${baseUrl}${canonical}` : `${baseUrl}${window.location.pathname}`;
+  const fullCanonicalUrl = canonical ? `${baseUrl}${canonical}` : window.location.href;
 
   const defaultStructuredData = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "RankMe.AI",
+    "name": "FresherPools",
     "description": description,
     "url": baseUrl,
     "applicationCategory": "Career Platform",
@@ -40,12 +40,12 @@ const SEOHead = ({
     },
     "creator": {
       "@type": "Organization",
-      "name": "RankMe.AI",
+      "name": "FresherPools",
       "url": baseUrl
     },
     "featureList": [
-      "AI-powered skill ranking",
-      "Professional skill assessment",
+      "AI-powered job matching",
+      "Skill assessment",
       "Job matching algorithm",
       "Career growth tracking",
       "Employer connections"
@@ -78,7 +78,7 @@ const SEOHead = ({
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       <meta property="og:url" content={fullCanonicalUrl} />
-      <meta property="og:site_name" content="RankMe.AI" />
+      <meta property="og:site_name" content="FresherPools" />
       <meta property="og:locale" content="en_US" />
       
       {/* Twitter Card Tags */}
@@ -86,13 +86,13 @@ const SEOHead = ({
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={fullImageUrl} />
-      <meta name="twitter:site" content="@RankMeAI" />
-      <meta name="twitter:creator" content="@RankMeAI" />
+      <meta name="twitter:site" content="@fresherpools" />
+      <meta name="twitter:creator" content="@fresherpools" />
       
       {/* Additional Meta Tags for SEO */}
-      <meta name="author" content="RankMe.AI" />
-      <meta name="publisher" content="RankMe.AI" />
-      <meta name="application-name" content="RankMe.AI" />
+      <meta name="author" content="FresherPools" />
+      <meta name="publisher" content="FresherPools" />
+      <meta name="application-name" content="FresherPools" />
       <meta name="theme-color" content="#3B82F6" />
       <meta name="msapplication-TileColor" content="#3B82F6" />
       
