@@ -90,9 +90,6 @@ const Index = () => {
             <div id="ranking-system" className="py-12">
               <RankingShowcase isVisible={rankingVisible} />
             </div>
-            <div id="ranking-details">
-              <RankingDetailsSection isVisible={rankingVisible} />
-            </div>
             <div id="how-it-works">
               <HowItWorksSection isVisible={howItWorksVisible} />
             </div>

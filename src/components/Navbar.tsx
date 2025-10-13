@@ -74,6 +74,7 @@ const Navbar = () => {
       { label: 'Community', to: '/community' },
       { label: 'Skills', to: '/skills' },
       { label: 'Resume Builder', to: '/resume-builder' },
+      { label: 'Blog', to: '/blog' },
     ];
     
     return baseItems;
