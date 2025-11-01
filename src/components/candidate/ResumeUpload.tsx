@@ -90,7 +90,9 @@ const ResumeUpload = () => {
       }
 
       // Refresh user data to get the updated resume_url
+      console.log('Resume uploaded successfully, refreshing user data...');
       await refreshUser(session);
+      console.log('User data refreshed, new resume_url:', user?.resume_url);
 
       toast({
         title: "Resume uploaded successfully",

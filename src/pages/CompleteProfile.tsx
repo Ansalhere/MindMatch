@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Save, ArrowLeft, Plus, Trash2, Building2 } from 'lucide-react';
+import { Loader2, Save, ArrowLeft, Plus, Trash2, Building2, FileText } from 'lucide-react';
 import { toast } from "sonner";
 import { useUser } from '@/hooks/useUser';
 import Layout from '@/components/Layout';
@@ -332,16 +332,16 @@ const CompleteProfile = () => {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-5">
+            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-4">
               <TabsTrigger value="basic">Basic</TabsTrigger>
               <TabsTrigger value="professional">Professional</TabsTrigger>
               {user.user_type === 'candidate' && (
                 <>
                   <TabsTrigger value="experience">Experience</TabsTrigger>
                   <TabsTrigger value="education">Education</TabsTrigger>
-                  <TabsTrigger value="documents">Documents</TabsTrigger>
                 </>
               )}
+              <TabsTrigger value="documents">Documents</TabsTrigger>
             </TabsList>
 
             <TabsContent value="basic" className="mt-6">
@@ -691,12 +691,45 @@ const CompleteProfile = () => {
                     Add Education
                   </Button>
                 </TabsContent>
-
-                <TabsContent value="documents" className="mt-6">
-                  <ResumeUpload />
-                </TabsContent>
               </>
             )}
+
+            <TabsContent value="documents" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Documents & Files</CardTitle>
+                  <CardDescription>Upload and manage your professional documents</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {user.user_type === 'candidate' ? (
+                    <>
+                      <ResumeUpload />
+                      {user.resume_url && (
+                        <div className="mt-4 p-4 bg-muted rounded-lg">
+                          <p className="text-sm font-medium mb-2">Current Resume</p>
+                          <a 
+                            href={user.resume_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-sm text-primary hover:underline flex items-center gap-2"
+                          >
+                            <FileText className="h-4 w-4" />
+                            View Resume
+                          </a>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                      <p className="text-muted-foreground">
+                        Document upload is available for candidate profiles
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
           </Tabs>
         </div>
       </div>

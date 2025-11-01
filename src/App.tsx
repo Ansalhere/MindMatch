@@ -42,7 +42,7 @@ import SuperAdmin from "./pages/SuperAdmin";
 import AdminLogin from "./pages/AdminLogin";
 import AdminSignup from "./pages/AdminSignup";
 import EmployerLogin from "./pages/EmployerLogin";
-import EditProfile from "./pages/EditProfile";
+import CompleteProfile from "./pages/CompleteProfile";
 import LoginSelector from "./components/navigation/LoginSelector";
 import AdminSetup from "./components/AdminSetup";
 import { AuthProvider } from "./hooks/useUser";
@@ -66,7 +66,7 @@ const App = () => (
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/admin-signup" element={<AdminSignup />} />
           <Route path="/employer-login" element={<EmployerLogin />} />
-          <Route path="/edit-profile" element={<EditProfile />} />
+          <Route path="/edit-profile" element={<CompleteProfile />} />
           <Route path="/profile/:id/:type" element={<Profile />} />
           <Route path="/candidate/:id" element={<CandidateDetails />} />
           <Route path="/profiles" element={<Profiles />} />

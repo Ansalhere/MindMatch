@@ -41,26 +41,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setError(null);
       
-      if (currentSession?.user) {
-        console.log('Setting user from session:', currentSession.user.id);
+      // Use the current session from state if not provided
+      const sessionToUse = currentSession !== undefined ? currentSession : session;
+      
+      if (sessionToUse?.user) {
+        console.log('Setting user from session:', sessionToUse.user.id);
         
         // Get user profile from users table first
-        const { profile: userProfile } = await getUserProfile(currentSession.user.id);
+        const { profile: userProfile } = await getUserProfile(sessionToUse.user.id);
         if (userProfile) {
           setUser({
-            id: currentSession.user.id,
-            email: currentSession.user.email || '',
+            id: sessionToUse.user.id,
+            email: sessionToUse.user.email || '',
             user_type: userProfile.user_type || 'candidate',
             ...userProfile // This includes all fields from users table
           });
           setProfile(userProfile);
+          console.log('User profile refreshed:', userProfile.resume_url ? 'Resume URL present' : 'No resume URL');
         } else {
           // Fallback to session metadata if no profile found
           setUser({
-            id: currentSession.user.id,
-            email: currentSession.user.email || '',
-            user_type: currentSession.user.user_metadata?.user_type || 'candidate',
-            ...currentSession.user.user_metadata
+            id: sessionToUse.user.id,
+            email: sessionToUse.user.email || '',
+            user_type: sessionToUse.user.user_metadata?.user_type || 'candidate',
+            ...sessionToUse.user.user_metadata
           });
           setProfile(null);
         }
