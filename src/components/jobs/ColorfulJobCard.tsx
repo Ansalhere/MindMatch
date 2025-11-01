@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom';
 import { 
   Briefcase, Clock, Trophy, MapPin, DollarSign, Users, 
-  Star, TrendingUp, Zap, Building2, Calendar, Eye
+  Star, TrendingUp, Zap, Building2, Calendar, Eye, Lock
 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useUser } from '@/hooks/useUser';
+import { toast } from 'sonner';
 
 interface Job {
   id: string;
@@ -34,6 +36,17 @@ interface ColorfulJobCardProps {
 }
 
 const ColorfulJobCard = ({ job, compact = false, showApplications = false }: ColorfulJobCardProps) => {
+  const { user } = useUser();
+  
+  const handleExternalApply = (e: React.MouseEvent, url: string) => {
+    e.stopPropagation();
+    if (!user) {
+      toast.error("Please login to apply for this job");
+      return;
+    }
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
   // Color schemes for different job types
   const getJobTypeColor = (jobType: string) => {
     const colors = {
@@ -290,15 +303,14 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
             </Button>
             {job.external_apply_url ? (
               <Button 
-                asChild 
                 size="sm" 
                 className="flex-1 h-10 sm:h-9"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => handleExternalApply(e, job.external_apply_url!)}
+                disabled={!user}
               >
-                <a href={job.external_apply_url} target="_blank" rel="noopener noreferrer">
-                  <Zap className="h-4 w-4 mr-2" />
-                  Apply Now
-                </a>
+                {!user && <Lock className="h-4 w-4 mr-2" />}
+                {user && <Zap className="h-4 w-4 mr-2" />}
+                Apply Now
               </Button>
             ) : (
               <Button 

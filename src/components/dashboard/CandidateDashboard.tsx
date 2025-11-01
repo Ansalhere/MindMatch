@@ -13,6 +13,9 @@ import CandidateRankDisplay from '@/components/ranking/CandidateRankDisplay';
 import RankBreakdown from '@/components/profile/RankBreakdown';
 import { supabase } from '@/integrations/supabase/client';
 import { useUser } from '@/hooks/useUser';
+import ProfileCompletionCard from './ProfileCompletionCard';
+import { calculateProfileCompletion } from '@/utils/profileCompletion';
+import { getUserSkills, getUserEducation, getUserExperience, getUserCertifications } from '@/lib/supabase';
 
 interface CandidateDashboardProps {
   userData: any;
@@ -23,12 +26,39 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
   const { user } = useUser();
   const [applications, setApplications] = useState<any[]>([]);
   const [loadingApplications, setLoadingApplications] = useState(false);
+  const [profileCompletion, setProfileCompletion] = useState<any>(null);
 
   useEffect(() => {
     if (user) {
       fetchApplications();
+      fetchProfileData();
     }
   }, [user]);
+
+  const fetchProfileData = async () => {
+    if (!user) return;
+
+    try {
+      const [skillsResult, educationResult, experienceResult, certificationsResult] = await Promise.all([
+        getUserSkills(user.id),
+        getUserEducation(user.id),
+        getUserExperience(user.id),
+        getUserCertifications(user.id),
+      ]);
+
+      const completion = calculateProfileCompletion(
+        user,
+        skillsResult.skills || [],
+        educationResult.education || [],
+        experienceResult.experiences || [],
+        certificationsResult.certifications || []
+      );
+
+      setProfileCompletion(completion);
+    } catch (error) {
+      console.error('Error calculating profile completion:', error);
+    }
+  };
 
   const fetchApplications = async () => {
     if (!user) return;
@@ -100,7 +130,7 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
       </Card>
 
       {/* Clean Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -136,6 +166,12 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
             </div>
           </CardContent>
         </Card>
+
+        <div>
+          {profileCompletion && (
+            <ProfileCompletionCard completion={profileCompletion} compact={true} />
+          )}
+        </div>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

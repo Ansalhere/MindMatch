@@ -59,9 +59,9 @@ const DetailedSignupForm = ({ onSubmit, isLoading }: DetailedSignupFormProps) =>
       case 1:
         return formData.phone && formData.location;
       case 2:
-        return formData.expected_ctc && formData.experience_level;
+        return formData.expected_ctc && formData.experience_level && formData.job_role && formData.notice_period;
       case 3:
-        return formData.primary_skills && formData.education_level;
+        return formData.primary_skills && formData.education_level && formData.bio && formData.preferred_work_mode;
       default:
         return false;
     }
@@ -163,18 +163,22 @@ const DetailedSignupForm = ({ onSubmit, isLoading }: DetailedSignupFormProps) =>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="job_role">Current/Target Job Role</Label>
+                <Label htmlFor="job_role">Current/Target Job Role *</Label>
                 <Input
                   id="job_role"
                   value={formData.job_role}
                   onChange={(e) => updateFormData('job_role', e.target.value)}
                   placeholder="e.g., Software Engineer, Data Analyst"
+                  required
                 />
               </div>
               
               <div>
-                <Label htmlFor="notice_period">Notice Period</Label>
-                <Select onValueChange={(value) => updateFormData('notice_period', value)}>
+                <Label htmlFor="notice_period">Notice Period *</Label>
+                <Select 
+                  value={formData.notice_period}
+                  onValueChange={(value) => updateFormData('notice_period', value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select notice period" />
                   </SelectTrigger>
@@ -263,20 +267,27 @@ const DetailedSignupForm = ({ onSubmit, isLoading }: DetailedSignupFormProps) =>
             </div>
             
             <div>
-              <Label htmlFor="bio">Professional Summary</Label>
+              <Label htmlFor="bio">Professional Summary *</Label>
               <Textarea
                 id="bio"
                 value={formData.bio}
                 onChange={(e) => updateFormData('bio', e.target.value)}
                 placeholder="Brief description of your professional background and career goals..."
                 rows={3}
+                required
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                Write at least 50 characters about yourself
+              </p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="preferred_work_mode">Preferred Work Mode</Label>
-                <Select onValueChange={(value) => updateFormData('preferred_work_mode', value)}>
+                <Label htmlFor="preferred_work_mode">Preferred Work Mode *</Label>
+                <Select 
+                  value={formData.preferred_work_mode}
+                  onValueChange={(value) => updateFormData('preferred_work_mode', value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select work preference" />
                   </SelectTrigger>

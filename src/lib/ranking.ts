@@ -1,4 +1,5 @@
 // Advanced Ranking Algorithm with Coding Assessment Integration
+import { getProfileCompletionBonus } from '@/utils/profileCompletion';
 
 export interface SkillData {
   name: string;
@@ -178,8 +179,12 @@ export function calculateAdvancedRanking(
   // Coding Assessment (10% weight) - NEW
   const codingBreakdown = calculateCodingScore(codingAssessments);
   
-  // Profile Completeness (5% weight)
+  // Profile Completeness (5% weight) + completion bonus
   const profileBreakdown = calculateProfileScore(profileData);
+  
+  // Get profile completion bonus (up to 10 additional points)
+  const completionPercentage = profileData?.completionPercentage || 0;
+  const profileBonus = getProfileCompletionBonus(completionPercentage);
   
   // Calculate weighted total
   const totalScore = 
@@ -188,7 +193,8 @@ export function calculateAdvancedRanking(
     (experienceBreakdown.score * 0.25) +
     (certificationsBreakdown.score * 0.10) +
     (codingBreakdown.score * 0.10) +
-    (profileBreakdown.score * 0.05);
+    (profileBreakdown.score * 0.05) +
+    profileBonus; // Add the completion bonus
   
   const positionEstimate = calculatePositionEstimate(totalScore);
   const recommendations = generateRecommendations(
