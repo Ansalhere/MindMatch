@@ -50,9 +50,13 @@ const ResumeUpload = () => {
 
       // Delete existing resume if any
       if (user.resume_url) {
-        const oldPath = user.resume_url.split('/').pop();
-        if (oldPath) {
-          await supabase.storage.from('resumes').remove([`${user.id}/${oldPath}`]);
+        try {
+          const oldFileName = user.resume_url.split('/').slice(-1)[0];
+          if (oldFileName) {
+            await supabase.storage.from('resumes').remove([`${user.id}/${oldFileName}`]);
+          }
+        } catch (deleteError) {
+          console.log('Old resume deletion failed, continuing with upload:', deleteError);
         }
       }
 
@@ -60,10 +64,14 @@ const ResumeUpload = () => {
       const { data, error } = await supabase.storage
         .from('resumes')
         .upload(fileName, file, {
-          upsert: true
+          upsert: true,
+          contentType: file.type
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Upload error:', error);
+        throw error;
+      }
 
       // Update user profile with resume URL
       const { error: updateError } = await supabase
@@ -71,7 +79,10 @@ const ResumeUpload = () => {
         .update({ resume_url: data.path })
         .eq('id', user.id);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('Update error:', updateError);
+        throw updateError;
+      }
 
       // Refresh user data
       await refreshUser();
@@ -80,11 +91,11 @@ const ResumeUpload = () => {
         title: "Resume uploaded successfully",
         description: "Your resume has been uploaded and is now available to employers"
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading resume:', error);
       toast({
         title: "Upload failed",
-        description: "There was an error uploading your resume. Please try again.",
+        description: error.message || "There was an error uploading your resume. Please try again.",
         variant: "destructive"
       });
     } finally {

@@ -6,6 +6,7 @@ import { CheckCircle, X, Loader2, Trophy, User, Phone, Mail, MapPin, Crown } fro
 import { toast } from "sonner";
 import { updateApplicationStatus } from '@/lib/supabase';
 import { usePremiumFeatures } from '@/hooks/usePremiumFeatures';
+import ReplyToApplication from './ReplyToApplication';
 import {
   Table,
   TableBody,
@@ -134,6 +135,11 @@ const ApplicationManager = ({ applications = [], onStatusUpdate }: ApplicationMa
             </TableCell>
             <TableCell className="text-right">
               <div className="flex justify-end gap-2">
+                <ReplyToApplication
+                  candidateId={app.candidate_id}
+                  candidateName={app.candidate?.name || 'Candidate'}
+                  applicationId={app.id}
+                />
                 {app.status === 'pending' && (
                   <>
                     <Button 

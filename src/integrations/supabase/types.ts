@@ -800,14 +800,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      calculate_candidate_rank: {
-        Args: { user_id: string }
-        Returns: number
-      }
-      candidate_is_public: {
-        Args: { candidate_id: string }
-        Returns: boolean
-      }
+      calculate_candidate_rank: { Args: { user_id: string }; Returns: number }
+      candidate_is_public: { Args: { candidate_id: string }; Returns: boolean }
       employer_has_app_with_candidate: {
         Args: { candidate_id: string }
         Returns: boolean
@@ -845,10 +839,7 @@ export type Database = {
           website: string
         }[]
       }
-      get_current_user_type: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      get_current_user_type: { Args: never; Returns: string }
       get_employer_jobs_with_applications: {
         Args: { employer_id: string }
         Returns: {
@@ -865,10 +856,7 @@ export type Database = {
           title: string
         }[]
       }
-      get_post_like_count: {
-        Args: { post_id_param: string }
-        Returns: number
-      }
+      get_post_like_count: { Args: { post_id_param: string }; Returns: number }
       get_public_candidate_profile: {
         Args: { candidate_id: string }
         Returns: {
@@ -946,10 +934,7 @@ export type Database = {
         Args: { job_id: string; new_status: boolean }
         Returns: undefined
       }
-      user_liked_post: {
-        Args: { post_id_param: string }
-        Returns: boolean
-      }
+      user_liked_post: { Args: { post_id_param: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
