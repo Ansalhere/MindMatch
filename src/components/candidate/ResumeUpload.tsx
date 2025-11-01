@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Upload, FileText, X, Loader2 } from 'lucide-react';
+import { Upload, FileText, X, Loader2, Download } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -51,10 +51,10 @@ const ResumeUpload = () => {
       // Delete existing resume if any
       if (user.resume_url) {
         try {
-          const oldFileName = user.resume_url.split('/').slice(-1)[0];
-          if (oldFileName) {
-            await supabase.storage.from('resumes').remove([`${user.id}/${oldFileName}`]);
-          }
+          const resumePath = user.resume_url.includes('resumes/') 
+            ? user.resume_url.split('resumes/')[1] 
+            : `${user.id}/resume.${fileExt}`;
+          await supabase.storage.from('resumes').remove([resumePath]);
         } catch (deleteError) {
           console.log('Old resume deletion failed, continuing with upload:', deleteError);
         }
@@ -89,7 +89,7 @@ const ResumeUpload = () => {
         throw updateError;
       }
 
-      // Refresh user data
+      // Refresh user data to get the updated resume_url
       await refreshUser();
 
       toast({
@@ -129,11 +129,12 @@ const ResumeUpload = () => {
     if (!user?.id || !user.resume_url) return;
 
     try {
-      // Delete from storage
-      const fileName = user.resume_url.split('/').pop();
-      if (fileName) {
-        await supabase.storage.from('resumes').remove([`${user.id}/${fileName}`]);
-      }
+      // Extract the file path from the URL
+      const resumePath = user.resume_url.includes('resumes/') 
+        ? user.resume_url.split('resumes/')[1] 
+        : `${user.id}/resume.pdf`;
+        
+      await supabase.storage.from('resumes').remove([resumePath]);
 
       // Update user profile
       const { error } = await supabase
@@ -178,15 +179,25 @@ const ResumeUpload = () => {
                   <p className="text-sm text-muted-foreground">Ready for employers to view</p>
                 </div>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleDeleteResume}
-                className="text-red-600 hover:text-red-700"
-              >
-                <X className="h-4 w-4" />
-                Remove
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(user.resume_url, '_blank')}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  View
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDeleteResume}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <X className="h-4 w-4" />
+                  Remove
+                </Button>
+              </div>
             </div>
           </div>
         ) : (
