@@ -10,7 +10,7 @@ const ResumeUpload = () => {
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const { toast } = useToast();
-  const { user, refreshUser } = useUser();
+  const { user, session, refreshUser } = useUser();
 
   const handleFileUpload = async (file: File) => {
     if (!user?.id) {
@@ -90,7 +90,7 @@ const ResumeUpload = () => {
       }
 
       // Refresh user data to get the updated resume_url
-      await refreshUser();
+      await refreshUser(session);
 
       toast({
         title: "Resume uploaded successfully",
@@ -144,7 +144,7 @@ const ResumeUpload = () => {
 
       if (error) throw error;
 
-      await refreshUser();
+      await refreshUser(session);
 
       toast({
         title: "Resume removed",

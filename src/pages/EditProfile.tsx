@@ -34,7 +34,7 @@ const profileSchema = z.object({
 type ProfileFormData = z.infer<typeof profileSchema>;
 
 const EditProfile = () => {
-  const { user, refreshUser, isLoading: userLoading } = useUser();
+  const { user, session, refreshUser, isLoading: userLoading } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -126,7 +126,7 @@ const EditProfile = () => {
         }
       }
 
-      await refreshUser();
+      await refreshUser(session);
       toast.success('Profile updated successfully!');
       navigate('/dashboard');
     } catch (error: any) {

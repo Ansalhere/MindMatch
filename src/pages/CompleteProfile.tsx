@@ -62,7 +62,7 @@ interface Education {
 }
 
 const CompleteProfile = () => {
-  const { user, refreshUser, isLoading: userLoading } = useUser();
+  const { user, session, refreshUser, isLoading: userLoading } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('basic');
   const [experiences, setExperiences] = useState<Experience[]>([]);
@@ -188,7 +188,7 @@ const CompleteProfile = () => {
         }
       }
 
-      await refreshUser();
+      await refreshUser(session);
       toast.success('Profile updated successfully!');
     } catch (error: any) {
       console.error('Error updating profile:', error);

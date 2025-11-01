@@ -9,7 +9,7 @@ import { useUser } from '@/hooks/useUser';
 const AvatarUpload = () => {
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
-  const { user, refreshUser } = useUser();
+  const { user, session, refreshUser } = useUser();
 
   const handleFileUpload = async (file: File) => {
     if (!user?.id) {
@@ -89,7 +89,7 @@ const AvatarUpload = () => {
       }
 
       // Refresh user data
-      await refreshUser();
+      await refreshUser(session);
 
       toast({
         title: "Avatar uploaded successfully",
@@ -130,7 +130,7 @@ const AvatarUpload = () => {
 
       if (error) throw error;
 
-      await refreshUser();
+      await refreshUser(session);
 
       toast({
         title: "Avatar removed",
