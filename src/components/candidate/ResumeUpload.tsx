@@ -73,10 +73,15 @@ const ResumeUpload = () => {
         throw error;
       }
 
+      // Get the full public URL for the resume
+      const { data: urlData } = supabase.storage
+        .from('resumes')
+        .getPublicUrl(data.path);
+
       // Update user profile with resume URL
       const { error: updateError } = await supabase
         .from('users')
-        .update({ resume_url: data.path })
+        .update({ resume_url: urlData.publicUrl })
         .eq('id', user.id);
 
       if (updateError) {

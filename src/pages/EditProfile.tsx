@@ -26,6 +26,9 @@ const profileSchema = z.object({
   company: z.string().optional(),
   industry: z.string().optional(),
   size: z.string().optional(),
+  // Candidate specific fields
+  current_ctc: z.string().optional(),
+  expected_ctc: z.string().optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -47,6 +50,8 @@ const EditProfile = () => {
       company: '',
       industry: '',
       size: '',
+      current_ctc: '',
+      expected_ctc: '',
     },
   });
 
@@ -67,6 +72,8 @@ const EditProfile = () => {
         company: user.company || '',
         industry: user.industry || '',
         size: user.size || '',
+        current_ctc: user.current_ctc || '',
+        expected_ctc: user.expected_ctc || '',
       });
     }
   }, [user, userLoading, navigate, form]);
@@ -89,6 +96,12 @@ const EditProfile = () => {
         updateData.industry = data.industry;
         updateData.size = data.size;
         updateData.website = data.website;
+      }
+
+      // Add candidate-specific fields if user is a candidate
+      if (user.user_type === 'candidate') {
+        updateData.current_ctc = data.current_ctc;
+        updateData.expected_ctc = data.expected_ctc;
       }
 
       const { error } = await supabase
@@ -257,6 +270,31 @@ const EditProfile = () => {
                             {form.formState.errors.website.message}
                           </p>
                         )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {user.user_type === 'candidate' && (
+                  <div className="space-y-4 border-t pt-6">
+                    <h3 className="text-lg font-semibold">Professional Information</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="current_ctc">Current CTC</Label>
+                        <Input
+                          id="current_ctc"
+                          {...form.register('current_ctc')}
+                          placeholder="e.g., 500000"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="expected_ctc">Expected CTC</Label>
+                        <Input
+                          id="expected_ctc"
+                          {...form.register('expected_ctc')}
+                          placeholder="e.g., 800000"
+                        />
                       </div>
                     </div>
                   </div>
