@@ -46,17 +46,19 @@ import CompleteProfile from "./pages/CompleteProfile";
 import LoginSelector from "./components/navigation/LoginSelector";
 import AdminSetup from "./components/AdminSetup";
 import { AuthProvider } from "./hooks/useUser";
+import { ProfileCompletionGuard } from "./components/profile/ProfileCompletionGuard";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <SecurityHeaders />
-        <Toaster />
-        <Sonner position="top-center" closeButton theme="light" className="font-sans" duration={4000} />
-        <Routes>
+      <ProfileCompletionGuard>
+        <TooltipProvider>
+          <SecurityHeaders />
+          <Toaster />
+          <Sonner position="top-center" closeButton theme="light" className="font-sans" duration={4000} />
+          <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/auth" element={<Auth />} />
@@ -99,6 +101,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </TooltipProvider>
+      </ProfileCompletionGuard>
     </AuthProvider>
   </QueryClientProvider>
 );

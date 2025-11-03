@@ -91,8 +91,10 @@ const ResumeUpload = () => {
 
       // Refresh user data to get the updated resume_url
       console.log('Resume uploaded successfully, refreshing user data...');
-      await refreshUser(session);
-      console.log('User data refreshed, new resume_url:', user?.resume_url);
+      setTimeout(async () => {
+        await refreshUser(session);
+        console.log('User data refreshed, new resume_url:', user?.resume_url);
+      }, 500);
 
       toast({
         title: "Resume uploaded successfully",
@@ -146,7 +148,10 @@ const ResumeUpload = () => {
 
       if (error) throw error;
 
-      await refreshUser(session);
+      // Refresh user data
+      setTimeout(async () => {
+        await refreshUser(session);
+      }, 500);
 
       toast({
         title: "Resume removed",

@@ -238,17 +238,34 @@ const CandidateProfile = ({ profile, currentUser }: { profile: any; currentUser:
               <MapPin className="h-4 w-4 text-muted-foreground" />
               <span>{profile.location}</span>
             </div>
-            {/* Only show contact details to employers or profile owner */}
-            {profile.email && (currentUser?.user_type === 'employer' || currentUser?.id === profile.id) && (
-              <div className="flex items-center gap-3">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                <span>{profile.email}</span>
+            {profile.bio && (
+              <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                <p className="text-sm">{profile.bio}</p>
               </div>
             )}
-            {profile.phone && (currentUser?.user_type === 'employer' || currentUser?.id === profile.id) && (
+            {profile.current_ctc && (
               <div className="flex items-center gap-3">
-                <Phone className="h-4 w-4 text-muted-foreground" />
-                <span>{profile.phone}</span>
+                <Briefcase className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">Current: {profile.current_ctc}</span>
+              </div>
+            )}
+            {profile.expected_ctc && (
+              <div className="flex items-center gap-3">
+                <Briefcase className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">Expected: {profile.expected_ctc}</span>
+              </div>
+            )}
+            {profile.resume_url && (
+              <div className="pt-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full"
+                  onClick={() => window.open(profile.resume_url, '_blank')}
+                >
+                  <Book className="h-4 w-4 mr-2" />
+                  View Resume
+                </Button>
               </div>
             )}
             {profile.education && profile.education.length > 0 && (
@@ -441,7 +458,14 @@ const EmployerProfile = ({ profile }: { profile: any }) => {
             {profile.website && (
               <div className="flex items-center gap-3">
                 <Building className="h-4 w-4 text-muted-foreground" />
-                <span>{profile.website}</span>
+                <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                  {profile.website}
+                </a>
+              </div>
+            )}
+            {profile.bio && (
+              <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg mt-4">
+                <p className="text-sm">{profile.bio}</p>
               </div>
             )}
             <div className="flex items-center gap-3">

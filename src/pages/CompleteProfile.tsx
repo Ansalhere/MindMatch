@@ -188,7 +188,10 @@ const CompleteProfile = () => {
         }
       }
 
-      await refreshUser(session);
+      // Force refresh with a small delay to ensure DB has updated
+      setTimeout(async () => {
+        await refreshUser(session);
+      }, 500);
       toast.success('Profile updated successfully!');
     } catch (error: any) {
       console.error('Error updating profile:', error);

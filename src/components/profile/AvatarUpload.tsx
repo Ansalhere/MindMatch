@@ -89,7 +89,9 @@ const AvatarUpload = () => {
       }
 
       // Refresh user data
-      await refreshUser(session);
+      setTimeout(async () => {
+        await refreshUser(session);
+      }, 500);
 
       toast({
         title: "Avatar uploaded successfully",
@@ -130,7 +132,9 @@ const AvatarUpload = () => {
 
       if (error) throw error;
 
-      await refreshUser(session);
+      setTimeout(async () => {
+        await refreshUser(session);
+      }, 500);
 
       toast({
         title: "Avatar removed",

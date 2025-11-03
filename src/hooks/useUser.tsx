@@ -40,26 +40,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const refreshUser = async (currentSession?: Session | null) => {
     try {
       setError(null);
+      setIsLoading(true);
       
       // Use the current session from state if not provided
       const sessionToUse = currentSession !== undefined ? currentSession : session;
       
       if (sessionToUse?.user) {
-        console.log('Setting user from session:', sessionToUse.user.id);
-        
-        // Get user profile from users table first
+        // Force fresh data from database
         const { profile: userProfile } = await getUserProfile(sessionToUse.user.id);
         if (userProfile) {
-          setUser({
+          const freshUser = {
             id: sessionToUse.user.id,
             email: sessionToUse.user.email || '',
             user_type: userProfile.user_type || 'candidate',
-            ...userProfile // This includes all fields from users table
-          });
+            ...userProfile
+          };
+          setUser(freshUser);
           setProfile(userProfile);
-          console.log('User profile refreshed:', userProfile.resume_url ? 'Resume URL present' : 'No resume URL');
         } else {
-          // Fallback to session metadata if no profile found
           setUser({
             id: sessionToUse.user.id,
             email: sessionToUse.user.email || '',
@@ -69,7 +67,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setProfile(null);
         }
       } else {
-        console.log('No session, clearing user state');
         setUser(null);
         setProfile(null);
       }
