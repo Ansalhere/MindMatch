@@ -117,45 +117,49 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
 
   if (compact) {
     return (
-      <Card className="group hover:shadow-lg transition-all duration-200 border-l-4 h-full cursor-pointer" 
-            style={{ borderLeftColor: `var(--${getJobTypeColor(job.job_type).split(' ')[0].replace('from-', '')})` }}
-            onClick={() => window.open(`/job/${job.id}`, '_blank')}>
+      <Card className="group hover:shadow-lg transition-all duration-200 border-l-4 h-full" 
+            style={{ borderLeftColor: `var(--${getJobTypeColor(job.job_type).split(' ')[0].replace('from-', '')})` }}>
         <CardContent className="p-3 sm:p-4 h-full">
-          <div className="flex items-start gap-2 sm:gap-3 mb-3">
-            <Avatar className="h-8 w-8 flex-shrink-0">
-              <AvatarFallback className={`bg-gradient-to-br ${getJobTypeColor(job.job_type)} text-white font-bold text-xs`}>
-                {getCompanyInitials(getCompanyName())}
-              </AvatarFallback>
-            </Avatar>
-            <div className="min-w-0 flex-1">
-              <h3 className="font-semibold text-sm sm:text-base line-clamp-2 mb-1">{job.title}</h3>
-              <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1 mb-2">
-                <Building2 className="h-3 w-3 flex-shrink-0" />
-                <span className="truncate">{getCompanyName()}</span>
-              </p>
+          <div 
+            className="cursor-pointer"
+            onClick={() => window.open(`/job/${job.id}`, '_blank')}
+          >
+            <div className="flex items-start gap-2 sm:gap-3 mb-3">
+              <Avatar className="h-8 w-8 flex-shrink-0">
+                <AvatarFallback className={`bg-gradient-to-br ${getJobTypeColor(job.job_type)} text-white font-bold text-xs`}>
+                  {getCompanyInitials(getCompanyName())}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1">
+                <h3 className="font-semibold text-sm sm:text-base line-clamp-2 mb-1">{job.title}</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1 mb-2">
+                  <Building2 className="h-3 w-3 flex-shrink-0" />
+                  <span className="truncate">{getCompanyName()}</span>
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-2 mb-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm text-muted-foreground">
-              <div className="flex items-center gap-1.5">
-                <MapPin className="h-3 w-3 flex-shrink-0" />
-                <span className="truncate">{job.location}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Briefcase className="h-3 w-3 flex-shrink-0" />
-                <span>{getExperienceText()}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Clock className="h-3 w-3 flex-shrink-0" />
-                <span>{getPostedDate()}</span>
-              </div>
-              {formatSalary(job.salary_min, job.salary_max) && (
-                <div className="flex items-center gap-1.5 font-medium text-green-600">
-                  <DollarSign className="h-3 w-3 flex-shrink-0" />
-                  <span className="truncate">{formatSalary(job.salary_min, job.salary_max)}</span>
+            <div className="space-y-2 mb-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="h-3 w-3 flex-shrink-0" />
+                  <span className="truncate">{job.location}</span>
                 </div>
-              )}
+                <div className="flex items-center gap-1.5">
+                  <Briefcase className="h-3 w-3 flex-shrink-0" />
+                  <span>{getExperienceText()}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="h-3 w-3 flex-shrink-0" />
+                  <span>{getPostedDate()}</span>
+                </div>
+                {formatSalary(job.salary_min, job.salary_max) && (
+                  <div className="flex items-center gap-1.5 font-medium text-green-600">
+                    <DollarSign className="h-3 w-3 flex-shrink-0" />
+                    <span className="truncate">{formatSalary(job.salary_min, job.salary_max)}</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -175,17 +179,32 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
               </div>
             )}
             
-            <Button 
-              asChild 
-              size="sm" 
-              className="ml-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Link to={`/job/${job.id}`}>
-                <Eye className="h-3 w-3 mr-1" />
-                <span className="hidden sm:inline">Details</span>
-              </Link>
-            </Button>
+            {job.external_apply_url ? (
+              <Button 
+                size="sm" 
+                className="ml-auto"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleExternalApply(e, job.external_apply_url!);
+                }}
+                disabled={!user}
+              >
+                {!user && <Lock className="h-3 w-3 mr-1" />}
+                {user && <Zap className="h-3 w-3 mr-1" />}
+                <span className="hidden sm:inline">Apply</span>
+              </Button>
+            ) : (
+              <Button 
+                asChild 
+                size="sm" 
+                className="ml-auto"
+              >
+                <Link to={`/job/${job.id}`} onClick={(e) => e.stopPropagation()}>
+                  <Eye className="h-3 w-3 mr-1" />
+                  <span className="hidden sm:inline">Details</span>
+                </Link>
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -193,39 +212,43 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
   }
 
   return (
-    <Card className="group hover-lift card-hover relative overflow-hidden h-full cursor-pointer" 
-          onClick={() => window.open(`/job/${job.id}`, '_blank')}>
+    <Card className="group hover-lift card-hover relative overflow-hidden h-full">
       <div className={`absolute inset-0 bg-gradient-to-br ${getJobTypeColor(job.job_type)} opacity-5 group-hover:opacity-10 transition-opacity`} />
       
-      <CardHeader className="p-4 sm:p-5 pb-3">
-        <div className="flex items-start gap-3">
-          <Avatar className="h-11 w-11 sm:h-12 sm:w-12 shrink-0 mt-0.5">
-            <AvatarFallback className={`bg-gradient-to-br ${getJobTypeColor(job.job_type)} text-white font-bold text-sm`}>
-              {getCompanyInitials(getCompanyName())}
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 flex-1 space-y-1.5">
-            <h3 className="font-semibold text-base sm:text-lg leading-snug line-clamp-2">{job.title}</h3>
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <Building2 className="h-3.5 w-3.5 shrink-0" />
-              <span className="text-sm truncate">{getCompanyName()}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <Briefcase className="h-3.5 w-3.5 shrink-0" />
-              <span className="text-sm">{getExperienceText()}</span>
+      <div 
+        className="cursor-pointer"
+        onClick={() => window.open(`/job/${job.id}`, '_blank')}
+      >
+        <CardHeader className="p-4 sm:p-5 pb-3">
+          <div className="flex items-start gap-3">
+            <Avatar className="h-11 w-11 sm:h-12 sm:w-12 shrink-0 mt-0.5">
+              <AvatarFallback className={`bg-gradient-to-br ${getJobTypeColor(job.job_type)} text-white font-bold text-sm`}>
+                {getCompanyInitials(getCompanyName())}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <h3 className="font-semibold text-base sm:text-lg leading-snug line-clamp-2">{job.title}</h3>
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <Building2 className="h-3.5 w-3.5 shrink-0" />
+                <span className="text-sm truncate">{getCompanyName()}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <Briefcase className="h-3.5 w-3.5 shrink-0" />
+                <span className="text-sm">{getExperienceText()}</span>
+              </div>
             </div>
           </div>
-        </div>
-        
-        {job.min_rank_requirement && (
-          <div className="flex justify-end mt-3">
-            <Badge variant="outline" className="text-xs px-2 py-1">
-              <Star className="h-3 w-3 mr-1" />
-              Rank {job.min_rank_requirement}+
-            </Badge>
-          </div>
-        )}
-      </CardHeader>
+          
+          {job.min_rank_requirement && (
+            <div className="flex justify-end mt-3">
+              <Badge variant="outline" className="text-xs px-2 py-1">
+                <Star className="h-3 w-3 mr-1" />
+                Rank {job.min_rank_requirement}+
+              </Badge>
+            </div>
+          )}
+        </CardHeader>
+      </div>
 
       <CardContent className="p-4 sm:p-5 pt-0 space-y-4">
         {/* Location, Date, Salary Grid */}
@@ -312,7 +335,7 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
                 {user && <Zap className="h-4 w-4 mr-2" />}
                 Apply Now
               </Button>
-            ) : (
+            ) : user ? (
               <Button 
                 asChild 
                 size="sm" 
@@ -323,6 +346,19 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
                   <Zap className="h-4 w-4 mr-2" />
                   Apply Now
                 </Link>
+              </Button>
+            ) : (
+              <Button 
+                size="sm" 
+                className="flex-1 h-10 sm:h-9"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toast.error("Please login to apply for this job");
+                }}
+                disabled
+              >
+                <Lock className="h-4 w-4 mr-2" />
+                Login to Apply
               </Button>
             )}
           </div>

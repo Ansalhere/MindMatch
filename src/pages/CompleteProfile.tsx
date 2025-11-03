@@ -18,6 +18,7 @@ import AvatarUpload from '@/components/profile/AvatarUpload';
 import ResumeUpload from '@/components/candidate/ResumeUpload';
 import { globalCities } from '@/data/globalLocations';
 import { degrees, fieldOfStudy, collegeTiers } from '@/data/educationOptions';
+import { countries, getStatesForCountry, getCitiesForState } from '@/data/locationData';
 import ProfileCompletionCard from '@/components/dashboard/ProfileCompletionCard';
 import * as z from 'zod';
 
@@ -25,8 +26,11 @@ const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
   bio: z.string().min(20, 'Bio must be at least 20 characters').optional().or(z.literal('')),
-  phone: z.string().optional(),
+  phone: z.string().min(10, 'Phone must be at least 10 digits').optional().or(z.literal('')),
   location: z.string().optional(),
+  country: z.string().optional(),
+  state: z.string().optional(),
+  city: z.string().optional(),
   website: z.string().url().optional().or(z.literal('')),
   company: z.string().optional(),
   industry: z.string().optional(),
@@ -74,6 +78,10 @@ const CompleteProfile = () => {
     missingFields: [], 
     recommendations: [] 
   });
+  const [selectedCountry, setSelectedCountry] = useState('');
+  const [selectedState, setSelectedState] = useState('');
+  const [availableStates, setAvailableStates] = useState<string[]>([]);
+  const [availableCities, setAvailableCities] = useState<string[]>([]);
   const navigate = useNavigate();
 
   const form = useForm<ProfileFormData>({
@@ -84,6 +92,9 @@ const CompleteProfile = () => {
       bio: '',
       phone: '',
       location: '',
+      country: '',
+      state: '',
+      city: '',
       website: '',
       company: '',
       industry: '',
@@ -100,12 +111,31 @@ const CompleteProfile = () => {
     }
 
     if (user) {
+      // Parse location if it exists (format: "City, State, Country")
+      const locationParts = user.location?.split(', ') || [];
+      const parsedCity = locationParts[0] || '';
+      const parsedState = locationParts[1] || '';
+      const parsedCountry = locationParts[2] || '';
+      
+      setSelectedCountry(parsedCountry);
+      setSelectedState(parsedState);
+      
+      if (parsedCountry) {
+        setAvailableStates(getStatesForCountry(parsedCountry));
+      }
+      if (parsedState) {
+        setAvailableCities(getCitiesForState(parsedState));
+      }
+      
       form.reset({
         name: user.name || '',
         email: user.email || '',
         bio: user.bio || '',
         phone: user.phone || '',
         location: user.location || '',
+        country: parsedCountry,
+        state: parsedState,
+        city: parsedCity,
         website: user.website || '',
         company: user.company || '',
         industry: user.industry || '',
@@ -154,11 +184,19 @@ const CompleteProfile = () => {
     
     setIsLoading(true);
     try {
+      // Build location string from city, state, country
+      let locationString = '';
+      if (data.city && data.state && data.country) {
+        locationString = `${data.city}, ${data.state}, ${data.country}`;
+      } else if (data.location) {
+        locationString = data.location;
+      }
+      
       const updateData: any = {
         name: data.name,
         bio: data.bio,
-        phone: data.phone,
-        location: data.location,
+        phone: data.phone || null,
+        location: locationString,
       };
 
       if (user.user_type === 'employer') {
@@ -376,17 +414,79 @@ const CompleteProfile = () => {
 
                       <div>
                         <Label htmlFor="phone">Phone Number</Label>
-                        <Input id="phone" {...form.register('phone')} placeholder="+1 (555) 123-4567" />
+                        <Input 
+                          id="phone" 
+                          {...form.register('phone')} 
+                          placeholder="+1 (555) 123-4567" 
+                          type="tel"
+                        />
+                        {form.formState.errors.phone && (
+                          <p className="text-sm text-destructive mt-1">{form.formState.errors.phone.message}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <Label htmlFor="country">Country</Label>
+                        <Select 
+                          value={form.watch('country')} 
+                          onValueChange={(value) => {
+                            form.setValue('country', value);
+                            form.setValue('state', '');
+                            form.setValue('city', '');
+                            setSelectedCountry(value);
+                            setSelectedState('');
+                            setAvailableStates(getStatesForCountry(value));
+                            setAvailableCities([]);
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select country" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {countries.map((country) => (
+                              <SelectItem key={country} value={country}>{country}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
 
                       <div>
-                        <Label htmlFor="location">Location</Label>
-                        <Select value={form.watch('location')} onValueChange={(value) => form.setValue('location', value)}>
+                        <Label htmlFor="state">State/Region</Label>
+                        <Select 
+                          value={form.watch('state')} 
+                          onValueChange={(value) => {
+                            form.setValue('state', value);
+                            form.setValue('city', '');
+                            setSelectedState(value);
+                            setAvailableCities(getCitiesForState(value));
+                          }}
+                          disabled={!selectedCountry}
+                        >
                           <SelectTrigger>
-                            <SelectValue placeholder="Select location" />
+                            <SelectValue placeholder="Select state" />
                           </SelectTrigger>
                           <SelectContent>
-                            {globalCities.map((city) => (
+                            {availableStates.map((state) => (
+                              <SelectItem key={state} value={state}>{state}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="city">City</Label>
+                        <Select 
+                          value={form.watch('city')} 
+                          onValueChange={(value) => form.setValue('city', value)}
+                          disabled={!selectedState}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select city" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableCities.map((city) => (
                               <SelectItem key={city} value={city}>{city}</SelectItem>
                             ))}
                           </SelectContent>
