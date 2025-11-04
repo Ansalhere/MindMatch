@@ -131,19 +131,28 @@ const RecommendedJobs = ({ userData }: RecommendedJobsProps) => {
                       <Button size="sm" variant="outline" onClick={() => navigate(`/job/${job.id}`)}>
                         View
                       </Button>
-                      <Button size="sm" onClick={() => handleApply(job.id)} disabled={applied || applyingTo === job.id}>
-                        {applied ? (
-                          <>
-                            <Briefcase className="h-4 w-4 mr-1" /> Applied
-                          </>
-                        ) : applyingTo === job.id ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-1 animate-spin" /> Applying...
-                          </>
-                        ) : (
-                          'Apply Now'
-                        )}
-                      </Button>
+                      {job.external_apply_url ? (
+                        <Button 
+                          size="sm" 
+                          onClick={() => window.open(job.external_apply_url, '_blank', 'noopener,noreferrer')}
+                        >
+                          Apply on Site
+                        </Button>
+                      ) : (
+                        <Button size="sm" onClick={() => handleApply(job.id)} disabled={applied || applyingTo === job.id}>
+                          {applied ? (
+                            <>
+                              <Briefcase className="h-4 w-4 mr-1" /> Applied
+                            </>
+                          ) : applyingTo === job.id ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-1 animate-spin" /> Applying...
+                            </>
+                          ) : (
+                            'Apply Now'
+                          )}
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>

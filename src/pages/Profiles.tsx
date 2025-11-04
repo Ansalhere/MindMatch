@@ -242,52 +242,58 @@ const Profiles = () => {
                       <Card key={candidate.id} className="group hover:shadow-xl transition-all duration-300 border-primary/20 hover:border-primary/40">
                         <CardHeader className="pb-3">
                           <div className="flex items-center gap-3 mb-3">
-                            <Avatar className="h-12 w-12 border-2 border-primary/20 group-hover:border-primary/40 transition-colors">
+                            <Avatar className="h-14 w-14 border-2 border-primary/20 group-hover:border-primary/40 transition-colors">
                               <AvatarImage src={candidate.avatar_url} />
-                              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                              <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
                                 {candidate.name?.charAt(0) || 'C'}
                               </AvatarFallback>
                             </Avatar>
-                            <div className="flex-1">
-                              <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-lg group-hover:text-primary transition-colors truncate">
                                 {candidate.name}
                               </h3>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <MapPin className="h-3 w-3" />
-                                <span>{candidate.location}</span>
+                              <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                                <span className="truncate">{candidate.location}</span>
                               </div>
+                              {candidate.company && (
+                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                                  <Building className="h-3 w-3 shrink-0" />
+                                  <span className="truncate">{candidate.company}</span>
+                                </div>
+                              )}
                             </div>
-                            <div className="text-right">
-                              <div className="flex items-center gap-1 text-primary font-bold">
-                                <Trophy className="h-4 w-4" />
-                                <span>{Math.round(candidate.rank_score || 0)}</span>
-                              </div>
-                              <div className="text-xs text-muted-foreground">Rank Score</div>
+                          </div>
+                          <div className="flex items-center justify-between pt-2 border-t">
+                            <div className="flex items-center gap-1 text-primary font-bold">
+                              <Trophy className="h-4 w-4" />
+                              <span>{Math.round(candidate.rank_score || 0)}</span>
                             </div>
+                            <Badge variant={candidate.availableForWork ? "default" : "secondary"} className="text-xs">
+                              {candidate.availableForWork ? "Available" : "Busy"}
+                            </Badge>
                           </div>
                         </CardHeader>
                         
                         <CardContent className="space-y-4">
-                          <p className="text-sm text-muted-foreground line-clamp-2">
+                          <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">
                             {candidate.bio}
                           </p>
                           
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="font-medium">Skills</span>
-                              <Badge variant={candidate.availableForWork ? "default" : "secondary"}>
-                                {candidate.availableForWork ? "Available" : "Busy"}
-                              </Badge>
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-sm">
+                              <Code className="h-4 w-4 text-primary shrink-0" />
+                              <span className="font-medium text-xs">Top Skills</span>
                             </div>
-                            <div className="flex flex-wrap gap-1">
-                              {candidate.skills?.slice(0, 3).map((skill: string, index: number) => (
+                            <div className="flex flex-wrap gap-1.5">
+                              {candidate.skills?.slice(0, 4).map((skill: string, index: number) => (
                                 <Badge key={index} variant="outline" className="text-xs">
                                   {skill}
                                 </Badge>
                               ))}
-                              {candidate.skills?.length > 3 && (
+                              {candidate.skills?.length > 4 && (
                                 <Badge variant="outline" className="text-xs">
-                                  +{candidate.skills.length - 3} more
+                                  +{candidate.skills.length - 4}
                                 </Badge>
                               )}
                             </div>
@@ -298,7 +304,7 @@ const Profiles = () => {
                             variant="outline"
                             onClick={() => window.location.href = `/profile/${candidate.id}/candidate`}
                           >
-                            View Profile
+                            View Full Profile
                           </Button>
                         </CardContent>
                       </Card>

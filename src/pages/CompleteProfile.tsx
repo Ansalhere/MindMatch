@@ -211,12 +211,21 @@ const CompleteProfile = () => {
         updateData.expected_ctc = data.expected_ctc;
       }
 
-      const { error } = await supabase
+      console.log('Updating profile with data:', updateData);
+
+      const { error, data: updatedProfile } = await supabase
         .from('users')
         .update(updateData)
-        .eq('id', user.id);
+        .eq('id', user.id)
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Profile update error:', error);
+        throw error;
+      }
+
+      console.log('Profile updated successfully:', updatedProfile);
 
       if (data.email !== user.email && data.email.trim()) {
         try {
@@ -226,10 +235,8 @@ const CompleteProfile = () => {
         }
       }
 
-      // Force refresh with a small delay to ensure DB has updated
-      setTimeout(async () => {
-        await refreshUser(session);
-      }, 500);
+      // Force refresh with current session
+      await refreshUser(session);
       toast.success('Profile updated successfully!');
     } catch (error: any) {
       console.error('Error updating profile:', error);
