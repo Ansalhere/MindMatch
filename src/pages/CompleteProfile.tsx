@@ -111,6 +111,8 @@ const CompleteProfile = () => {
     }
 
     if (user) {
+      console.log('User data updated, refreshing form:', user);
+      
       // Parse location if it exists (format: "City, State, Country")
       const locationParts = user.location?.split(', ') || [];
       const parsedCity = locationParts[0] || '';
@@ -127,6 +129,7 @@ const CompleteProfile = () => {
         setAvailableCities(getCitiesForState(parsedState));
       }
       
+      // Update form with latest user data
       form.reset({
         name: user.name || '',
         email: user.email || '',
@@ -143,9 +146,10 @@ const CompleteProfile = () => {
         current_ctc: user.current_ctc || '',
         expected_ctc: user.expected_ctc || '',
       });
+      
       fetchUserData();
     }
-  }, [user, userLoading, navigate]);
+  }, [user?.id, user?.name, user?.phone, user?.location, user?.bio, user?.current_ctc, user?.expected_ctc, user?.company, user?.industry, user?.size, user?.website, userLoading, navigate]);
 
   const fetchUserData = async () => {
     if (!user?.id) return;
@@ -216,24 +220,20 @@ const CompleteProfile = () => {
 
       console.log('Updating profile with data:', updateData);
 
-      // Use upsert to handle both insert and update cases
-      const { error: upsertError } = await supabase
+      // Update the profile
+      const { error: updateError, data: updatedData } = await supabase
         .from('users')
-        .upsert({ 
-          id: user.id, 
-          ...updateData,
-          user_type: user.user_type,
-          email: user.email
-        }, { 
-          onConflict: 'id' 
-        });
+        .update(updateData)
+        .eq('id', user.id)
+        .select()
+        .single();
 
-      if (upsertError) {
-        console.error('Profile update error:', upsertError);
-        throw upsertError;
+      if (updateError) {
+        console.error('Profile update error:', updateError);
+        throw updateError;
       }
 
-      console.log('Profile updated successfully');
+      console.log('Profile updated successfully:', updatedData);
 
       // Update email in auth if changed
       if (data.email !== user.email && data.email.trim()) {
@@ -249,17 +249,17 @@ const CompleteProfile = () => {
         }
       }
 
-      // Wait a bit for database to sync
-      await new Promise(resolve => setTimeout(resolve, 500));
+      toast.success('Profile updated successfully!');
       
-      // Force refresh with current session
+      // Wait for database to propagate
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Force refresh user data
       if (session) {
         await refreshUser(session);
       }
       
-      toast.success('Profile updated successfully!');
-      
-      // Refresh the data
+      // Refresh additional data
       await fetchUserData();
     } catch (error: any) {
       console.error('Error updating profile:', error);
