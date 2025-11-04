@@ -46,18 +46,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const sessionToUse = currentSession !== undefined ? currentSession : session;
       
       if (sessionToUse?.user) {
-        // Force fresh data from database
-        const { profile: userProfile } = await getUserProfile(sessionToUse.user.id);
-        if (userProfile) {
+        // Force fresh data from database by directly querying the users table
+        const { data: freshProfile, error: profileError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', sessionToUse.user.id)
+          .single();
+        
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+        }
+        
+        if (freshProfile) {
           const freshUser = {
             id: sessionToUse.user.id,
             email: sessionToUse.user.email || '',
-            user_type: userProfile.user_type || 'candidate',
-            ...userProfile
+            user_type: freshProfile.user_type || 'candidate',
+            ...freshProfile
           };
+          console.log('User refreshed with fresh data:', freshUser);
           setUser(freshUser);
-          setProfile(userProfile);
+          setProfile(freshProfile);
         } else {
+          // Fallback to user metadata if no profile found
           setUser({
             id: sessionToUse.user.id,
             email: sessionToUse.user.email || '',

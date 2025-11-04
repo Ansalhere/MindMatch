@@ -99,6 +99,59 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
 
   return (
     <>
+      {/* Profile Details Card */}
+      <Card className="mb-6 border-primary/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Award className="h-5 w-5" />
+            Profile Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {user?.name && (
+              <div>
+                <p className="text-sm text-muted-foreground">Name</p>
+                <p className="font-medium">{user.name}</p>
+              </div>
+            )}
+            {user?.location && (
+              <div>
+                <p className="text-sm text-muted-foreground">Location</p>
+                <p className="font-medium">{user.location}</p>
+              </div>
+            )}
+            {user?.phone && (
+              <div>
+                <p className="text-sm text-muted-foreground">Phone</p>
+                <p className="font-medium">{user.phone}</p>
+              </div>
+            )}
+            {user?.current_ctc && (
+              <div>
+                <p className="text-sm text-muted-foreground">Current CTC</p>
+                <p className="font-medium">₹{user.current_ctc}</p>
+              </div>
+            )}
+            {user?.expected_ctc && (
+              <div>
+                <p className="text-sm text-muted-foreground">Expected CTC</p>
+                <p className="font-medium">₹{user.expected_ctc}</p>
+              </div>
+            )}
+            {user?.bio && (
+              <div className="md:col-span-2 lg:col-span-3">
+                <p className="text-sm text-muted-foreground">Bio</p>
+                <p className="font-medium">{user.bio}</p>
+              </div>
+            )}
+          </div>
+          <Button size="sm" variant="outline" className="mt-4" onClick={() => navigate('/edit-profile')}>
+            Edit Profile
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* Clean Ranking Overview */}
       <Card className="mb-6 border-primary/20 shadow-lg">
         <CardContent className="p-6">
