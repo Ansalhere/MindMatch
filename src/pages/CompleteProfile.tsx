@@ -180,7 +180,10 @@ const CompleteProfile = () => {
   };
 
   const handleSubmit = async (data: ProfileFormData) => {
-    if (!user) return;
+    if (!user?.id) {
+      toast.error('User not found. Please log in again.');
+      return;
+    }
     
     setIsLoading(true);
     try {
@@ -194,53 +197,73 @@ const CompleteProfile = () => {
       
       const updateData: any = {
         name: data.name,
-        bio: data.bio,
+        bio: data.bio || null,
         phone: data.phone || null,
-        location: locationString,
+        location: locationString || null,
       };
 
       if (user.user_type === 'employer') {
-        updateData.company = data.company;
-        updateData.industry = data.industry;
-        updateData.size = data.size;
-        updateData.website = data.website;
+        updateData.company = data.company || null;
+        updateData.industry = data.industry || null;
+        updateData.size = data.size || null;
+        updateData.website = data.website || null;
       }
 
       if (user.user_type === 'candidate') {
-        updateData.current_ctc = data.current_ctc;
-        updateData.expected_ctc = data.expected_ctc;
+        updateData.current_ctc = data.current_ctc || null;
+        updateData.expected_ctc = data.expected_ctc || null;
       }
 
       console.log('Updating profile with data:', updateData);
 
-      const { error, data: updatedProfile } = await supabase
+      // Use upsert to handle both insert and update cases
+      const { error: upsertError } = await supabase
         .from('users')
-        .update(updateData)
-        .eq('id', user.id)
-        .select()
-        .single();
+        .upsert({ 
+          id: user.id, 
+          ...updateData,
+          user_type: user.user_type,
+          email: user.email
+        }, { 
+          onConflict: 'id' 
+        });
 
-      if (error) {
-        console.error('Profile update error:', error);
-        throw error;
+      if (upsertError) {
+        console.error('Profile update error:', upsertError);
+        throw upsertError;
       }
 
-      console.log('Profile updated successfully:', updatedProfile);
+      console.log('Profile updated successfully');
 
+      // Update email in auth if changed
       if (data.email !== user.email && data.email.trim()) {
         try {
-          await supabase.auth.updateUser({ email: data.email });
+          const { error: emailError } = await supabase.auth.updateUser({ 
+            email: data.email 
+          });
+          if (emailError) {
+            console.warn('Email update warning:', emailError);
+          }
         } catch (emailErr: any) {
-          console.warn('Email update warning:', emailErr);
+          console.warn('Email update error:', emailErr);
         }
       }
 
+      // Wait a bit for database to sync
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       // Force refresh with current session
-      await refreshUser(session);
+      if (session) {
+        await refreshUser(session);
+      }
+      
       toast.success('Profile updated successfully!');
+      
+      // Refresh the data
+      await fetchUserData();
     } catch (error: any) {
       console.error('Error updating profile:', error);
-      toast.error('Failed to update profile. Please try again.');
+      toast.error(error.message || 'Failed to update profile. Please try again.');
     } finally {
       setIsLoading(false);
     }
