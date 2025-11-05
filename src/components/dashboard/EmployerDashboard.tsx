@@ -14,6 +14,7 @@ import { updateApplicationStatus } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useUser } from '@/hooks/useUser';
+import { useDailyLogin } from '@/hooks/useDailyLogin';
 
 interface EmployerDashboardProps {
   userData: any;
@@ -25,6 +26,7 @@ interface EmployerDashboardProps {
 const EmployerDashboard = ({ userData, realJobs = [], loadingJobs = false, currentSubscription }: EmployerDashboardProps) => {
   const navigate = useNavigate();
   const { user } = useUser();
+  const { loginResult } = useDailyLogin(); // Track daily login
   const [managedJobs, setManagedJobs] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(false);

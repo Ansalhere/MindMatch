@@ -629,7 +629,10 @@ export type Database = {
       referral_rewards: {
         Row: {
           created_at: string | null
+          daily_login_points: number | null
           id: string
+          last_login_date: string | null
+          login_streak: number | null
           premium_unlocked: boolean | null
           premium_unlocked_at: string | null
           referral_points: number
@@ -639,7 +642,10 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          daily_login_points?: number | null
           id?: string
+          last_login_date?: string | null
+          login_streak?: number | null
           premium_unlocked?: boolean | null
           premium_unlocked_at?: string | null
           referral_points?: number
@@ -649,7 +655,10 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          daily_login_points?: number | null
           id?: string
+          last_login_date?: string | null
+          login_streak?: number | null
           premium_unlocked?: boolean | null
           premium_unlocked_at?: string | null
           referral_points?: number
@@ -866,6 +875,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      award_daily_login_points: {
+        Args: { user_id_param: string }
+        Returns: Json
+      }
       calculate_candidate_rank: { Args: { user_id: string }; Returns: number }
       candidate_is_public: { Args: { candidate_id: string }; Returns: boolean }
       employer_has_app_with_candidate: {

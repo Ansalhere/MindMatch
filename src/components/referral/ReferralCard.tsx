@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Gift, Share2, Users, Crown, Copy, Check } from 'lucide-react';
+import { Gift, Share2, Users, Crown, Copy, Check, Flame, Calendar } from 'lucide-react';
 import { useUser } from '@/hooks/useUser';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -148,7 +148,7 @@ export const ReferralCard = () => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="p-4 rounded-lg bg-muted/50 border">
             <Users className="h-5 w-5 text-primary mb-2" />
             <p className="text-2xl font-bold">{referralRewards?.total_referrals || 0}</p>
@@ -157,7 +157,17 @@ export const ReferralCard = () => {
           <div className="p-4 rounded-lg bg-muted/50 border">
             <Gift className="h-5 w-5 text-primary mb-2" />
             <p className="text-2xl font-bold">{referralRewards?.referral_points || 0}</p>
-            <p className="text-sm text-muted-foreground">Referral Points</p>
+            <p className="text-sm text-muted-foreground">Total Points</p>
+          </div>
+          <div className="p-4 rounded-lg bg-muted/50 border">
+            <Flame className="h-5 w-5 text-orange-500 mb-2" />
+            <p className="text-2xl font-bold">{referralRewards?.login_streak || 0}</p>
+            <p className="text-sm text-muted-foreground">Day Streak</p>
+          </div>
+          <div className="p-4 rounded-lg bg-muted/50 border">
+            <Calendar className="h-5 w-5 text-primary mb-2" />
+            <p className="text-2xl font-bold">{referralRewards?.daily_login_points || 0}</p>
+            <p className="text-sm text-muted-foreground">Login Points</p>
           </div>
         </div>
 
@@ -191,6 +201,19 @@ export const ReferralCard = () => {
               {sending ? 'Sending...' : 'Invite'}
             </Button>
           </div>
+        </div>
+
+        {/* Daily Login Info */}
+        <div className="p-4 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/20 dark:to-blue-900/20 border border-blue-200 dark:border-blue-800">
+          <p className="font-semibold text-blue-900 dark:text-blue-100 mb-2 flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            Daily Login Rewards
+          </p>
+          <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1 ml-4">
+            <li>• Earn 1 point for logging in daily</li>
+            <li>• Build your streak for bonus points</li>
+            <li>• Every 7-day streak earns extra points!</li>
+          </ul>
         </div>
 
         {/* Premium Features Preview */}

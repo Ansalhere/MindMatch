@@ -17,6 +17,7 @@ import { useUser } from '@/hooks/useUser';
 import ProfileCompletionCard from './ProfileCompletionCard';
 import { calculateProfileCompletion } from '@/utils/profileCompletion';
 import { getUserSkills, getUserEducation, getUserExperience, getUserCertifications } from '@/lib/supabase';
+import { useDailyLogin } from '@/hooks/useDailyLogin';
 
 interface CandidateDashboardProps {
   userData: any;
@@ -25,6 +26,7 @@ interface CandidateDashboardProps {
 const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
   const navigate = useNavigate();
   const { user } = useUser();
+  const { loginResult } = useDailyLogin(); // Track daily login
   const [applications, setApplications] = useState<any[]>([]);
   const [loadingApplications, setLoadingApplications] = useState(false);
   const [profileCompletion, setProfileCompletion] = useState<any>(null);

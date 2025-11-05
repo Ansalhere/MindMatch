@@ -292,7 +292,13 @@ const CompleteProfile = () => {
   const saveExperience = async (index: number) => {
     const exp = experiences[index];
     if (!user?.id || !exp.company || !exp.role || !exp.start_date) {
-      toast.error('Please fill in all required fields');
+      toast.error('Please fill in all required fields: Company, Role, and Start Date');
+      return;
+    }
+    
+    // Validate end_date if not current
+    if (!exp.is_current && !exp.end_date) {
+      toast.error('Please provide an End Date or mark as "Currently working here"');
       return;
     }
 
@@ -353,7 +359,13 @@ const CompleteProfile = () => {
   const saveEducation = async (index: number) => {
     const edu = educations[index];
     if (!user?.id || !edu.institution || !edu.degree || !edu.field || !edu.start_date) {
-      toast.error('Please fill in all required fields');
+      toast.error('Please fill in all required fields: Institution, Degree, Field, and Start Date');
+      return;
+    }
+    
+    // Validate end_date if not current
+    if (!edu.is_current && !edu.end_date) {
+      toast.error('Please provide an End Date or mark as "Currently studying"');
       return;
     }
 
