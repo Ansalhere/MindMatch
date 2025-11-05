@@ -20,6 +20,7 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { useReferralTracking } from '@/hooks/useReferralTracking';
 
 import DetailedSignupForm from '@/components/candidate/DetailedSignupForm';
 
@@ -42,6 +43,7 @@ interface FormValues {
 
 const AuthForm = () => {
   const location = useLocation();
+  const { completeReferral } = useReferralTracking();
   // Default to login unless explicitly on /register route
   const [isRegister, setIsRegister] = useState(location.pathname === '/register');
   const [isLoading, setIsLoading] = useState(false);
@@ -128,6 +130,9 @@ const AuthForm = () => {
         }
         
         if (signUpData?.user) {
+          // Complete referral if exists
+          await completeReferral(signUpData.user.id);
+          
           toast.success("Account created successfully! You can now access your dashboard.");
           // Small delay to ensure auth state is updated
           setTimeout(() => {
@@ -191,6 +196,9 @@ const AuthForm = () => {
       }
       
       if (signUpData?.user) {
+        // Complete referral if exists
+        await completeReferral(signUpData.user.id);
+        
         toast.success("Account created successfully! You can now access your dashboard.");
         setTimeout(() => {
           navigate('/dashboard', { replace: true });

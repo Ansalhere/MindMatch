@@ -626,6 +626,72 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_rewards: {
+        Row: {
+          created_at: string | null
+          id: string
+          premium_unlocked: boolean | null
+          premium_unlocked_at: string | null
+          referral_points: number
+          total_referrals: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          premium_unlocked?: boolean | null
+          premium_unlocked_at?: string | null
+          referral_points?: number
+          total_referrals?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          premium_unlocked?: boolean | null
+          premium_unlocked_at?: string | null
+          referral_points?: number
+          total_referrals?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          referral_code: string
+          referred_email: string
+          referred_user_id: string | null
+          referrer_id: string
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          referral_code: string
+          referred_email: string
+          referred_user_id?: string | null
+          referrer_id: string
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          referral_code?: string
+          referred_email?: string
+          referred_user_id?: string | null
+          referrer_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       skills: {
         Row: {
           created_at: string
@@ -806,6 +872,7 @@ export type Database = {
         Args: { candidate_id: string }
         Returns: boolean
       }
+      generate_referral_code: { Args: never; Returns: string }
       get_candidate_applications: {
         Args: { candidate_id: string }
         Returns: {

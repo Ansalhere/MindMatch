@@ -1,16 +1,31 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '@/hooks/useUser';
+import { supabase } from '@/integrations/supabase/client';
 
 export function usePremiumFeatures() {
   const { user } = useUser();
   const [isPremium, setIsPremium] = useState(false);
+  const [referralCount, setReferralCount] = useState(0);
 
   useEffect(() => {
-    // Temporary: Enable premium for everyone for 3 months (inaugural offer)
-    // This simulates premium access for all users
-    if (user) {
-      setIsPremium(true);
-    }
+    const checkPremiumStatus = async () => {
+      if (!user) return;
+      
+      // Check if user has premium through referrals
+      const { data: rewards } = await supabase
+        .from('referral_rewards')
+        .select('premium_unlocked, total_referrals')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      const hasReferralPremium = rewards?.premium_unlocked || (rewards?.total_referrals || 0) >= 3;
+      setReferralCount(rewards?.total_referrals || 0);
+      
+      // Check database premium status or referral premium
+      setIsPremium(user.is_premium || hasReferralPremium || true); // Keep inaugural offer
+    };
+    
+    checkPremiumStatus();
   }, [user]);
 
   const features = {
@@ -35,7 +50,10 @@ export function usePremiumFeatures() {
   return {
     isPremium,
     features,
-    remainingDays: 90, // 3 months inaugural offer
-    offerMessage: "🎉 Inaugural Offer: Premium features free for 3 months!"
+    referralCount,
+    remainingDays: 90,
+    offerMessage: referralCount >= 3 
+      ? "🎉 Premium Unlocked via Referrals!" 
+      : "🎉 Inaugural Offer: Premium features free for 3 months!"
   };
 }

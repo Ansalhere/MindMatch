@@ -291,31 +291,41 @@ const CompleteProfile = () => {
 
   const saveExperience = async (index: number) => {
     const exp = experiences[index];
-    if (!user?.id) return;
-
-    const expData = {
-      user_id: user.id,
-      company: exp.company,
-      role: exp.role,
-      location: exp.location,
-      start_date: exp.start_date,
-      end_date: exp.is_current ? null : exp.end_date,
-      is_current: exp.is_current,
-      description: exp.description
-    };
-
-    if (exp.id) {
-      await supabase.from('experiences').update(expData).eq('id', exp.id);
-    } else {
-      const { data } = await supabase.from('experiences').insert(expData).select().single();
-      if (data) {
-        const newExps = [...experiences];
-        newExps[index].id = data.id;
-        setExperiences(newExps);
-      }
+    if (!user?.id || !exp.company || !exp.role || !exp.start_date) {
+      toast.error('Please fill in all required fields');
+      return;
     }
-    
-    toast.success('Experience saved');
+
+    try {
+      const expData = {
+        user_id: user.id,
+        company: exp.company,
+        role: exp.role,
+        location: exp.location || '',
+        start_date: exp.start_date,
+        end_date: exp.is_current ? null : exp.end_date,
+        is_current: exp.is_current,
+        description: exp.description || ''
+      };
+
+      if (exp.id) {
+        const { error } = await supabase.from('experiences').update(expData).eq('id', exp.id);
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase.from('experiences').insert(expData).select().single();
+        if (error) throw error;
+        if (data) {
+          const newExps = [...experiences];
+          newExps[index].id = data.id;
+          setExperiences(newExps);
+        }
+      }
+      
+      toast.success('Experience saved successfully');
+    } catch (error: any) {
+      console.error('Error saving experience:', error);
+      toast.error(error.message || 'Failed to save experience');
+    }
   };
 
   const addEducation = () => {
@@ -342,33 +352,43 @@ const CompleteProfile = () => {
 
   const saveEducation = async (index: number) => {
     const edu = educations[index];
-    if (!user?.id) return;
-
-    const eduData = {
-      user_id: user.id,
-      institution: edu.institution,
-      degree: edu.degree,
-      field: edu.field,
-      start_date: edu.start_date,
-      end_date: edu.is_current ? null : edu.end_date,
-      is_current: edu.is_current,
-      gpa: edu.gpa,
-      tier: edu.tier,
-      college_tier: edu.college_tier
-    };
-
-    if (edu.id) {
-      await supabase.from('education').update(eduData).eq('id', edu.id);
-    } else {
-      const { data } = await supabase.from('education').insert(eduData).select().single();
-      if (data) {
-        const newEdus = [...educations];
-        newEdus[index].id = data.id;
-        setEducations(newEdus);
-      }
+    if (!user?.id || !edu.institution || !edu.degree || !edu.field || !edu.start_date) {
+      toast.error('Please fill in all required fields');
+      return;
     }
-    
-    toast.success('Education saved');
+
+    try {
+      const eduData = {
+        user_id: user.id,
+        institution: edu.institution,
+        degree: edu.degree,
+        field: edu.field,
+        start_date: edu.start_date,
+        end_date: edu.is_current ? null : edu.end_date,
+        is_current: edu.is_current,
+        gpa: edu.gpa || null,
+        tier: edu.tier || 3,
+        college_tier: edu.college_tier || 3
+      };
+
+      if (edu.id) {
+        const { error } = await supabase.from('education').update(eduData).eq('id', edu.id);
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase.from('education').insert(eduData).select().single();
+        if (error) throw error;
+        if (data) {
+          const newEdus = [...educations];
+          newEdus[index].id = data.id;
+          setEducations(newEdus);
+        }
+      }
+      
+      toast.success('Education saved successfully');
+    } catch (error: any) {
+      console.error('Error saving education:', error);
+      toast.error(error.message || 'Failed to save education');
+    }
   };
 
   if (userLoading || loadingData) {

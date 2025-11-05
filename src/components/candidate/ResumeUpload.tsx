@@ -133,14 +133,12 @@ const ResumeUpload = () => {
     if (!user?.id || !user.resume_url) return;
 
     try {
-      // Extract the file path from the URL
       const resumePath = user.resume_url.includes('resumes/') 
         ? user.resume_url.split('resumes/')[1] 
         : `${user.id}/resume.pdf`;
         
       await supabase.storage.from('resumes').remove([resumePath]);
 
-      // Update user profile
       const { error } = await supabase
         .from('users')
         .update({ resume_url: null })
@@ -148,10 +146,7 @@ const ResumeUpload = () => {
 
       if (error) throw error;
 
-      // Refresh user data
-      setTimeout(async () => {
-        await refreshUser(session);
-      }, 500);
+      await refreshUser(session);
 
       toast({
         title: "Resume removed",
@@ -162,6 +157,32 @@ const ResumeUpload = () => {
       toast({
         title: "Error",
         description: "Failed to remove resume. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleViewResume = async () => {
+    if (!user?.resume_url) return;
+    
+    try {
+      const resumePath = user.resume_url.includes('resumes/') 
+        ? user.resume_url.split('resumes/')[1] 
+        : `${user.id}/resume.pdf`;
+      
+      const { data, error } = await supabase.storage
+        .from('resumes')
+        .createSignedUrl(resumePath, 3600);
+      
+      if (error) throw error;
+      if (data?.signedUrl) {
+        window.open(data.signedUrl, '_blank');
+      }
+    } catch (error) {
+      console.error('Error viewing resume:', error);
+      toast({
+        title: "Error",
+        description: "Failed to view resume. Please try again.",
         variant: "destructive"
       });
     }
@@ -190,7 +211,7 @@ const ResumeUpload = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => window.open(user.resume_url, '_blank')}
+                  onClick={handleViewResume}
                 >
                   <Download className="h-4 w-4 mr-2" />
                   View

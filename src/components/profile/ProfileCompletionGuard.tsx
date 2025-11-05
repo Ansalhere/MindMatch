@@ -36,13 +36,16 @@ export const ProfileCompletionGuard = ({ children }: { children: React.ReactNode
       return;
     }
 
-    // Quick check for basic profile info
-    const hasBasicInfo = user.name && user.location;
+    // Strict check for complete profile
+    const hasBasicInfo = user.name && user.location && user.phone;
     
-    // If missing basic info, redirect to complete profile
-    if (!hasBasicInfo) {
+    // For candidates, also check for resume
+    const candidateComplete = user.user_type !== 'candidate' || (hasBasicInfo && user.resume_url);
+    
+    // If missing required info, force redirect to complete profile
+    if (!hasBasicInfo || !candidateComplete) {
       navigate('/edit-profile', { 
-        state: { from: location.pathname },
+        state: { from: location.pathname, incomplete: true },
         replace: true 
       });
     }

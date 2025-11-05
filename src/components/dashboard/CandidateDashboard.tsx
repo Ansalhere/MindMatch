@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ReferralCard } from '@/components/referral/ReferralCard';
 import StatCard from './StatCard';
 import RecommendedJobs from './RecommendedJobs';
 import SkillRanking from './SkillRanking';
@@ -99,56 +100,69 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
 
   return (
     <>
-      {/* Profile Details Card */}
-      <Card className="mb-6 border-primary/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Award className="h-5 w-5" />
-            Profile Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Enhanced Profile Details Card */}
+      <Card className="mb-6 border-primary/20 shadow-lg overflow-hidden">
+        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6">
+          <CardHeader className="p-0">
+            <CardTitle className="flex items-center gap-2 text-2xl">
+              <Award className="h-6 w-6 text-primary" />
+              Profile Overview
+            </CardTitle>
+          </CardHeader>
+        </div>
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {user?.name && (
-              <div>
-                <p className="text-sm text-muted-foreground">Name</p>
-                <p className="font-medium">{user.name}</p>
+              <div className="p-4 rounded-lg bg-muted/50 border">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Full Name</p>
+                <p className="font-semibold text-lg">{user.name}</p>
               </div>
             )}
             {user?.location && (
-              <div>
-                <p className="text-sm text-muted-foreground">Location</p>
-                <p className="font-medium">{user.location}</p>
+              <div className="p-4 rounded-lg bg-muted/50 border">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Location</p>
+                <p className="font-semibold text-lg">{user.location}</p>
               </div>
             )}
             {user?.phone && (
-              <div>
-                <p className="text-sm text-muted-foreground">Phone</p>
-                <p className="font-medium">{user.phone}</p>
+              <div className="p-4 rounded-lg bg-muted/50 border">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Contact</p>
+                <p className="font-semibold text-lg">{user.phone}</p>
               </div>
             )}
             {user?.current_ctc && (
-              <div>
-                <p className="text-sm text-muted-foreground">Current CTC</p>
-                <p className="font-medium">₹{user.current_ctc}</p>
+              <div className="p-4 rounded-lg bg-muted/50 border">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Current CTC</p>
+                <p className="font-semibold text-lg text-primary">₹{user.current_ctc} LPA</p>
               </div>
             )}
             {user?.expected_ctc && (
-              <div>
-                <p className="text-sm text-muted-foreground">Expected CTC</p>
-                <p className="font-medium">₹{user.expected_ctc}</p>
+              <div className="p-4 rounded-lg bg-muted/50 border">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Expected CTC</p>
+                <p className="font-semibold text-lg text-primary">₹{user.expected_ctc} LPA</p>
+              </div>
+            )}
+            {user?.resume_url && (
+              <div className="p-4 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
+                <p className="text-xs uppercase tracking-wide text-green-700 dark:text-green-300 mb-1">Resume</p>
+                <p className="font-semibold text-lg text-green-800 dark:text-green-200">✓ Uploaded</p>
               </div>
             )}
             {user?.bio && (
-              <div className="md:col-span-2 lg:col-span-3">
-                <p className="text-sm text-muted-foreground">Bio</p>
-                <p className="font-medium">{user.bio}</p>
+              <div className="md:col-span-2 lg:col-span-3 p-4 rounded-lg bg-muted/50 border">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Professional Bio</p>
+                <p className="text-sm leading-relaxed">{user.bio}</p>
               </div>
             )}
           </div>
-          <Button size="sm" variant="outline" className="mt-4" onClick={() => navigate('/edit-profile')}>
-            Edit Profile
-          </Button>
+          <div className="flex gap-3 mt-6">
+            <Button size="sm" onClick={() => navigate('/edit-profile')}>
+              Edit Profile
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => navigate('/resume-builder')}>
+              Build Resume
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
@@ -237,6 +251,7 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
         </div>
         
         <div className="space-y-6">
+          <ReferralCard />
           <SkillsList />
           
           <Card>
