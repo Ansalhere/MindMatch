@@ -288,13 +288,23 @@ const CompleteProfile = () => {
     setExperiences(experiences.filter((_, i) => i !== index));
   };
 
-  // Helper to convert month format (YYYY-MM) to date format (YYYY-MM-DD)
+  // Helper to convert month format (YYYY-MM) to date format (YYYY-MM-DD) for saving to DB
   const formatDateForDB = (dateValue: string | null): string | null => {
     if (!dateValue) return null;
     // If already in YYYY-MM-DD format, return as is
     if (dateValue.match(/^\d{4}-\d{2}-\d{2}$/)) return dateValue;
     // If in YYYY-MM format, append -01
     if (dateValue.match(/^\d{4}-\d{2}$/)) return `${dateValue}-01`;
+    return dateValue;
+  };
+
+  // Helper to convert date format (YYYY-MM-DD) to month format (YYYY-MM) for display
+  const formatDateForDisplay = (dateValue: string | null): string => {
+    if (!dateValue) return '';
+    // If in YYYY-MM-DD format, extract YYYY-MM
+    if (dateValue.match(/^\d{4}-\d{2}-\d{2}$/)) return dateValue.substring(0, 7);
+    // If already in YYYY-MM format, return as is
+    if (dateValue.match(/^\d{4}-\d{2}$/)) return dateValue;
     return dateValue;
   };
 
@@ -705,7 +715,7 @@ const CompleteProfile = () => {
                           </div>
                           <div>
                             <Label>Start Date *</Label>
-                            <Input type="month" value={exp.start_date} onChange={(e) => {
+                            <Input type="month" value={formatDateForDisplay(exp.start_date)} onChange={(e) => {
                               const newExps = [...experiences];
                               newExps[index].start_date = e.target.value;
                               setExperiences(newExps);
@@ -713,7 +723,7 @@ const CompleteProfile = () => {
                           </div>
                           <div>
                             <Label>End Date</Label>
-                            <Input type="month" value={exp.end_date || ''} disabled={exp.is_current} onChange={(e) => {
+                            <Input type="month" value={formatDateForDisplay(exp.end_date)} disabled={exp.is_current} onChange={(e) => {
                               const newExps = [...experiences];
                               newExps[index].end_date = e.target.value;
                               setExperiences(newExps);
@@ -825,7 +835,7 @@ const CompleteProfile = () => {
                           </div>
                           <div>
                             <Label>Start Date *</Label>
-                            <Input type="month" value={edu.start_date} onChange={(e) => {
+                            <Input type="month" value={formatDateForDisplay(edu.start_date)} onChange={(e) => {
                               const newEdus = [...educations];
                               newEdus[index].start_date = e.target.value;
                               setEducations(newEdus);
@@ -833,7 +843,7 @@ const CompleteProfile = () => {
                           </div>
                           <div>
                             <Label>End Date</Label>
-                            <Input type="month" value={edu.end_date || ''} disabled={edu.is_current} onChange={(e) => {
+                            <Input type="month" value={formatDateForDisplay(edu.end_date)} disabled={edu.is_current} onChange={(e) => {
                               const newEdus = [...educations];
                               newEdus[index].end_date = e.target.value;
                               setEducations(newEdus);
