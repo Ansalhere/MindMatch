@@ -16,9 +16,8 @@ import Layout from '@/components/Layout';
 import { supabase } from '@/integrations/supabase/client';
 import AvatarUpload from '@/components/profile/AvatarUpload';
 import ResumeUpload from '@/components/candidate/ResumeUpload';
-import { globalCities } from '@/data/globalLocations';
+import { globalCities, countries, getStatesForCountry, getCitiesForState } from '@/data/centralizedLocations';
 import { degrees, fieldOfStudy, collegeTiers } from '@/data/educationOptions';
-import { countries, getStatesForCountry, getCitiesForState } from '@/data/locationData';
 import ProfileCompletionCard from '@/components/dashboard/ProfileCompletionCard';
 import * as z from 'zod';
 
@@ -289,6 +288,16 @@ const CompleteProfile = () => {
     setExperiences(experiences.filter((_, i) => i !== index));
   };
 
+  // Helper to convert month format (YYYY-MM) to date format (YYYY-MM-DD)
+  const formatDateForDB = (dateValue: string | null): string | null => {
+    if (!dateValue) return null;
+    // If already in YYYY-MM-DD format, return as is
+    if (dateValue.match(/^\d{4}-\d{2}-\d{2}$/)) return dateValue;
+    // If in YYYY-MM format, append -01
+    if (dateValue.match(/^\d{4}-\d{2}$/)) return `${dateValue}-01`;
+    return dateValue;
+  };
+
   const saveExperience = async (index: number) => {
     const exp = experiences[index];
     if (!user?.id || !exp.company || !exp.role || !exp.start_date) {
@@ -308,8 +317,8 @@ const CompleteProfile = () => {
         company: exp.company,
         role: exp.role,
         location: exp.location || '',
-        start_date: exp.start_date,
-        end_date: exp.is_current ? null : exp.end_date,
+        start_date: formatDateForDB(exp.start_date),
+        end_date: exp.is_current ? null : formatDateForDB(exp.end_date),
         is_current: exp.is_current,
         description: exp.description || ''
       };
@@ -375,8 +384,8 @@ const CompleteProfile = () => {
         institution: edu.institution,
         degree: edu.degree,
         field: edu.field,
-        start_date: edu.start_date,
-        end_date: edu.is_current ? null : edu.end_date,
+        start_date: formatDateForDB(edu.start_date),
+        end_date: edu.is_current ? null : formatDateForDB(edu.end_date),
         is_current: edu.is_current,
         gpa: edu.gpa || null,
         tier: edu.tier || 3,

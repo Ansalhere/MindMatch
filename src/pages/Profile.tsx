@@ -215,73 +215,81 @@ const Profile = () => {
 const CandidateProfile = ({ profile, currentUser }: { profile: any; currentUser: any }) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Left column - Profile Info */}
-      <Card className="lg:col-span-1">
-        <CardHeader className="text-center border-b pb-6">
-          <div className="flex justify-center mb-4">
-            <Avatar className="h-24 w-24">
-              <AvatarImage src={profile.avatar} alt={profile.name} />
-              <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
-            </Avatar>
-          </div>
-          <CardTitle>{profile.name}</CardTitle>
-          <CardDescription>{profile.title}</CardDescription>
-          <div className="flex justify-center mt-3 gap-2">
-            {profile.skills.slice(0, 3).map((skill: any, index: number) => (
-              <Badge key={index} variant="secondary">{skill.name}</Badge>
-            ))}
-          </div>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span>{profile.location}</span>
+      {/* Left column - Ranking First (Main Focus) */}
+      <div className="lg:col-span-1 space-y-4">
+        {/* Ranking Card - PRIMARY */}
+        <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <Trophy className="h-5 w-5 text-primary" /> Candidate Ranking
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-center py-4">
+              <div className="text-5xl font-bold text-primary mb-1">{profile.ranking.overall}</div>
+              <div className="text-sm text-muted-foreground">out of 100</div>
             </div>
-            {profile.bio && (
-              <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-                <p className="text-sm">{profile.bio}</p>
+            <Progress value={profile.ranking.overall} className="h-3" />
+            <div className="bg-background/50 p-4 rounded-lg text-center">
+              <div className="text-3xl font-bold text-primary">#{profile.ranking.position}</div>
+              <div className="text-sm text-muted-foreground">of {profile.ranking.total} candidates</div>
+              <div className="text-xs text-muted-foreground mt-2 px-2 py-1 bg-primary/10 rounded-full inline-block">
+                Top {Math.round((profile.ranking.position / profile.ranking.total) * 100)}% in {profile.skills[0]?.name || 'Skills'}
               </div>
-            )}
-            {profile.current_ctc && (
-              <div className="flex items-center gap-3">
-                <Briefcase className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">Current: {profile.current_ctc}</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Compact Profile Overview */}
+        <Card>
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-12 w-12">
+                <AvatarImage src={profile.avatar} alt={profile.name} />
+                <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <div>
+                <CardTitle className="text-base">{profile.name}</CardTitle>
+                <CardDescription className="text-xs">{profile.title}</CardDescription>
               </div>
-            )}
-            {profile.expected_ctc && (
-              <div className="flex items-center gap-3">
-                <Briefcase className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">Expected: {profile.expected_ctc}</span>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-2 space-y-2">
+            <div className="flex flex-wrap gap-1.5">
+              {profile.skills.slice(0, 3).map((skill: any, index: number) => (
+                <Badge key={index} variant="secondary" className="text-xs">{skill.name}</Badge>
+              ))}
+            </div>
+            <div className="space-y-1.5 text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5" />
+                <span className="truncate">{profile.location}</span>
               </div>
-            )}
+              {profile.education?.[0] && (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <GraduationCap className="h-3.5 w-3.5" />
+                  <span className="truncate text-xs">{profile.education[0].degree}</span>
+                </div>
+              )}
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Calendar className="h-3.5 w-3.5" />
+                <span className="text-xs">Available immediately</span>
+              </div>
+            </div>
             {profile.resume_url && (
-              <div className="pt-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full"
-                  onClick={() => window.open(profile.resume_url, '_blank')}
-                >
-                  <Book className="h-4 w-4 mr-2" />
-                  View Resume
-                </Button>
-              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full mt-2"
+                onClick={() => window.open(profile.resume_url, '_blank')}
+              >
+                <Book className="h-3.5 w-3.5 mr-1.5" />
+                View Resume
+              </Button>
             )}
-            {profile.education && profile.education.length > 0 && (
-              <div className="flex items-center gap-3">
-                <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                <span>{profile.education[0].degree} from {profile.education[0].institution}</span>
-              </div>
-            )}
-            <div className="flex items-center gap-3">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span>Available immediately</span>
-            </div>
-            
             {/* Contact Actions for Employers */}
             {currentUser?.user_type === 'employer' && (
-              <div className="pt-4 border-t">
+              <div className="pt-2 border-t mt-2">
                 <ContactActions
                   candidateName={profile.name}
                   candidateEmail={profile.email}
@@ -290,29 +298,9 @@ const CandidateProfile = ({ profile, currentUser }: { profile: any; currentUser:
                 />
               </div>
             )}
-            
-            <div className="border-t pt-4 mt-4">
-              <h3 className="font-semibold mb-3 flex items-center">
-                <Trophy className="h-4 w-4 mr-2 text-primary" /> Ranking
-              </h3>
-              <div className="flex justify-between mb-2">
-                <span>Overall Ranking</span>
-                <span className="font-bold">{profile.ranking.overall}/100</span>
-              </div>
-              <Progress value={profile.ranking.overall} className="h-2 mb-4" />
-              <div className="bg-primary/5 p-3 rounded-md">
-                <div className="font-medium mb-2">Ranking Position</div>
-                <div className="flex items-center text-xl font-bold text-primary">
-                  #{profile.ranking.position} <span className="text-sm font-normal text-muted-foreground ml-2">of {profile.ranking.total} candidates</span>
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Top {Math.round((profile.ranking.position / profile.ranking.total) * 100)}% in {profile.skills[0]?.name || 'Skills'}
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
       
       {/* Right column - Skills, Experience, etc. */}
       <div className="lg:col-span-2 space-y-6">

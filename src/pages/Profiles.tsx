@@ -25,7 +25,11 @@ import {
   Filter
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { getRandomGlobalCity } from '@/data/globalLocations';
+import { globalCities } from '@/data/centralizedLocations';
+
+const getRandomGlobalCity = () => {
+  return globalCities[Math.floor(Math.random() * globalCities.length)];
+};
 
 const Profiles = () => {
   const [searchParams, setSearchParams] = useSearchParams();
