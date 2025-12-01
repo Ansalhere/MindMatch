@@ -7,6 +7,7 @@ import { useUser } from '@/hooks/useUser';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { SocialShareButtons } from './SocialShareButtons';
 
 export const ReferralCard = () => {
   const { user } = useUser();
@@ -174,7 +175,7 @@ export const ReferralCard = () => {
         {/* Share Section */}
         <div className="space-y-3">
           <p className="font-medium">Share Your Referral Link</p>
-          <div className="flex gap-2">
+          <div className="flex gap-2 mb-3">
             <Input 
               readOnly 
               value={`${window.location.origin}/register?ref=${referralCode}`}
@@ -184,6 +185,7 @@ export const ReferralCard = () => {
               {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             </Button>
           </div>
+          <SocialShareButtons referralLink={`${window.location.origin}/register?ref=${referralCode}`} />
         </div>
 
         {/* Invite by Email */}

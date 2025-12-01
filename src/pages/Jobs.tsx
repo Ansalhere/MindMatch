@@ -9,6 +9,7 @@ import ColorfulJobCard from '@/components/jobs/ColorfulJobCard';
 import SEOHead from '@/components/SEOHead';
 import { jobs as sampleJobs } from '@/data/sampleJobs';
 import { supabase } from '@/integrations/supabase/client';
+import { globalCities } from '@/data/centralizedLocations';
 
 const Jobs = () => {
   const [jobs, setJobs] = useState<any[]>([]);
@@ -60,7 +61,7 @@ const Jobs = () => {
         job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         job.company.toLowerCase().includes(searchTerm.toLowerCase());
       
-      const matchesLocation = !locationFilter || 
+      const matchesLocation = !locationFilter || locationFilter === 'all' || 
         job.location.toLowerCase().includes(locationFilter.toLowerCase());
       
       const matchesJobType = !jobTypeFilter || jobTypeFilter === 'all' || 
@@ -106,11 +107,17 @@ const Jobs = () => {
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <Input
-                      placeholder="Location"
-                      value={locationFilter}
-                      onChange={(e) => setLocationFilter(e.target.value)}
-                    />
+                    <Select value={locationFilter} onValueChange={setLocationFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Location" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[300px]">
+                        <SelectItem value="all">All Locations</SelectItem>
+                        {globalCities.slice(0, 80).map(city => (
+                          <SelectItem key={city} value={city}>{city}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     
                     <Select value={jobTypeFilter} onValueChange={setJobTypeFilter}>
                       <SelectTrigger>

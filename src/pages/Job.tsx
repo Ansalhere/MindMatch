@@ -12,7 +12,8 @@ import {
   ArrowLeft,
   Send,
   CheckCircle,
-  Share2
+  Share2,
+  Lock
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -470,16 +471,30 @@ const Job = () => {
                   <CardContent className="pt-6">
                     <div className="text-center space-y-3">
                       {job?.external_apply_url ? (
-                        <Button 
-                          asChild
-                          size="lg"
-                          className="w-full"
-                        >
-                          <a href={job.external_apply_url} target="_blank" rel="noopener noreferrer">
-                            <Send className="h-5 w-5 mr-2" />
-                            Apply on Company Website
-                          </a>
-                        </Button>
+                        user ? (
+                          <Button 
+                            asChild
+                            size="lg"
+                            className="w-full"
+                          >
+                            <a href={job.external_apply_url} target="_blank" rel="noopener noreferrer">
+                              <Send className="h-5 w-5 mr-2" />
+                              Apply on Company Website
+                            </a>
+                          </Button>
+                        ) : (
+                          <Button 
+                            size="lg"
+                            className="w-full"
+                            onClick={() => {
+                              toast.error('Please login to apply for this job');
+                              navigate('/auth');
+                            }}
+                          >
+                            <Lock className="h-5 w-5 mr-2" />
+                            Login to Apply
+                          </Button>
+                        )
                       ) : (
                         <Button 
                           onClick={() => setShowApplyForm(true)}
