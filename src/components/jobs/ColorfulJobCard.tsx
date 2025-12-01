@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { 
   Briefcase, Clock, Trophy, MapPin, DollarSign, Users, 
-  Star, TrendingUp, Zap, Building2, Calendar, Eye, Lock
+  Star, TrendingUp, Zap, Building2, Calendar, Eye, Lock, Share2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useUser } from '@/hooks/useUser';
 import { toast } from 'sonner';
+import JobShareButtons from './JobShareButtons';
 
 interface Job {
   id: string;
@@ -164,20 +165,23 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
           </div>
 
           <div className="flex items-center justify-between pt-2 border-t border-border/50">
-            {showApplications && (
-              <div className="flex items-center gap-2 flex-1">
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Users className="h-3 w-3" />
-                  <span>{applicationCount}</span>
-                </div>
-                {hasTopRankedCandidates && (
-                  <Badge variant="secondary" className="text-xs px-1.5 py-0.5 bg-amber-100 text-amber-800">
-                    <Trophy className="h-2.5 w-2.5 mr-1" />
-                    Top
-                  </Badge>
-                )}
-              </div>
-            )}
+            <div className="flex items-center gap-2 flex-1">
+              {showApplications && (
+                <>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Users className="h-3 w-3" />
+                    <span>{applicationCount}</span>
+                  </div>
+                  {hasTopRankedCandidates && (
+                    <Badge variant="secondary" className="text-xs px-1.5 py-0.5 bg-amber-100 text-amber-800">
+                      <Trophy className="h-2.5 w-2.5 mr-1" />
+                      Top
+                    </Badge>
+                  )}
+                </>
+              )}
+              <JobShareButtons jobId={job.id} jobTitle={job.title} company={getCompanyName()} compact />
+            </div>
             
             {job.external_apply_url ? (
               <Button 
@@ -312,18 +316,21 @@ const ColorfulJobCard = ({ job, compact = false, showApplications = false }: Col
           )}
           
           <div className="flex flex-col sm:flex-row gap-2.5">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              asChild 
-              className="flex-1 h-10 sm:h-9"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Link to={`/job/${job.id}`}>
-                <Eye className="h-4 w-4 mr-2" />
-                Full Details
-              </Link>
-            </Button>
+            <div className="flex gap-2 flex-1">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                asChild 
+                className="flex-1 h-10 sm:h-9"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Link to={`/job/${job.id}`}>
+                  <Eye className="h-4 w-4 mr-2" />
+                  Full Details
+                </Link>
+              </Button>
+              <JobShareButtons jobId={job.id} jobTitle={job.title} company={getCompanyName()} />
+            </div>
             {job.external_apply_url ? (
               <Button 
                 size="sm" 
