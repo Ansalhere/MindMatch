@@ -37,44 +37,84 @@ const HowItWorksSection = ({ isVisible }: HowItWorksSectionProps) => {
   ];
 
   return (
-    <section id="how-it-works" className="py-24 bg-white">
+    <section id="how-it-works" className="py-32 relative overflow-hidden bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto px-6">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className={`text-3xl md:text-4xl font-bold mb-6 transition-all duration-700 ${
+        {/* Header */}
+        <div className="text-center max-w-3xl mx-auto mb-20">
+          <div className={`inline-flex items-center gap-2 glass-card border border-primary/20 px-4 py-2 rounded-full text-sm font-semibold mb-6 transition-all duration-700 ${
+            isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+          }`}>
+            <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+              How It Works
+            </span>
+          </div>
+          
+          <h2 className={`text-5xl md:text-6xl font-black mb-6 transition-all duration-700 delay-100 leading-[1.1] ${
             isVisible ? 'opacity-100' : 'opacity-0 translate-y-10'
           }`}>
-            How <span className="text-primary">RankMe</span> Works
+            Get Started in{' '}
+            <span className="bg-gradient-to-r from-primary via-purple-600 to-blue-600 bg-clip-text text-transparent">
+              3 Simple Steps
+            </span>
           </h2>
-          <p className={`text-lg text-muted-foreground transition-all duration-700 delay-100 ${
+          
+          <p className={`text-xl text-muted-foreground transition-all duration-700 delay-200 leading-relaxed ${
             isVisible ? 'opacity-100' : 'opacity-0 translate-y-10'
           }`}>
-            Our ranking-powered platform makes it easy to connect talent with the perfect job opportunities in just a few simple steps.
+            Our ranking-powered platform makes it easy to connect talent with perfect opportunities.
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {steps.map((item, index) => (
-            <div 
-              key={index}
-              className={`bg-white rounded-2xl p-8 shadow-lg border border-gray-100 transition-all duration-700 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-              }`}
-              style={{ transitionDelay: `${item.delay}ms` }}
-            >
-              <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold mb-6">
-                {item.step}
+        {/* Steps with connecting line */}
+        <div className="relative max-w-5xl mx-auto">
+          {/* Connecting line */}
+          <div className="hidden md:block absolute top-20 left-0 right-0 h-1 bg-gradient-to-r from-primary/20 via-purple-500/20 to-blue-500/20"></div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            {steps.map((item, index) => (
+              <div 
+                key={index}
+                className={`relative transition-all duration-700 ${
+                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                }`}
+                style={{ transitionDelay: `${item.delay}ms` }}
+              >
+                {/* Card */}
+                <div className="glass-card p-8 rounded-3xl border border-border/50 hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 group relative overflow-hidden h-full">
+                  {/* Hover glow */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/0 group-hover:from-primary/5 group-hover:to-purple-500/5 transition-all duration-500 rounded-3xl"></div>
+                  
+                  {/* Step number badge */}
+                  <div className="relative mb-6">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-purple-600 text-white flex items-center justify-center font-black text-2xl shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform duration-500">
+                      {item.step}
+                    </div>
+                  </div>
+                  
+                  {/* Content */}
+                  <div className="relative">
+                    <h3 className="text-2xl font-bold mb-4">{item.title}</h3>
+                    <p className="text-muted-foreground leading-relaxed">{item.description}</p>
+                  </div>
+                </div>
+                
+                {/* Connecting dot */}
+                <div className="hidden md:block absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-gradient-to-br from-primary to-purple-600 border-4 border-background shadow-lg"></div>
               </div>
-              <h3 className="text-xl font-semibold mb-4">{item.title}</h3>
-              <p className="text-muted-foreground">{item.description}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
         
-        <div className={`flex justify-center mt-12 transition-all duration-700 delay-800 ${
+        {/* CTA */}
+        <div className={`flex justify-center mt-16 transition-all duration-700 delay-800 ${
           isVisible ? 'opacity-100' : 'opacity-0'
         }`}>
-          <Button onClick={handleGetStarted}>
-            Get Started Now <ArrowRight className="ml-2 h-4 w-4" />
+          <Button 
+            onClick={handleGetStarted}
+            size="lg"
+            className="h-14 px-8 text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all"
+          >
+            Get Started Now <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>
       </div>

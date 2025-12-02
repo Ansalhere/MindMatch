@@ -15,104 +15,111 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="min-h-screen hero-gradient flex items-center relative overflow-hidden">
-      {/* Enhanced Background Elements */}
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-background via-background to-primary/5">
+      {/* Modern background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Animated gradient orbs */}
-        <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-40 right-10 w-80 h-80 bg-gradient-to-tl from-blue-500/15 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-purple-500/10 via-transparent to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-gradient-to-br from-primary/30 via-purple-500/20 to-transparent rounded-full blur-[120px] opacity-60"></div>
+        <div className="absolute top-1/2 -left-40 w-[400px] h-[400px] bg-gradient-to-tr from-blue-500/20 via-primary/15 to-transparent rounded-full blur-[100px] opacity-40"></div>
+        <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] bg-gradient-to-t from-purple-500/25 to-transparent rounded-full blur-[90px]"></div>
         
-        {/* Grid overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-[size:72px_72px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]"></div>
+        {/* Animated grid */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(var(--primary-rgb),0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(var(--primary-rgb),0.02)_1px,transparent_1px)] bg-[size:80px_80px] [mask-image:radial-gradient(ellipse_100%_100%_at_50%_0%,black_20%,transparent_80%)]"></div>
       </div>
-      
-      <div className="container mx-auto px-4 lg:px-6 py-12 lg:py-20 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center min-h-[85vh]">
-          {/* Hero Content */}
-          <div className={`space-y-6 lg:space-y-8 text-center lg:text-left transition-all duration-1000 ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="space-y-4 lg:space-y-6">
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-purple-500/10 backdrop-blur-sm border border-primary/20 text-primary px-5 py-2.5 rounded-full text-sm font-semibold mx-auto lg:mx-0 shadow-lg shadow-primary/10">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                </span>
+
+      <div className="container mx-auto px-6 py-20 lg:py-32 relative z-10">
+        <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-16 items-center">
+          {/* Hero Content - Enhanced Typography & Layout */}
+          <div className={`space-y-8 transition-all duration-1000 ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 glass-card border border-primary/20 px-4 py-2 rounded-full text-sm font-semibold">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+              <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
                 Where Fresh Talent Meets Innovation
-              </div>
+              </span>
+            </div>
+            
+            {/* Headline - Modern Typography */}
+            <div className="space-y-6">
+              <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95]">
+                <span className="block bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
+                  Fresher
+                </span>
+                <span className="block mt-2 bg-gradient-to-r from-primary via-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  Pools
+                </span>
+              </h1>
               
-              <div className="space-y-3 lg:space-y-4">
-                <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-black tracking-tight leading-[1.1]">
-                  <span className="relative inline-block">
-                    <span className="bg-gradient-to-r from-primary via-purple-600 to-blue-600 bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">
-                      FresherPools
-                    </span>
-                    <span className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-primary/0 via-primary to-primary/0"></span>
-                  </span>
-                </h1>
-                
-                <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-foreground/90 leading-tight">
-                  The Future of{' '}
-                  <span className="relative inline-block">
-                    <span className="text-primary">Talent Discovery</span>
-                    <span className="absolute bottom-0 left-0 w-full h-1 bg-primary/30 blur-sm"></span>
-                  </span>
-                </h2>
-                
-                <p className="text-lg lg:text-2xl text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mx-0 font-medium">
-                  AI-powered skill matching that puts your abilities first. Get discovered by top employers through merit, not luck.
+              <div className="max-w-xl">
+                <p className="text-xl lg:text-2xl text-muted-foreground leading-relaxed font-medium">
+                  AI-powered skill matching that puts your 
+                  <span className="text-foreground font-bold"> abilities first</span>. 
+                  Get discovered by top employers through 
+                  <span className="text-primary font-bold"> merit, not luck</span>.
                 </p>
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+            {/* CTAs - Modern Button Group */}
+            <div className="flex flex-wrap gap-4">
               {user ? (
                 <>
-                  <Button size="lg" className="px-6 lg:px-8 py-4 lg:py-6 text-base lg:text-lg font-semibold button-glow" asChild>
+                  <Button size="lg" className="h-14 px-8 text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all" asChild>
                     <Link to={`/profile/${user.id}/${user.user_type === 'employer' ? 'employer' : 'candidate'}`}>
-                      View My Profile <ArrowRight className="ml-2 h-5 w-5" />
+                      View My Profile 
+                      <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
-                  <Button size="lg" variant="outline" className="px-6 lg:px-8 py-4 lg:py-6 text-base lg:text-lg border-2" asChild>
+                  <Button size="lg" variant="outline" className="h-14 px-8 text-base font-semibold border-2 hover:bg-card" asChild>
                     <Link to="/resume-builder">Build Resume</Link>
                   </Button>
                 </>
               ) : (
                 <>
-                  <Button size="lg" className="px-6 lg:px-8 py-4 lg:py-6 text-base lg:text-lg font-semibold button-glow" asChild>
+                  <Button size="lg" className="h-14 px-8 text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all" asChild>
                     <Link to="/register">
-                      Get My Ranking <ArrowRight className="ml-2 h-5 w-5" />
+                      Get My Ranking 
+                      <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
-                  <Button size="lg" variant="outline" className="px-6 lg:px-8 py-4 lg:py-6 text-base lg:text-lg border-2" asChild>
+                  <Button size="lg" variant="outline" className="h-14 px-8 text-base font-semibold border-2 hover:bg-card" asChild>
                     <Link to="/resume-builder">Build Resume</Link>
                   </Button>
                 </>
               )}
             </div>
 
-            {/* Enhanced Trust Indicators */}
-            <div className="flex flex-col sm:flex-row items-center gap-6 lg:gap-8 pt-8 lg:pt-10 justify-center lg:justify-start">
-              <div className="flex items-center gap-3">
-                <div className="flex -space-x-2">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-purple-600 border-2 border-background flex items-center justify-center text-white text-xs font-bold">
-                      {String.fromCharCode(64 + i)}
-                    </div>
-                  ))}
-                </div>
-                <div className="text-sm">
-                  <div className="font-semibold text-foreground">5,000+ Active Users</div>
-                  <div className="text-muted-foreground text-xs">Trusted by leading companies</div>
-                </div>
+            {/* Social Proof - Redesigned */}
+            <div className="flex items-center gap-6 pt-4">
+              <div className="flex -space-x-3">
+                {[1, 2, 3, 4].map((i) => (
+                  <div 
+                    key={i} 
+                    className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-600 border-2 border-background flex items-center justify-center text-white text-sm font-bold shadow-lg"
+                  >
+                    {String.fromCharCode(64 + i)}
+                  </div>
+                ))}
+              </div>
+              <div>
+                <div className="text-sm font-bold text-foreground">5,000+ Active Users</div>
+                <div className="text-xs text-muted-foreground">Trusted by leading companies</div>
               </div>
             </div>
           </div>
 
-          {/* Interactive Ranking Demo */}
-          <div className={`relative flex justify-center lg:justify-end transition-all duration-1000 delay-300 ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="w-full max-w-md lg:max-w-lg xl:max-w-xl">
-              <RankingDemo />
+          {/* Interactive Demo - Enhanced Card */}
+          <div className={`relative transition-all duration-1000 delay-300 ${loaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
+            <div className="relative">
+              {/* Decorative glow */}
+              <div className="absolute -inset-4 bg-gradient-to-br from-primary/20 via-purple-500/20 to-blue-500/20 rounded-[2rem] blur-2xl opacity-60"></div>
+              
+              {/* Main card */}
+              <div className="relative glass-card p-8 rounded-3xl border border-border/50 shadow-2xl">
+                <RankingDemo />
+              </div>
             </div>
           </div>
         </div>
