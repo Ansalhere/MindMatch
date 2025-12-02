@@ -75,115 +75,81 @@ const Features = () => {
   }, []);
 
   return (
-    <section className="py-24 relative overflow-hidden" ref={featuresRef}>
-      {/* Background decoration */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent pointer-events-none"></div>
-      
+    <section className="py-32 relative overflow-hidden bg-gradient-to-b from-background to-muted/30" ref={featuresRef}>
       <div className="container mx-auto px-6 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-20">
+        <div className="text-center max-w-3xl mx-auto mb-24">
           <div className={cn(
-            "inline-block mb-4 px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-semibold transition-all duration-700",
+            "inline-flex items-center gap-2 glass-card border border-primary/20 px-4 py-2 rounded-full text-sm font-semibold mb-6 transition-all duration-700",
             isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
           )}>
-            Why Choose FresherPools
+            <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+              Why Choose FresherPools
+            </span>
           </div>
+          
           <h2 className={cn(
-            "text-4xl md:text-5xl font-black mb-6 transition-all duration-700 delay-100 leading-tight",
+            "text-5xl md:text-6xl font-black mb-6 transition-all duration-700 delay-100 leading-[1.1]",
             isVisible ? "opacity-100" : "opacity-0 translate-y-10"
           )}>
-            Built for <span className="bg-gradient-to-r from-primary via-purple-600 to-blue-600 bg-clip-text text-transparent">Modern Talent</span> Acquisition
+            Built for{' '}
+            <span className="block mt-2 bg-gradient-to-r from-primary via-purple-600 to-blue-600 bg-clip-text text-transparent">
+              Modern Talent
+            </span>
           </h2>
+          
           <p className={cn(
-            "text-lg text-muted-foreground transition-all duration-700 delay-200 leading-relaxed",
+            "text-xl text-muted-foreground transition-all duration-700 delay-200 leading-relaxed max-w-2xl mx-auto",
             isVisible ? "opacity-100" : "opacity-0 translate-y-10"
           )}>
             A revolutionary platform that matches skills to opportunities using advanced AI, eliminating bias and focusing on what truly matters—capability.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Interactive Feature Display */}
-          <div className={cn(
-            "relative bg-gradient-to-br from-card to-card/50 rounded-3xl p-10 border border-border/50 transition-all duration-700 delay-300 h-[450px] flex items-center justify-center shadow-elegant overflow-hidden",
-            isVisible ? "opacity-100" : "opacity-0"
-          )}>
-            {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-purple-500/10 to-transparent rounded-full blur-3xl"></div>
-            
-            <div className="relative w-full h-full">
-              {features.map((feature, index) => (
-                <div
-                  key={index}
-                  className={cn(
-                    "absolute inset-0 flex flex-col items-center justify-center text-center p-10 transition-all duration-500",
-                    activeFeature === index 
-                      ? "opacity-100 scale-100" 
-                      : "opacity-0 scale-90 pointer-events-none"
-                  )}
-                >
-                  <div className="relative mb-8">
-                    <div className="absolute inset-0 bg-primary/20 rounded-3xl blur-xl"></div>
-                    <div className="relative bg-gradient-to-br from-primary to-purple-600 text-white p-5 rounded-3xl shadow-lg">
-                      {feature.icon}
-                    </div>
-                  </div>
-                  <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                    {feature.title}
-                  </h3>
-                  <p className="text-muted-foreground text-base leading-relaxed max-w-md">
-                    {feature.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Feature List */}
-          <div className="space-y-3">
-            {features.map((feature, index) => (
-              <div 
-                key={index}
-                className={cn(
-                  "group relative flex items-start p-5 rounded-2xl cursor-pointer transition-all duration-300 border",
-                  activeFeature === index 
-                    ? "bg-gradient-to-r from-primary to-purple-600 text-white border-primary shadow-lg shadow-primary/25 scale-[1.02]" 
-                    : "bg-card/50 hover:bg-card border-border/50 hover:border-primary/30 hover:shadow-md",
-                  isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-10"
-                )}
-                style={{ transitionDelay: `${400 + index * 50}ms` }}
-                onClick={() => setActiveFeature(index)}
-              >
-                <div className={cn(
-                  "mr-4 p-3 rounded-xl transition-all duration-300",
-                  activeFeature === index 
-                    ? "bg-white/20 backdrop-blur-sm text-white shadow-lg" 
-                    : "bg-primary/10 text-primary group-hover:bg-primary/15"
-                )}>
+        {/* Bento Grid Layout - Modern Approach */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((feature, index) => (
+            <div
+              key={index}
+              className={cn(
+                "group relative glass-card p-8 rounded-3xl border border-border/50 hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 cursor-pointer overflow-hidden",
+                index === 0 && "md:col-span-2 lg:col-span-2 lg:row-span-2",
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+              )}
+              style={{ transitionDelay: `${300 + index * 100}ms` }}
+              onMouseEnter={() => setActiveFeature(index)}
+            >
+              {/* Hover glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/0 group-hover:from-primary/5 group-hover:via-purple-500/5 group-hover:to-transparent transition-all duration-500 rounded-3xl"></div>
+              
+              {/* Icon */}
+              <div className="relative mb-6 z-10">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-purple-600 text-white flex items-center justify-center shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform duration-500">
                   {feature.icon}
                 </div>
-                <div className="flex-1">
-                  <h4 className={cn(
-                    "font-bold text-base mb-1 transition-colors",
-                    activeFeature === index ? "text-white" : "text-foreground"
-                  )}>
-                    {feature.title}
-                  </h4>
-                  <p className={cn(
-                    "text-sm leading-relaxed transition-colors",
-                    activeFeature === index 
-                      ? "text-white/90" 
-                      : "text-muted-foreground"
-                  )}>
-                    {feature.description}
-                  </p>
-                </div>
-                {activeFeature === index && (
-                  <div className="absolute -right-1 top-1/2 -translate-y-1/2 w-1 h-12 bg-white rounded-full shadow-lg"></div>
-                )}
               </div>
-            ))}
-          </div>
+              
+              {/* Content */}
+              <div className="relative z-10 space-y-3">
+                <h3 className={cn(
+                  "font-bold transition-all duration-300",
+                  index === 0 ? "text-2xl lg:text-3xl" : "text-xl"
+                )}>
+                  {feature.title}
+                </h3>
+                <p className={cn(
+                  "text-muted-foreground leading-relaxed",
+                  index === 0 ? "text-base lg:text-lg max-w-xl" : "text-sm"
+                )}>
+                  {feature.description}
+                </p>
+              </div>
+              
+              {/* Active indicator */}
+              {activeFeature === index && (
+                <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-primary animate-pulse z-10"></div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </section>
