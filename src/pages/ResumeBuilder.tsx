@@ -4,13 +4,18 @@ import SEOHead from '@/components/SEOHead';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Download, Eye, Upload, User } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { FileText, Download, Eye, Upload, User, Crown, CheckCircle2, AlertTriangle } from 'lucide-react';
 import ResumeForm from '@/components/resume/ResumeForm';
 import ResumePreview from '@/components/resume/ResumePreview';
 import TemplateSelector from '@/components/resume/TemplateSelector';
+import ATSScoreCard from '@/components/resume/ATSScoreCard';
+import ResumePremiumGate from '@/components/resume/ResumePremiumGate';
 import { toast } from 'sonner';
 import { useUser } from '@/hooks/useUser';
+import { useResumeLimit } from '@/hooks/useResumeLimit';
 import { supabase } from '@/integrations/supabase/client';
+import { ScrollReveal } from '@/components/ui/scroll-reveal';
 
 export type ResumeTemplate = 'professional' | 'modern' | 'creative' | 'minimal' | 'executive' | 'tech' | 'compact';
 
@@ -64,7 +69,9 @@ export interface ResumeData {
 
 const ResumeBuilder = () => {
   const { user } = useUser();
+  const { canDownload, remainingDownloads, downloadCount, isPremium, recordDownload, upgradeToPremium } = useResumeLimit();
   const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplate>('professional');
+  const [showPremiumGate, setShowPremiumGate] = useState(false);
   const [resumeData, setResumeData] = useState<ResumeData>({
     personalInfo: {
       fullName: '',
@@ -230,6 +237,12 @@ const ResumeBuilder = () => {
   };
 
   const handleDownload = async () => {
+    // Check if user can download
+    if (!canDownload) {
+      setShowPremiumGate(true);
+      return;
+    }
+
     try {
       const { jsPDF } = await import('jspdf');
       const html2canvas = (await import('html2canvas')).default;
@@ -240,7 +253,7 @@ const ResumeBuilder = () => {
         return;
       }
 
-      toast.info("Generating your PDF resume...");
+      toast.info("Generating your ATS-friendly PDF resume...");
 
       const canvas = await html2canvas(resumeElement, {
         scale: 2,
@@ -262,10 +275,13 @@ const ResumeBuilder = () => {
       
       pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
       
-      const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, '_') || 'Resume'}_${selectedTemplate}.pdf`;
+      const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, '_') || 'Resume'}_${selectedTemplate}_ATS.pdf`;
       pdf.save(fileName);
 
-      toast.success("Your resume has been downloaded successfully!");
+      // Record the download
+      recordDownload(selectedTemplate);
+
+      toast.success("Your ATS-friendly resume has been downloaded!");
     } catch (error) {
       console.error('Error downloading resume:', error);
       toast.error("There was an error creating your PDF. Please try again.");
@@ -275,118 +291,175 @@ const ResumeBuilder = () => {
   return (
     <>
       <SEOHead
-        title="Professional Resume Builder - Create ATS-Friendly Resumes | RankMe.AI"
-        description="Build professional, ATS-optimized resumes with our free resume builder. Choose from multiple templates including modern, creative, and executive designs. Download as PDF instantly."
-        keywords="resume builder, CV maker, ATS resume, professional resume templates, free resume builder, resume creator, job application"
+        title="ATS-Friendly Resume Builder - Create Professional Resumes | RankMe.AI"
+        description="Build professional, ATS-optimized resumes with our free resume builder. Real-time ATS score, expert tips, and multiple templates. Download as PDF instantly."
+        keywords="ATS resume builder, ATS-friendly resume, CV maker, professional resume templates, free resume builder, applicant tracking system"
         canonical="/resume-builder"
       />
       <Layout>
         <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
           <div className="container mx-auto px-4 py-8 max-w-7xl">
             {/* Header */}
-            <div className="text-center mb-8">
-              <div className="flex items-center justify-center gap-2 mb-3">
-                <FileText className="h-8 w-8 text-primary" />
-                <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                  Resume Builder
-                </h1>
-              </div>
-              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                Create professional, ATS-optimized resumes in minutes. Choose from multiple templates and download as PDF.
-              </p>
-              
-              {/* Action Buttons */}
-              <div className="mt-6 flex gap-3 justify-center">
-                {user && (
-                  <Button onClick={loadUserProfile} variant="outline" className="gap-2">
-                    <User className="h-4 w-4" />
-                    Load My Profile
+            <ScrollReveal>
+              <div className="text-center mb-8">
+                <div className="flex items-center justify-center gap-2 mb-3">
+                  <FileText className="h-8 w-8 text-primary" />
+                  <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                    ATS-Friendly Resume Builder
+                  </h1>
+                  {isPremium && (
+                    <Badge className="ml-2 bg-gradient-to-r from-yellow-500 to-orange-500">
+                      <Crown className="h-3 w-3 mr-1" />
+                      Premium
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                  Create professional, ATS-optimized resumes that pass applicant tracking systems and land more interviews.
+                </p>
+
+                {/* ATS Info Banner */}
+                <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <span>Optimized for 50+ ATS systems including Workday, Taleo, Greenhouse</span>
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="mt-6 flex gap-3 justify-center flex-wrap">
+                  {user && (
+                    <Button onClick={loadUserProfile} variant="outline" className="gap-2">
+                      <User className="h-4 w-4" />
+                      Load My Profile
+                    </Button>
+                  )}
+                  <Button variant="outline" className="relative gap-2">
+                    <Upload className="h-4 w-4" />
+                    Upload Existing Resume
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={handleFileUpload}
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                    />
                   </Button>
+                  {!isPremium && (
+                    <Button 
+                      onClick={() => setShowPremiumGate(true)} 
+                      className="gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
+                    >
+                      <Crown className="h-4 w-4" />
+                      Upgrade to Premium
+                    </Button>
+                  )}
+                </div>
+
+                {/* Download Status */}
+                {!isPremium && (
+                  <div className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                    <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                    <span>
+                      {remainingDownloads > 0 
+                        ? `${remainingDownloads} free download remaining` 
+                        : 'Free limit reached. Upgrade for unlimited resumes.'}
+                    </span>
+                  </div>
                 )}
-                <Button variant="outline" className="relative gap-2">
-                  <Upload className="h-4 w-4" />
-                  Upload Existing Resume
-                  <input
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    onChange={handleFileUpload}
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                  />
-                </Button>
               </div>
-            </div>
+            </ScrollReveal>
 
             {/* Template Selector */}
-            <TemplateSelector
-              selectedTemplate={selectedTemplate}
-              onTemplateChange={setSelectedTemplate}
-            />
+            <ScrollReveal delay={0.1}>
+              <TemplateSelector
+                selectedTemplate={selectedTemplate}
+                onTemplateChange={setSelectedTemplate}
+              />
+            </ScrollReveal>
 
             {/* Main Content */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
               {/* Left: Form */}
-              <Card className="p-6 h-fit sticky top-4">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold">Resume Details</h2>
-                  <Button onClick={handleDownload} size="sm">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download PDF
-                  </Button>
-                </div>
+              <ScrollReveal delay={0.2}>
+                <div className="space-y-4">
+                  {/* ATS Score Card */}
+                  <ATSScoreCard data={resumeData} />
 
-                <Tabs defaultValue="personal" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3 mb-4">
-                    <TabsTrigger value="personal">Personal</TabsTrigger>
-                    <TabsTrigger value="experience">Experience</TabsTrigger>
-                    <TabsTrigger value="other">Skills & More</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="personal" className="space-y-4">
-                    <ResumeForm 
-                      section="personal" 
-                      data={resumeData}
-                      onChange={setResumeData}
-                    />
-                  </TabsContent>
-                  
-                  <TabsContent value="experience" className="space-y-4">
-                    <ResumeForm 
-                      section="experience" 
-                      data={resumeData}
-                      onChange={setResumeData}
-                    />
-                  </TabsContent>
-                  
-                  <TabsContent value="other" className="space-y-4">
-                    <ResumeForm 
-                      section="skills" 
-                      data={resumeData}
-                      onChange={setResumeData}
-                    />
-                  </TabsContent>
-                </Tabs>
-              </Card>
+                  <Card className="p-6 h-fit">
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-xl font-semibold">Resume Details</h2>
+                      <Button onClick={handleDownload} size="sm" className="gap-2">
+                        <Download className="h-4 w-4" />
+                        Download PDF
+                      </Button>
+                    </div>
+
+                    <Tabs defaultValue="personal" className="w-full">
+                      <TabsList className="grid w-full grid-cols-3 mb-4">
+                        <TabsTrigger value="personal">Personal</TabsTrigger>
+                        <TabsTrigger value="experience">Experience</TabsTrigger>
+                        <TabsTrigger value="other">Skills & More</TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="personal" className="space-y-4">
+                        <ResumeForm 
+                          section="personal" 
+                          data={resumeData}
+                          onChange={setResumeData}
+                        />
+                      </TabsContent>
+                      
+                      <TabsContent value="experience" className="space-y-4">
+                        <ResumeForm 
+                          section="experience" 
+                          data={resumeData}
+                          onChange={setResumeData}
+                        />
+                      </TabsContent>
+                      
+                      <TabsContent value="other" className="space-y-4">
+                        <ResumeForm 
+                          section="skills" 
+                          data={resumeData}
+                          onChange={setResumeData}
+                        />
+                      </TabsContent>
+                    </Tabs>
+                  </Card>
+                </div>
+              </ScrollReveal>
 
               {/* Right: Preview */}
-              <div className="sticky top-4">
-                <Card className="p-6 bg-white dark:bg-card">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold flex items-center gap-2">
-                      <Eye className="h-5 w-5 text-primary" />
-                      Live Preview
-                    </h2>
-                  </div>
-                  <div className="border rounded-lg overflow-hidden bg-white">
-                    <ResumePreview 
-                      template={selectedTemplate}
-                      data={resumeData}
-                    />
-                  </div>
-                </Card>
-              </div>
+              <ScrollReveal delay={0.3}>
+                <div className="sticky top-4">
+                  <Card className="p-6 bg-white dark:bg-card">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-lg font-semibold flex items-center gap-2">
+                        <Eye className="h-5 w-5 text-primary" />
+                        Live Preview
+                      </h2>
+                      <Badge variant="outline" className="text-xs">
+                        ATS-Optimized
+                      </Badge>
+                    </div>
+                    <div className="border rounded-lg overflow-hidden bg-white">
+                      <ResumePreview 
+                        template={selectedTemplate}
+                        data={resumeData}
+                      />
+                    </div>
+                  </Card>
+                </div>
+              </ScrollReveal>
             </div>
           </div>
         </div>
+
+        {/* Premium Gate Modal */}
+        <ResumePremiumGate
+          open={showPremiumGate}
+          onClose={() => setShowPremiumGate(false)}
+          resumeCount={downloadCount}
+          onUpgrade={upgradeToPremium}
+        />
       </Layout>
     </>
   );
