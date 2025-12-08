@@ -1,23 +1,26 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { ReferralCard } from '@/components/referral/ReferralCard';
-import StatCard from './StatCard';
 import RecommendedJobs from './RecommendedJobs';
-import SkillRanking from './SkillRanking';
 import SkillsList from './SkillsList';
 import ApplicationActions from '../candidate/ApplicationActions';
-import { Award, ChevronUp, Trophy, TrendingUp, BarChart3, Briefcase } from 'lucide-react';
+import { 
+  Award, Trophy, TrendingUp, Briefcase, MapPin, Phone, 
+  FileText, User, Target, Zap, ArrowUpRight, Sparkles,
+  ChevronRight, Star, Calendar, Clock
+} from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import CandidateRankDisplay from '@/components/ranking/CandidateRankDisplay';
-import RankBreakdown from '@/components/profile/RankBreakdown';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { supabase } from '@/integrations/supabase/client';
 import { useUser } from '@/hooks/useUser';
 import ProfileCompletionCard from './ProfileCompletionCard';
 import { calculateProfileCompletion } from '@/utils/profileCompletion';
 import { getUserSkills, getUserEducation, getUserExperience, getUserCertifications } from '@/lib/supabase';
 import { useDailyLogin } from '@/hooks/useDailyLogin';
+import { ScrollReveal, StaggerContainer, StaggerItem, FadeInScale } from '@/components/ui/scroll-reveal';
 
 interface CandidateDashboardProps {
   userData: any;
@@ -26,7 +29,7 @@ interface CandidateDashboardProps {
 const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
   const navigate = useNavigate();
   const { user } = useUser();
-  const { loginResult } = useDailyLogin(); // Track daily login
+  const { loginResult } = useDailyLogin();
   const [applications, setApplications] = useState<any[]>([]);
   const [loadingApplications, setLoadingApplications] = useState(false);
   const [profileCompletion, setProfileCompletion] = useState<any>(null);
@@ -40,7 +43,6 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
 
   const fetchProfileData = async () => {
     if (!user) return;
-
     try {
       const [skillsResult, educationResult, experienceResult, certificationsResult] = await Promise.all([
         getUserSkills(user.id),
@@ -48,7 +50,6 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
         getUserExperience(user.id),
         getUserCertifications(user.id),
       ]);
-
       const completion = calculateProfileCompletion(
         user,
         skillsResult.skills || [],
@@ -56,7 +57,6 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
         experienceResult.experiences || [],
         certificationsResult.certifications || []
       );
-
       setProfileCompletion(completion);
     } catch (error) {
       console.error('Error calculating profile completion:', error);
@@ -65,14 +65,11 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
 
   const fetchApplications = async () => {
     if (!user) return;
-    
     try {
       setLoadingApplications(true);
       const { data, error } = await supabase
         .rpc('get_candidate_applications', { candidate_id: user.id });
-
       if (error) throw error;
-      
       const formattedApplications = data?.map((app: any) => ({
         id: app.id,
         status: app.status,
@@ -83,7 +80,6 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
           company: app.job_company
         }
       })) || [];
-      
       setApplications(formattedApplications);
     } catch (error) {
       console.error('Error fetching applications:', error);
@@ -92,189 +88,233 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
     }
   };
 
-  const handleAddSkill = () => {
-    navigate('/add-skill');
-  };
-
-  const viewRankingExplanation = () => {
-    navigate('/ranking-explanation');
-  };
+  const rankPercentile = Math.round((1 - userData.ranking.position / userData.ranking.total) * 100);
 
   return (
-    <>
-      {/* Enhanced Profile Details Card */}
-      <Card className="mb-6 border-primary/20 shadow-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6">
-          <CardHeader className="p-0">
-            <CardTitle className="flex items-center gap-2 text-2xl">
-              <Award className="h-6 w-6 text-primary" />
+    <div className="space-y-8">
+      {/* Hero Stats Section */}
+      <ScrollReveal>
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 p-6 md:p-8">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+          
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Rank Display */}
+            <div className="lg:col-span-1 flex flex-col items-center justify-center text-center p-6 bg-background/60 backdrop-blur-sm rounded-2xl border border-primary/10">
+              <div className="relative">
+                <div className="w-28 h-28 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-xl shadow-primary/25">
+                  <div className="w-24 h-24 rounded-full bg-background flex items-center justify-center">
+                    <span className="text-3xl font-bold text-primary">#{userData.ranking.position}</span>
+                  </div>
+                </div>
+                <div className="absolute -top-1 -right-1 bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                  <Trophy className="h-3 w-3 inline mr-1" />
+                  Top {rankPercentile}%
+                </div>
+              </div>
+              <h3 className="mt-4 text-lg font-semibold">Global Ranking</h3>
+              <p className="text-sm text-muted-foreground">Out of {userData.ranking.total.toLocaleString()}</p>
+            </div>
+
+            {/* Quick Stats */}
+            <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4">
+              <motion.div 
+                whileHover={{ scale: 1.02, y: -2 }}
+                className="p-4 bg-background/60 backdrop-blur-sm rounded-xl border border-border/50 cursor-pointer"
+                onClick={() => navigate('/jobs')}
+              >
+                <Briefcase className="h-5 w-5 text-blue-500 mb-2" />
+                <p className="text-2xl font-bold">{applications.length}</p>
+                <p className="text-xs text-muted-foreground">Applications</p>
+              </motion.div>
+
+              <motion.div 
+                whileHover={{ scale: 1.02, y: -2 }}
+                className="p-4 bg-background/60 backdrop-blur-sm rounded-xl border border-border/50 cursor-pointer"
+                onClick={() => navigate('/add-skill')}
+              >
+                <Target className="h-5 w-5 text-green-500 mb-2" />
+                <p className="text-2xl font-bold">{Math.round(userData.ranking.overall)}</p>
+                <p className="text-xs text-muted-foreground">Rank Score</p>
+              </motion.div>
+
+              <motion.div 
+                whileHover={{ scale: 1.02, y: -2 }}
+                className="p-4 bg-background/60 backdrop-blur-sm rounded-xl border border-border/50 cursor-pointer"
+                onClick={() => navigate('/edit-profile')}
+              >
+                <Star className="h-5 w-5 text-amber-500 mb-2" />
+                <p className="text-2xl font-bold">{profileCompletion?.percentage || 0}%</p>
+                <p className="text-xs text-muted-foreground">Profile</p>
+              </motion.div>
+
+              <motion.div 
+                whileHover={{ scale: 1.02, y: -2 }}
+                className="p-4 bg-background/60 backdrop-blur-sm rounded-xl border border-border/50 cursor-pointer"
+                onClick={() => navigate('/skills')}
+              >
+                <Zap className="h-5 w-5 text-purple-500 mb-2" />
+                <p className="text-2xl font-bold">+{Math.round(userData.ranking.overall * 0.1)}</p>
+                <p className="text-xs text-muted-foreground">This Month</p>
+              </motion.div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="relative z-10 mt-6 flex flex-wrap gap-3">
+            <Button onClick={() => navigate('/add-skill')} className="gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Improve Ranking
+            </Button>
+            <Button variant="outline" onClick={() => navigate('/ranking-explanation')} className="gap-2">
+              <Sparkles className="h-4 w-4" />
+              How Rankings Work
+            </Button>
+            <Button variant="ghost" onClick={() => navigate('/edit-profile')} className="gap-2">
+              Edit Profile
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </ScrollReveal>
+
+      {/* Profile Overview Card */}
+      <ScrollReveal delay={0.1}>
+        <Card className="overflow-hidden border-border/50">
+          <CardHeader className="bg-gradient-to-r from-muted/50 to-transparent pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <User className="h-5 w-5 text-primary" />
               Profile Overview
             </CardTitle>
           </CardHeader>
-        </div>
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {user?.name && (
-              <div className="p-4 rounded-lg bg-muted/50 border">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Full Name</p>
-                <p className="font-semibold text-lg">{user.name}</p>
-              </div>
-            )}
-            {user?.location && (
-              <div className="p-4 rounded-lg bg-muted/50 border">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Location</p>
-                <p className="font-semibold text-lg">{user.location}</p>
-              </div>
-            )}
-            {user?.phone && (
-              <div className="p-4 rounded-lg bg-muted/50 border">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Contact</p>
-                <p className="font-semibold text-lg">{user.phone}</p>
-              </div>
-            )}
-            {user?.current_ctc && (
-              <div className="p-4 rounded-lg bg-muted/50 border">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Current CTC</p>
-                <p className="font-semibold text-lg text-primary">₹{user.current_ctc} LPA</p>
-              </div>
-            )}
-            {user?.expected_ctc && (
-              <div className="p-4 rounded-lg bg-muted/50 border">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Expected CTC</p>
-                <p className="font-semibold text-lg text-primary">₹{user.expected_ctc} LPA</p>
-              </div>
-            )}
-            {user?.resume_url && (
-              <div className="p-4 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
-                <p className="text-xs uppercase tracking-wide text-green-700 dark:text-green-300 mb-1">Resume</p>
-                <p className="font-semibold text-lg text-green-800 dark:text-green-200">✓ Uploaded</p>
-              </div>
-            )}
+          <CardContent className="pt-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {user?.name && (
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider">Name</p>
+                  <p className="font-medium truncate">{user.name}</p>
+                </div>
+              )}
+              {user?.location && (
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                    <MapPin className="h-3 w-3" /> Location
+                  </p>
+                  <p className="font-medium truncate">{user.location}</p>
+                </div>
+              )}
+              {user?.phone && (
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                    <Phone className="h-3 w-3" /> Contact
+                  </p>
+                  <p className="font-medium">{user.phone}</p>
+                </div>
+              )}
+              {user?.current_ctc && (
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider">Current CTC</p>
+                  <p className="font-medium text-primary">₹{user.current_ctc} LPA</p>
+                </div>
+              )}
+              {user?.expected_ctc && (
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider">Expected CTC</p>
+                  <p className="font-medium text-primary">₹{user.expected_ctc} LPA</p>
+                </div>
+              )}
+              {user?.resume_url && (
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                    <FileText className="h-3 w-3" /> Resume
+                  </p>
+                  <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                    ✓ Uploaded
+                  </Badge>
+                </div>
+              )}
+            </div>
             {user?.bio && (
-              <div className="md:col-span-2 lg:col-span-3 p-4 rounded-lg bg-muted/50 border">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Professional Bio</p>
-                <p className="text-sm leading-relaxed">{user.bio}</p>
+              <div className="mt-4 pt-4 border-t">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Bio</p>
+                <p className="text-sm text-muted-foreground line-clamp-2">{user.bio}</p>
               </div>
             )}
-          </div>
-          <div className="flex gap-3 mt-6">
-            <Button size="sm" onClick={() => navigate('/edit-profile')}>
-              Edit Profile
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => navigate('/resume-builder')}>
-              Build Resume
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Clean Ranking Overview */}
-      <Card className="mb-6 border-primary/20 shadow-lg">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-amber-500" />
-                Your Global Ranking
-              </h2>
-              <p className="text-muted-foreground">
-                Rank #{userData.ranking.position} of {userData.ranking.total.toLocaleString()} candidates
-              </p>
-            </div>
-            <div className="text-right">
-              <div className="text-3xl font-bold text-primary">{Math.round(userData.ranking.overall)}</div>
-              <div className="text-sm text-muted-foreground">Score</div>
-            </div>
-          </div>
-          <div className="mt-4 flex gap-2">
-            <Button size="sm" onClick={handleAddSkill}>
-              <TrendingUp className="h-4 w-4 mr-2" />
-              Improve Ranking
-            </Button>
-            <Button size="sm" variant="outline" onClick={viewRankingExplanation}>
-              How It Works
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Clean Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Applications</p>
-                <p className="text-2xl font-bold">{userData.applications.length}</p>
-              </div>
-              <Briefcase className="h-5 w-5 text-muted-foreground" />
-            </div>
           </CardContent>
         </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Profile Score</p>
-                <p className="text-2xl font-bold">{Math.round(userData.ranking.overall)}</p>
-              </div>
-              <Award className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Rank Position</p>
-                <p className="text-2xl font-bold">#{userData.ranking.position}</p>
-              </div>
-              <Trophy className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
+      </ScrollReveal>
 
-        <div>
-          {profileCompletion && (
-            <ProfileCompletionCard completion={profileCompletion} compact={true} />
-          )}
-        </div>
-      </div>
-      
+      {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <RecommendedJobs userData={userData} />
-          <ApplicationActions 
-            applications={applications}
-            onUpdate={fetchApplications}
-          />
+          <ScrollReveal delay={0.2}>
+            <RecommendedJobs userData={userData} />
+          </ScrollReveal>
+          
+          <ScrollReveal delay={0.3}>
+            <ApplicationActions 
+              applications={applications}
+              onUpdate={fetchApplications}
+            />
+          </ScrollReveal>
         </div>
         
         <div className="space-y-6">
-          <ReferralCard />
-          <SkillsList />
+          <ScrollReveal delay={0.2} direction="right">
+            {profileCompletion && (
+              <ProfileCompletionCard completion={profileCompletion} />
+            )}
+          </ScrollReveal>
           
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button size="sm" className="w-full" onClick={handleAddSkill}>
-                Add Skills
-              </Button>
-              <Button size="sm" variant="outline" className="w-full" onClick={() => navigate('/skills')}>
-                Take Assessment
-              </Button>
-              <Button size="sm" variant="outline" className="w-full" onClick={() => navigate('/ranking-explanation')}>
-                View Ranking Details
-              </Button>
-            </CardContent>
-          </Card>
+          <ScrollReveal delay={0.3} direction="right">
+            <ReferralCard />
+          </ScrollReveal>
+          
+          <ScrollReveal delay={0.4} direction="right">
+            <SkillsList />
+          </ScrollReveal>
+          
+          <ScrollReveal delay={0.5} direction="right">
+            <Card className="overflow-hidden">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Zap className="h-4 w-4 text-primary" />
+                  Quick Actions
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Button 
+                  size="sm" 
+                  className="w-full justify-between" 
+                  onClick={() => navigate('/add-skill')}
+                >
+                  Add Skills
+                  <ArrowUpRight className="h-4 w-4" />
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="w-full justify-between" 
+                  onClick={() => navigate('/skills')}
+                >
+                  Take Assessment
+                  <ArrowUpRight className="h-4 w-4" />
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="w-full justify-between" 
+                  onClick={() => navigate('/resume-builder')}
+                >
+                  Build Resume
+                  <ArrowUpRight className="h-4 w-4" />
+                </Button>
+              </CardContent>
+            </Card>
+          </ScrollReveal>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
