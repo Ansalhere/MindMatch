@@ -15,7 +15,7 @@ export const useRankingCalculator = () => {
   const [isCalculating, setIsCalculating] = useState(false);
   const [lastResult, setLastResult] = useState<RankingUpdateResult | null>(null);
 
-  const recalculateRanking = useCallback(async (userId: string): Promise<RankingUpdateResult | null> => {
+  const recalculateRanking = useCallback(async (userId: string, showToast: boolean = true): Promise<RankingUpdateResult | null> => {
     if (!userId) return null;
     
     setIsCalculating(true);
@@ -29,7 +29,7 @@ export const useRankingCalculator = () => {
       
       if (userError) throw userError;
       
-      const previousScore = userData?.rank_score || 0;
+      const previousScore = Number(userData?.rank_score) || 0;
       
       // Fetch all profile data for ranking calculation
       const [skillsRes, educationRes, experienceRes, certificationsRes] = await Promise.all([
@@ -119,14 +119,16 @@ export const useRankingCalculator = () => {
       setLastResult(result);
       
       // Show improvement toast if rank improved
-      if (result.improvement > 0) {
-        toast.success(`🎉 Ranking improved by +${result.improvement.toFixed(1)} points!`, {
-          description: `Your new rank score is ${newScore.toFixed(1)}`,
-        });
-      } else if (result.improvement < 0) {
-        toast.info('Ranking updated', {
-          description: `Your rank score is now ${newScore.toFixed(1)}`,
-        });
+      if (showToast) {
+        if (result.improvement > 0) {
+          toast.success(`🎉 Ranking improved by +${result.improvement.toFixed(1)} points!`, {
+            description: `Your new rank score is ${newScore.toFixed(1)}`,
+          });
+        } else if (result.improvement < 0) {
+          toast.info('Ranking updated', {
+            description: `Your rank score is now ${newScore.toFixed(1)}`,
+          });
+        }
       }
       
       return result;

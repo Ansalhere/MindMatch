@@ -3,11 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Trophy, Clock, CheckCircle, ArrowRight } from 'lucide-react';
+import { Trophy, Clock, CheckCircle, ArrowRight, Search } from 'lucide-react';
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { addUserSkill } from '@/lib/supabase';
 import { supabase } from '@/integrations/supabase/client';
 import { useUser } from '@/hooks/useUser';
+import { useRankingCalculator } from '@/hooks/useRankingCalculator';
+import { skillExams, getAllCategories, SkillExam } from '@/data/skillAssessments';
 
 interface Question {
   id: number;
