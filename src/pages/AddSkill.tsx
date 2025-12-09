@@ -4,16 +4,20 @@ import { useNavigate } from 'react-router-dom';
 import AddSkillForm from '@/components/profile/AddSkillForm';
 import SkillAssessment from '@/components/skills/SkillAssessment';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { ArrowLeft, TrendingUp, Sparkles } from 'lucide-react';
 import { toast } from "sonner";
 import { addUserSkill, addUserCertification } from '@/lib/supabase';
 import { useUser } from '@/hooks/useUser';
+import { useRankingCalculator } from '@/hooks/useRankingCalculator';
 
 const AddSkill = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<'manual' | 'assessment'>('assessment');
-  const { user } = useUser();
+  const { user, refreshUser } = useUser();
+  const { recalculateRanking, isCalculating, lastResult } = useRankingCalculator();
 
   const handleSubmit = async (formData: any) => {
     if (!user) {
@@ -51,7 +55,18 @@ const AddSkill = () => {
         await addUserCertification(certData);
       }
       
-      toast.success("Added successfully!");
+      // Recalculate ranking after adding skill/certification
+      const result = await recalculateRanking(user.id);
+      
+      if (result && result.improvement > 0) {
+        toast.success(`Added successfully! Your ranking improved by +${result.improvement.toFixed(1)} points!`, {
+          description: `New score: ${result.newScore.toFixed(1)}`,
+          duration: 5000,
+        });
+      } else {
+        toast.success("Added successfully!");
+      }
+      
       navigate('/dashboard');
     } catch (error) {
       console.error('Error adding skill/certification:', error);
@@ -85,9 +100,32 @@ const AddSkill = () => {
       
       <div className="max-w-4xl mx-auto mb-8">
         <h1 className="text-3xl font-bold mb-2">Add Skills & Certifications</h1>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-muted-foreground text-lg mb-4">
           Add your skills and certifications to improve your ranking and showcase your expertise
         </p>
+        
+        {/* Current Ranking Display */}
+        {user && (
+          <div className="p-4 rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                <span className="font-medium">Current Ranking Score</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold text-primary">{(user.rank_score || 0).toFixed(1)}</span>
+                <span className="text-muted-foreground">/100</span>
+                {lastResult && lastResult.improvement > 0 && (
+                  <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    +{lastResult.improvement.toFixed(1)}
+                  </Badge>
+                )}
+              </div>
+            </div>
+            <Progress value={user.rank_score || 0} className="h-2 mt-3" />
+          </div>
+        )}
       </div>
       
       <div className="flex justify-center mb-8">

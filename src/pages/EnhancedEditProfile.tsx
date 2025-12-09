@@ -9,15 +9,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { 
   User, Building, Loader2, Save, ArrowLeft, Globe, MapPin, 
   Phone, Mail, Briefcase, GraduationCap, Award, Calendar,
-  Link as LinkIcon, Github, Linkedin, Twitter, Camera
+  Link as LinkIcon, Github, Linkedin, Twitter, Camera, TrendingUp, Sparkles
 } from 'lucide-react';
 import { toast } from "sonner";
 import { useUser } from '@/hooks/useUser';
 import Layout from '@/components/Layout';
 import { supabase } from '@/integrations/supabase/client';
+import { useRankingCalculator } from '@/hooks/useRankingCalculator';
+import RankingImprovementGuide from '@/components/ranking/RankingImprovementGuide';
 import * as z from 'zod';
 
 const profileSchema = z.object({
@@ -53,8 +56,17 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 
 const EnhancedEditProfile = () => {
   const { user, refreshUser, isLoading: userLoading } = useUser();
+  const { recalculateRanking, isCalculating, lastResult } = useRankingCalculator();
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('basic');
+  const [showRankingGuide, setShowRankingGuide] = useState(false);
+  const [rankingBreakdown, setRankingBreakdown] = useState({
+    skills: 0,
+    education: 0,
+    experience: 0,
+    certifications: 0,
+    profile: 0,
+  });
   const navigate = useNavigate();
 
   const form = useForm<ProfileFormData>({
@@ -171,7 +183,18 @@ const EnhancedEditProfile = () => {
         if (emailError) throw emailError;
       }
 
-      await refreshUser();
+      // Get the current session before refreshing
+      const { data: { session } } = await supabase.auth.getSession();
+      await refreshUser(session);
+      
+      // Recalculate ranking for candidates after profile update
+      if (user.user_type === 'candidate') {
+        const result = await recalculateRanking(user.id);
+        if (result) {
+          setRankingBreakdown(result.breakdown);
+        }
+      }
+      
       toast.success('Profile updated successfully!');
       navigate('/dashboard');
     } catch (error: any) {
@@ -181,6 +204,19 @@ const EnhancedEditProfile = () => {
       setIsLoading(false);
     }
   };
+
+  // Fetch initial ranking breakdown
+  useEffect(() => {
+    const fetchRankingData = async () => {
+      if (user && user.user_type === 'candidate') {
+        const result = await recalculateRanking(user.id);
+        if (result) {
+          setRankingBreakdown(result.breakdown);
+        }
+      }
+    };
+    fetchRankingData();
+  }, [user]);
 
   if (userLoading) {
     return (
@@ -194,7 +230,13 @@ const EnhancedEditProfile = () => {
 
   if (!user) return null;
 
-  const tabs = [
+  const tabs = user.user_type === 'candidate' ? [
+    { id: 'basic', label: 'Basic Info', icon: User },
+    { id: 'professional', label: 'Professional', icon: Briefcase },
+    { id: 'social', label: 'Social Links', icon: LinkIcon },
+    { id: 'ranking', label: 'Improve Ranking', icon: TrendingUp },
+    { id: 'preferences', label: 'Preferences', icon: GraduationCap },
+  ] : [
     { id: 'basic', label: 'Basic Info', icon: User },
     { id: 'professional', label: 'Professional', icon: Briefcase },
     { id: 'social', label: 'Social Links', icon: LinkIcon },
@@ -205,6 +247,36 @@ const EnhancedEditProfile = () => {
     <Layout>
       <div className="container mx-auto px-6 py-8">
         <div className="max-w-4xl mx-auto">
+          {/* Ranking Score Banner for Candidates */}
+          {user.user_type === 'candidate' && (
+            <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Your Ranking Score</p>
+                    <p className="text-xs text-muted-foreground">Complete your profile to improve</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <span className="text-2xl font-bold text-primary">{(user.rank_score || 0).toFixed(1)}</span>
+                    <span className="text-muted-foreground">/100</span>
+                  </div>
+                  {lastResult && lastResult.improvement > 0 && (
+                    <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      +{lastResult.improvement.toFixed(1)}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              <Progress value={user.rank_score || 0} className="h-2 mt-3" />
+            </div>
+          )}
+
           <div className="flex items-center gap-4 mb-8">
             <Button
               variant="outline"
@@ -694,6 +766,21 @@ const EnhancedEditProfile = () => {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {/* Ranking Improvement Tab (Candidates Only) */}
+            {activeTab === 'ranking' && user.user_type === 'candidate' && (
+              <RankingImprovementGuide
+                currentScore={user.rank_score || 0}
+                breakdown={rankingBreakdown}
+                onActionClick={(path) => {
+                  if (path === '/edit-profile') {
+                    setActiveTab('basic');
+                  } else {
+                    navigate(path);
+                  }
+                }}
+              />
             )}
 
             {/* Submit Buttons */}
