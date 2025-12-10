@@ -22,20 +22,42 @@ serve(async (req) => {
     let systemPrompt = '';
     let userPrompt = '';
 
-    // Handle resume parsing separately (no AI needed for basic template)
-    if (type === 'parse') {
-      return new Response(
-        JSON.stringify({ 
-          resumeData: {
-            personalInfo: { fullName: '', email: '', phone: '', location: '', summary: '' },
-            experience: [], education: [], skills: [], certifications: [], projects: []
-          }
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
     switch (type) {
+      case 'parse':
+        // Parse uploaded resume using AI
+        systemPrompt = `You are a resume parser. Extract information from resumes and return structured JSON data. 
+Return ONLY valid JSON in this exact format, no markdown, no explanation:
+{
+  "personalInfo": { "fullName": "", "email": "", "phone": "", "location": "", "summary": "" },
+  "experience": [{ "id": "uuid", "title": "", "company": "", "location": "", "startDate": "", "endDate": "", "current": false, "description": "" }],
+  "education": [{ "id": "uuid", "degree": "", "institution": "", "location": "", "graduationDate": "", "gpa": "" }],
+  "skills": [{ "id": "uuid", "category": "Technical Skills", "items": ["skill1", "skill2"] }],
+  "certifications": [{ "id": "uuid", "name": "", "issuer": "", "date": "" }],
+  "projects": []
+}`;
+        userPrompt = `Parse this resume content and extract all information. File name: ${context.fileName}. If you cannot access the file, create a reasonable template based on common resume structures. Return only valid JSON.`;
+        break;
+
+      case 'tailor-to-job':
+        // Tailor resume to job description
+        systemPrompt = `You are an expert resume writer and ATS optimization specialist. Your task is to tailor a resume to match a specific job description while keeping the information authentic. 
+Focus on:
+1. Highlighting relevant experience and skills that match the job
+2. Using keywords from the job description naturally
+3. Rewriting bullet points to align with job requirements
+4. Prioritizing relevant achievements
+Return ONLY valid JSON in the same resume structure provided, no markdown, no explanation.`;
+        userPrompt = `Tailor this resume to match the following job description. Make it ATS-friendly and highlight relevant qualifications.
+
+JOB DESCRIPTION:
+${context.jobDescription}
+
+CURRENT RESUME:
+${JSON.stringify(context.resumeData)}
+
+Return the tailored resume as valid JSON in the same structure.`;
+        break;
+
       case 'job-description':
         systemPrompt = 'You are a professional resume writer. Create compelling, achievement-focused job descriptions that highlight impact and results. Use action verbs and quantify achievements when possible.';
         userPrompt = `Create a professional job description for this role: ${context.title} at ${context.company}. Include 3-4 bullet points focusing on achievements and responsibilities.`;
@@ -55,6 +77,12 @@ serve(async (req) => {
         systemPrompt = 'You are a career advisor. Suggest relevant skills based on job experience and career goals.';
         userPrompt = `Based on this experience: ${context.experience}, suggest 5-7 relevant technical and soft skills for a resume.`;
         break;
+
+      default:
+        return new Response(JSON.stringify({ error: 'Unknown type' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
     }
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -95,6 +123,42 @@ serve(async (req) => {
 
     const data = await response.json();
     const generatedText = data.choices[0].message.content;
+
+    // For parse and tailor-to-job, try to extract JSON
+    if (type === 'parse' || type === 'tailor-to-job') {
+      try {
+        // Try to extract JSON from the response
+        let jsonStr = generatedText;
+        // Remove markdown code blocks if present
+        if (jsonStr.includes('```json')) {
+          jsonStr = jsonStr.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+        } else if (jsonStr.includes('```')) {
+          jsonStr = jsonStr.replace(/```\n?/g, '');
+        }
+        jsonStr = jsonStr.trim();
+        
+        const resumeData = JSON.parse(jsonStr);
+        return new Response(JSON.stringify({ resumeData }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError, 'Response:', generatedText);
+        // Return a default structure if parsing fails
+        return new Response(JSON.stringify({ 
+          resumeData: {
+            personalInfo: { fullName: '', email: '', phone: '', location: '', summary: '' },
+            experience: [], 
+            education: [], 
+            skills: [], 
+            certifications: [], 
+            projects: []
+          },
+          parseError: 'Could not parse AI response'
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
 
     return new Response(JSON.stringify({ text: generatedText }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

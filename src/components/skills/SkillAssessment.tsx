@@ -10,215 +10,25 @@ import { addUserSkill } from '@/lib/supabase';
 import { supabase } from '@/integrations/supabase/client';
 import { useUser } from '@/hooks/useUser';
 import { useRankingCalculator } from '@/hooks/useRankingCalculator';
-import { skillExams, getAllCategories, SkillExam } from '@/data/skillAssessments';
+import { skillExams as importedSkillExams, getAllCategories, type SkillExam } from '@/data/skillAssessments';
 
-interface Question {
-  id: number;
-  question: string;
-  options: string[];
-  correct: number;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-}
-
-interface SkillExam {
-  id: string;
-  title: string;
-  description: string;
-  questions: Question[];
-  passingScore: number;
-  maxScore: number;
-}
+// Use imported skill exams from centralized data
+const skillExams = importedSkillExams;
 
 // Dynamic skill exams mapping based on category
 const getSkillExamByCategory = (category: string): SkillExam => {
-  const examTemplates = {
-    'frontend': {
-      id: 'frontend',
-      title: 'Frontend Development',
-      description: 'Test your HTML, CSS, JavaScript, React, and UI/UX skills',
-      questions: [
-        {
-          id: 1,
-          question: 'What is the virtual DOM in React?',
-          options: ['A real DOM copy', 'An in-memory representation of the real DOM', 'A database', 'A CSS framework'],
-          correct: 1,
-          difficulty: 'intermediate' as const
-        },
-        {
-          id: 2,
-          question: 'Which CSS property is used for responsive design?',
-          options: ['display', 'position', 'media queries', 'flex'],
-          correct: 2,
-          difficulty: 'beginner' as const
-        },
-        {
-          id: 3,
-          question: 'What is the purpose of useEffect in React?',
-          options: ['State management', 'Side effects handling', 'Component styling', 'Routing'],
-          correct: 1,
-          difficulty: 'intermediate' as const
-        },
-        {
-          id: 4,
-          question: 'Which HTML5 element is semantic?',
-          options: ['<div>', '<span>', '<article>', '<b>'],
-          correct: 2,
-          difficulty: 'beginner' as const
-        },
-        {
-          id: 5,
-          question: 'What is TypeScript?',
-          options: ['A database', 'JavaScript with types', 'A CSS framework', 'A testing library'],
-          correct: 1,
-          difficulty: 'intermediate' as const
-        }
-      ]
-    },
-    'backend': {
-      id: 'backend',
-      title: 'Backend Development',
-      description: 'Assess your server-side programming and API development knowledge',
-      questions: [
-        {
-          id: 1,
-          question: 'What is REST API?',
-          options: ['A database', 'Representational State Transfer', 'A programming language', 'A framework'],
-          correct: 1,
-          difficulty: 'intermediate' as const
-        },
-        {
-          id: 2,
-          question: 'Which HTTP method is used to create data?',
-          options: ['GET', 'POST', 'PUT', 'DELETE'],
-          correct: 1,
-          difficulty: 'beginner' as const
-        },
-        {
-          id: 3,
-          question: 'What is middleware in Node.js?',
-          options: ['A database', 'Functions that execute during request-response cycle', 'A framework', 'A library'],
-          correct: 1,
-          difficulty: 'intermediate' as const
-        },
-        {
-          id: 4,
-          question: 'What is JWT?',
-          options: ['Java Web Token', 'JSON Web Token', 'JavaScript Tool', 'Database'],
-          correct: 1,
-          difficulty: 'advanced' as const
-        },
-        {
-          id: 5,
-          question: 'Which database is NoSQL?',
-          options: ['MySQL', 'PostgreSQL', 'MongoDB', 'SQLite'],
-          correct: 2,
-          difficulty: 'beginner' as const
-        }
-      ]
-    },
-    'data-science': {
-      id: 'data-science',
-      title: 'Data Science & Analytics',
-      description: 'Evaluate your data analysis, machine learning, and statistics skills',
-      questions: [
-        {
-          id: 1,
-          question: 'What is machine learning?',
-          options: ['A type of computer', 'AI that learns from data', 'A programming language', 'A database'],
-          correct: 1,
-          difficulty: 'beginner' as const
-        },
-        {
-          id: 2,
-          question: 'Which library is used for data manipulation in Python?',
-          options: ['NumPy', 'Pandas', 'Matplotlib', 'All of the above'],
-          correct: 3,
-          difficulty: 'intermediate' as const
-        },
-        {
-          id: 3,
-          question: 'What is supervised learning?',
-          options: ['Learning with labeled data', 'Learning without data', 'Random learning', 'Manual learning'],
-          correct: 0,
-          difficulty: 'intermediate' as const
-        },
-        {
-          id: 4,
-          question: 'What is a neural network?',
-          options: ['A computer network', 'A model inspired by brain neurons', 'A database', 'An algorithm'],
-          correct: 1,
-          difficulty: 'advanced' as const
-        },
-        {
-          id: 5,
-          question: 'What is the purpose of data visualization?',
-          options: ['To hide data', 'To present data graphically', 'To delete data', 'To create data'],
-          correct: 1,
-          difficulty: 'beginner' as const
-        }
-      ]
-    },
-    'digital-marketing': {
-      id: 'digital-marketing',
-      title: 'Digital Marketing',
-      description: 'Test your knowledge in SEO, social media, and online advertising',
-      questions: [
-        {
-          id: 1,
-          question: 'What does SEO stand for?',
-          options: ['Search Engine Optimization', 'Social Engine Optimization', 'Site Engine Optimization', 'System Engine Optimization'],
-          correct: 0,
-          difficulty: 'beginner' as const
-        },
-        {
-          id: 2,
-          question: 'What is CTR in digital marketing?',
-          options: ['Click Through Rate', 'Cost Through Rate', 'Customer Through Rate', 'Content Through Rate'],
-          correct: 0,
-          difficulty: 'intermediate' as const
-        },
-        {
-          id: 3,
-          question: 'Which platform is best for B2B marketing?',
-          options: ['Instagram', 'TikTok', 'LinkedIn', 'Snapchat'],
-          correct: 2,
-          difficulty: 'beginner' as const
-        },
-        {
-          id: 4,
-          question: 'What is A/B testing?',
-          options: ['Testing two versions', 'Testing one version', 'Testing three versions', 'No testing'],
-          correct: 0,
-          difficulty: 'intermediate' as const
-        },
-        {
-          id: 5,
-          question: 'What is the purpose of Google Analytics?',
-          options: ['Website design', 'Website tracking and analysis', 'Website hosting', 'Website creation'],
-          correct: 1,
-          difficulty: 'beginner' as const
-        }
-      ]
-    }
-  };
-
-  // Add required properties to all exam templates
-  const examWithDefaults = examTemplates[category as keyof typeof examTemplates];
-  if (examWithDefaults) {
-    return {
-      ...examWithDefaults,
-      passingScore: 70,
-      maxScore: 100
-    };
-  }
-
-  // Default to a general exam if category not found
+  const exam = skillExams.find(e => e.id === category || e.title.toLowerCase().includes(category.toLowerCase()));
+  if (exam) return exam;
+  
+  // Default exam if category not found
   return {
     id: category,
     title: category.charAt(0).toUpperCase() + category.slice(1),
     description: `Test your knowledge in ${category}`,
+    category: 'General',
     passingScore: 70,
     maxScore: 100,
+    timeLimit: 300,
     questions: [
       {
         id: 1,
@@ -230,97 +40,6 @@ const getSkillExamByCategory = (category: string): SkillExam => {
     ]
   };
 };
-
-const skillExams: SkillExam[] = [
-  {
-    id: 'react',
-    title: 'React Fundamentals',
-    description: 'Test your React knowledge including components, hooks, and state management.',
-    passingScore: 70,
-    maxScore: 100,
-    questions: [
-      {
-        id: 1,
-        question: 'What is JSX?',
-        options: ['JavaScript XML', 'Java Syntax Extension', 'JSON Extended', 'JavaScript Syntax'],
-        correct: 0,
-        difficulty: 'beginner'
-      },
-      {
-        id: 2,
-        question: 'Which hook is used for state management in functional components?',
-        options: ['useEffect', 'useState', 'useContext', 'useReducer'],
-        correct: 1,
-        difficulty: 'beginner'
-      },
-      {
-        id: 3,
-        question: 'When does useEffect run by default?',
-        options: ['Only on mount', 'Only on unmount', 'After every render', 'Never'],
-        correct: 2,
-        difficulty: 'intermediate'
-      },
-      {
-        id: 4,
-        question: 'What is the purpose of React.memo()?',
-        options: ['Memory management', 'Component optimization', 'State persistence', 'Error handling'],
-        correct: 1,
-        difficulty: 'advanced'
-      },
-      {
-        id: 5,
-        question: 'How do you pass data from parent to child component?',
-        options: ['Props', 'State', 'Context', 'Redux'],
-        correct: 0,
-        difficulty: 'beginner'
-      }
-    ]
-  },
-  {
-    id: 'python',
-    title: 'Python Programming',
-    description: 'Assess your Python skills covering syntax, data structures, and object-oriented programming.',
-    passingScore: 70,
-    maxScore: 100,
-    questions: [
-      {
-        id: 1,
-        question: 'Which data type is used to store multiple items in Python?',
-        options: ['int', 'list', 'str', 'float'],
-        correct: 1,
-        difficulty: 'beginner'
-      },
-      {
-        id: 2,
-        question: 'What is the correct way to define a function in Python?',
-        options: ['function myFunc():', 'def myFunc():', 'func myFunc():', 'define myFunc():'],
-        correct: 1,
-        difficulty: 'beginner'
-      },
-      {
-        id: 3,
-        question: 'What is list comprehension?',
-        options: ['A way to understand lists', 'A concise way to create lists', 'A list method', 'A debugging technique'],
-        correct: 1,
-        difficulty: 'intermediate'
-      },
-      {
-        id: 4,
-        question: 'Which keyword is used for inheritance in Python?',
-        options: ['extends', 'implements', 'class Parent', 'class Child(Parent)'],
-        correct: 3,
-        difficulty: 'intermediate'
-      },
-      {
-        id: 5,
-        question: 'What does the __init__ method do?',
-        options: ['Initializes the class', 'Constructor method', 'Destructor method', 'Error handler'],
-        correct: 1,
-        difficulty: 'intermediate'
-      }
-    ]
-  }
-];
 
 interface SkillAssessmentProps {
   onComplete?: (skillName: string, score: number) => void;
