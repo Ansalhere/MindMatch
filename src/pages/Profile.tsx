@@ -48,6 +48,8 @@ import {
 } from '@/lib/supabase';
 import { useUser } from '@/hooks/useUser';
 import ContactActions from '@/components/employer/ContactActions';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const Profile = () => {
   const { id, type = 'candidate' } = useParams();
@@ -55,6 +57,33 @@ const Profile = () => {
   const { user: currentUser } = useUser();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  const handleViewResume = async (resumeUrl: string) => {
+    try {
+      // Extract the path from the URL
+      const resumePath = resumeUrl.includes('resumes/') 
+        ? resumeUrl.split('resumes/')[1]?.split('?')[0]
+        : null;
+      
+      if (!resumePath) {
+        // Try opening direct URL if path extraction fails
+        window.open(resumeUrl, '_blank');
+        return;
+      }
+
+      const { data, error } = await supabase.storage
+        .from('resumes')
+        .createSignedUrl(resumePath, 3600);
+      
+      if (error) throw error;
+      if (data?.signedUrl) {
+        window.open(data.signedUrl, '_blank');
+      }
+    } catch (error) {
+      console.error('Error viewing resume:', error);
+      toast.error('Could not open resume. Please try again.');
+    }
+  };
   
   useEffect(() => {
     const fetchProfile = async () => {
@@ -281,7 +310,7 @@ const CandidateProfile = ({ profile, currentUser }: { profile: any; currentUser:
                 variant="outline" 
                 size="sm" 
                 className="w-full mt-2"
-                onClick={() => window.open(profile.resume_url, '_blank')}
+                onClick={() => handleViewResume(profile.resume_url)}
               >
                 <Book className="h-3.5 w-3.5 mr-1.5" />
                 View Resume
