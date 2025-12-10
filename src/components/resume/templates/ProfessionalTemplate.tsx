@@ -121,7 +121,7 @@ const ProfessionalTemplate = ({ data }: TemplateProps) => {
             {data.skills.map((skill) => (
               <div key={skill.id}>
                 <span className="font-bold text-gray-900">{skill.category}: </span>
-                <span className="text-gray-700">{skill.items.join(', ')}</span>
+                <span className="text-gray-700">{skill.items?.join(', ') || ''}</span>
               </div>
             ))}
           </div>
@@ -158,10 +158,14 @@ const ProfessionalTemplate = ({ data }: TemplateProps) => {
             {data.projects.map((project) => (
               <div key={project.id}>
                 <h3 className="font-bold text-gray-900">{project.name}</h3>
-                <p className="text-gray-700 mb-1">{project.description}</p>
-                <p className="text-gray-600 text-xs">
-                  <span className="font-medium">Technologies:</span> {project.technologies.join(', ')}
-                </p>
+                {project.description && (
+                  <p className="text-gray-700 mb-1">{project.description}</p>
+                )}
+                {project.technologies && project.technologies.length > 0 && (
+                  <p className="text-gray-600 text-xs">
+                    <span className="font-medium">Technologies:</span> {project.technologies.join(', ')}
+                  </p>
+                )}
                 {project.link && (
                   <p className="text-gray-600 text-xs">
                     <span className="font-medium">Link:</span> {project.link}
