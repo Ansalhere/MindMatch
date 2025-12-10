@@ -13,8 +13,9 @@ import { Progress } from "@/components/ui/progress";
 import { 
   User, Building, Loader2, Save, ArrowLeft, Globe, MapPin, 
   Phone, Mail, Briefcase, GraduationCap, Award, Calendar,
-  Link as LinkIcon, Github, Linkedin, Twitter, Camera, TrendingUp, Sparkles
+  Link as LinkIcon, Github, Linkedin, Twitter, Camera, TrendingUp, Sparkles, FileText
 } from 'lucide-react';
+import ResumeUpload from '@/components/candidate/ResumeUpload';
 import { toast } from "sonner";
 import { useUser } from '@/hooks/useUser';
 import Layout from '@/components/Layout';
@@ -233,6 +234,7 @@ const EnhancedEditProfile = () => {
   const tabs = user.user_type === 'candidate' ? [
     { id: 'basic', label: 'Basic Info', icon: User },
     { id: 'professional', label: 'Professional', icon: Briefcase },
+    { id: 'documents', label: 'Documents', icon: FileText },
     { id: 'social', label: 'Social Links', icon: LinkIcon },
     { id: 'ranking', label: 'Improve Ranking', icon: TrendingUp },
     { id: 'preferences', label: 'Preferences', icon: GraduationCap },
@@ -764,6 +766,33 @@ const EnhancedEditProfile = () => {
                       </div>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Documents Tab (Candidates Only) */}
+            {activeTab === 'documents' && user.user_type === 'candidate' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Resume & Documents
+                  </CardTitle>
+                  <CardDescription>
+                    Upload your resume to make it available to employers
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResumeUpload />
+                  
+                  {user.resume_url && (
+                    <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                      <p className="text-sm text-green-800 dark:text-green-300 flex items-center gap-2">
+                        <Award className="h-4 w-4" />
+                        Your resume is uploaded and visible to employers!
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
