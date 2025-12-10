@@ -5,7 +5,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Download, Eye, Upload, User, Crown, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { FileText, Download, Eye, Upload, User, Crown, CheckCircle2, AlertTriangle, Sparkles, Loader2 } from 'lucide-react';
 import ResumeForm from '@/components/resume/ResumeForm';
 import ResumePreview from '@/components/resume/ResumePreview';
 import TemplateSelector from '@/components/resume/TemplateSelector';
@@ -72,6 +73,8 @@ const ResumeBuilder = () => {
   const { canDownload, remainingDownloads, downloadCount, isPremium, recordDownload, upgradeToPremium } = useResumeLimit();
   const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplate>('professional');
   const [showPremiumGate, setShowPremiumGate] = useState(false);
+  const [jobDescription, setJobDescription] = useState('');
+  const [isTailoring, setIsTailoring] = useState(false);
   const [resumeData, setResumeData] = useState<ResumeData>({
     personalInfo: {
       fullName: '',
@@ -236,6 +239,47 @@ const ResumeBuilder = () => {
     }
   };
 
+  const handleTailorToJob = async () => {
+    if (!jobDescription.trim()) {
+      toast.error("Please enter a job description");
+      return;
+    }
+
+    if (!resumeData.personalInfo.fullName && resumeData.experience.length === 0) {
+      toast.error("Please add some resume content first");
+      return;
+    }
+
+    setIsTailoring(true);
+    toast.info("Tailoring your resume to match the job description...");
+
+    try {
+      const { data, error } = await supabase.functions.invoke('resume-ai-assistant', {
+        body: { 
+          type: 'tailor-to-job',
+          context: { 
+            jobDescription: jobDescription.trim(),
+            resumeData 
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.resumeData) {
+        setResumeData(data.resumeData);
+        toast.success("Resume tailored successfully! Review the changes.");
+      } else {
+        toast.warning("Could not tailor resume. Please try again.");
+      }
+    } catch (error: any) {
+      console.error('Error tailoring resume:', error);
+      toast.error(error.message || "Could not tailor your resume. Please try again.");
+    } finally {
+      setIsTailoring(false);
+    }
+  };
+
   const handleDownload = async () => {
     // Check if user can download
     if (!canDownload) {
@@ -380,6 +424,40 @@ const ResumeBuilder = () => {
               {/* Left: Form */}
               <ScrollReveal delay={0.2}>
                 <div className="space-y-4">
+                  {/* Job Description Tailoring */}
+                  <Card className="p-4 border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Sparkles className="h-5 w-5 text-primary" />
+                      <h3 className="font-semibold">Tailor to Job Description</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Paste a job description to automatically optimize your resume for the role.
+                    </p>
+                    <Textarea 
+                      placeholder="Paste the job description here..."
+                      value={jobDescription}
+                      onChange={(e) => setJobDescription(e.target.value)}
+                      className="min-h-[100px] mb-3"
+                    />
+                    <Button 
+                      onClick={handleTailorToJob} 
+                      disabled={isTailoring || !jobDescription.trim()}
+                      className="w-full gap-2"
+                    >
+                      {isTailoring ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Tailoring...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-4 w-4" />
+                          Tailor Resume
+                        </>
+                      )}
+                    </Button>
+                  </Card>
+
                   {/* ATS Score Card */}
                   <ATSScoreCard data={resumeData} />
 
