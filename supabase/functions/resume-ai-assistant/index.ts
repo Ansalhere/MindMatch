@@ -25,17 +25,18 @@ serve(async (req) => {
     switch (type) {
       case 'parse':
         // Parse uploaded resume using AI
-        systemPrompt = `You are a resume parser. Extract information from resumes and return structured JSON data. 
-Return ONLY valid JSON in this exact format, no markdown, no explanation:
+        systemPrompt = `You are a resume parser expert. Extract information from the provided resume content and return structured JSON data.
+Return ONLY valid JSON in this exact format, no markdown code blocks, no explanation:
 {
-  "personalInfo": { "fullName": "", "email": "", "phone": "", "location": "", "summary": "" },
-  "experience": [{ "id": "uuid", "title": "", "company": "", "location": "", "startDate": "", "endDate": "", "current": false, "description": "" }],
-  "education": [{ "id": "uuid", "degree": "", "institution": "", "location": "", "graduationDate": "", "gpa": "" }],
+  "personalInfo": { "fullName": "", "email": "", "phone": "", "location": "", "linkedin": "", "portfolio": "", "summary": "" },
+  "experience": [{ "id": "uuid", "title": "", "company": "", "location": "", "startDate": "YYYY-MM", "endDate": "YYYY-MM", "current": false, "description": "bullet points of achievements" }],
+  "education": [{ "id": "uuid", "degree": "", "institution": "", "location": "", "graduationDate": "YYYY", "gpa": "" }],
   "skills": [{ "id": "uuid", "category": "Technical Skills", "items": ["skill1", "skill2"] }],
-  "certifications": [{ "id": "uuid", "name": "", "issuer": "", "date": "" }],
-  "projects": []
-}`;
-        userPrompt = `Parse this resume content and extract all information. File name: ${context.fileName}. If you cannot access the file, create a reasonable template based on common resume structures. Return only valid JSON.`;
+  "certifications": [{ "id": "uuid", "name": "", "issuer": "", "date": "YYYY-MM" }],
+  "projects": [{ "id": "uuid", "name": "", "description": "", "technologies": ["tech1"], "link": "" }]
+}
+Extract as much information as possible from the resume. Use unique UUIDs for each id field.`;
+        userPrompt = `Parse this resume and extract all information. Return only valid JSON.\n\nResume Content:\n${context.fileContent || 'Unable to read file content. Please provide a basic template structure.'}`;
         break;
 
       case 'tailor-to-job':

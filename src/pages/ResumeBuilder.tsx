@@ -196,47 +196,81 @@ const ResumeBuilder = () => {
     toast.info("Parsing your resume... This may take a moment.");
 
     try {
-      // Upload to Supabase storage
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
-      const filePath = `temp/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('resumes')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('resumes')
-        .getPublicUrl(filePath);
-
+      // Read file content as text (for simple text extraction)
+      const fileContent = await readFileAsText(file);
+      
       // Call edge function to parse resume with AI
       const { data, error } = await supabase.functions.invoke('resume-ai-assistant', {
         body: { 
           type: 'parse',
-          context: { fileUrl: publicUrl, fileName: file.name }
+          context: { 
+            fileName: file.name,
+            fileContent: fileContent.substring(0, 10000) // Limit content size
+          }
         }
       });
 
       if (error) throw error;
 
       if (data?.resumeData) {
-        setResumeData(data.resumeData);
+        // Merge with existing data, keeping non-empty fields
+        const mergedData = mergeResumeData(resumeData, data.resumeData);
+        setResumeData(mergedData);
         toast.success("Resume parsed successfully! Review and customize as needed.");
       } else {
         toast.warning("Could not extract all data. Please fill in missing details.");
       }
-
-      // Cleanup temp file
-      await supabase.storage.from('resumes').remove([filePath]);
     } catch (error: any) {
       console.error('Error parsing resume:', error);
       toast.error(error.message || "Could not process your resume. Please try again.");
     } finally {
       event.target.value = '';
     }
+  };
+
+  const readFileAsText = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target?.result as string || '');
+      reader.onerror = reject;
+      reader.readAsText(file);
+    });
+  };
+
+  const mergeResumeData = (existing: ResumeData, parsed: ResumeData): ResumeData => {
+    return {
+      personalInfo: {
+        fullName: parsed.personalInfo?.fullName || existing.personalInfo.fullName,
+        email: parsed.personalInfo?.email || existing.personalInfo.email,
+        phone: parsed.personalInfo?.phone || existing.personalInfo.phone,
+        location: parsed.personalInfo?.location || existing.personalInfo.location,
+        linkedin: parsed.personalInfo?.linkedin || existing.personalInfo.linkedin,
+        portfolio: parsed.personalInfo?.portfolio || existing.personalInfo.portfolio,
+        summary: parsed.personalInfo?.summary || existing.personalInfo.summary,
+      },
+      experience: parsed.experience?.length > 0 ? parsed.experience.map(exp => ({
+        ...exp,
+        id: exp.id || crypto.randomUUID()
+      })) : existing.experience,
+      education: parsed.education?.length > 0 ? parsed.education.map(edu => ({
+        ...edu,
+        id: edu.id || crypto.randomUUID()
+      })) : existing.education,
+      skills: parsed.skills?.length > 0 ? parsed.skills.map(skill => ({
+        ...skill,
+        id: skill.id || crypto.randomUUID(),
+        items: skill.items || []
+      })) : existing.skills,
+      certifications: parsed.certifications?.length > 0 ? parsed.certifications.map(cert => ({
+        ...cert,
+        id: cert.id || crypto.randomUUID()
+      })) : existing.certifications,
+      projects: parsed.projects?.length > 0 ? parsed.projects.map(proj => ({
+        ...proj,
+        id: proj.id || crypto.randomUUID(),
+        technologies: proj.technologies || []
+      })) : existing.projects,
+    };
   };
 
   const handleTailorToJob = async () => {
