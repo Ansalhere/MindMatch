@@ -151,7 +151,7 @@ const ExecutiveTemplate = ({ data }: TemplateProps) => {
               <div key={skill.id}>
                 <h3 className="font-bold text-gray-900 text-sm mb-1">{skill.category}</h3>
                 <p className="text-gray-700 text-xs leading-relaxed">
-                  {skill.items.join(' • ')}
+                  {(skill.items || []).join(' • ')}
                 </p>
               </div>
             ))}
@@ -170,9 +170,11 @@ const ExecutiveTemplate = ({ data }: TemplateProps) => {
               <div key={project.id} className="border-l-2 border-amber-200 pl-3">
                 <h3 className="font-bold text-gray-900">{project.name}</h3>
                 <p className="text-gray-700 text-xs leading-relaxed mb-1">{project.description}</p>
-                <p className="text-amber-800 text-xs font-medium">
-                  Technologies: {project.technologies.join(', ')}
-                </p>
+                {project.technologies && project.technologies.length > 0 && (
+                  <p className="text-amber-800 text-xs font-medium">
+                    Technologies: {project.technologies.join(', ')}
+                  </p>
+                )}
                 {project.link && (
                   <p className="text-gray-600 text-xs">Link: {project.link}</p>
                 )}

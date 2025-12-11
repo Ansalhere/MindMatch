@@ -61,11 +61,11 @@ const CreativeTemplate = ({ data }: TemplateProps) => {
               <div>
                 <h2 className="text-lg font-bold mb-3 text-purple-200">SKILLS</h2>
                 <div className="space-y-3">
-                  {data.skills.map((skill) => (
+                {data.skills.map((skill) => (
                     <div key={skill.id}>
                       <h3 className="font-bold text-sm mb-1">{skill.category}</h3>
                       <div className="space-y-1">
-                        {skill.items.map((item, idx) => (
+                        {(skill.items || []).map((item, idx) => (
                           <div key={idx} className="text-xs text-purple-100">
                             • {item}
                           </div>
@@ -148,9 +148,11 @@ const CreativeTemplate = ({ data }: TemplateProps) => {
                   <div key={project.id}>
                     <h3 className="font-bold text-gray-900">{project.name}</h3>
                     <p className="text-gray-700 text-xs mb-1">{project.description}</p>
-                    <p className="text-purple-700 text-xs font-medium">
-                      {project.technologies.join(' • ')}
-                    </p>
+                    {project.technologies && project.technologies.length > 0 && (
+                      <p className="text-purple-700 text-xs font-medium">
+                        {project.technologies.join(' • ')}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
