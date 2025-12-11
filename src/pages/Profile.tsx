@@ -58,7 +58,7 @@ const Profile = () => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  const handleViewResume = async (resumeUrl: string) => {
+  const handleViewResume = async (resumeUrl: string): Promise<void> => {
     try {
       // Extract the path from the URL
       const resumePath = resumeUrl.includes('resumes/') 
@@ -233,7 +233,7 @@ const Profile = () => {
       </Button>
       
       {type === 'candidate' ? (
-        <CandidateProfile profile={profile} currentUser={currentUser} />
+        <CandidateProfile profile={profile} currentUser={currentUser} onViewResume={handleViewResume} />
       ) : (
         <EmployerProfile profile={profile} />
       )}
@@ -241,7 +241,7 @@ const Profile = () => {
   );
 };
 
-const CandidateProfile = ({ profile, currentUser }: { profile: any; currentUser: any }) => {
+const CandidateProfile = ({ profile, currentUser, onViewResume }: { profile: any; currentUser: any; onViewResume: (url: string) => void }) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Left column - Ranking First (Main Focus) */}
@@ -310,7 +310,7 @@ const CandidateProfile = ({ profile, currentUser }: { profile: any; currentUser:
                 variant="outline" 
                 size="sm" 
                 className="w-full mt-2"
-                onClick={() => handleViewResume(profile.resume_url)}
+                onClick={() => onViewResume(profile.resume_url)}
               >
                 <Book className="h-3.5 w-3.5 mr-1.5" />
                 View Resume
