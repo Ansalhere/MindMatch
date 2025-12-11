@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { 
   FileText, Download, Eye, Upload, User, Crown, CheckCircle2, 
   Sparkles, Loader2, ChevronDown, ChevronUp, Palette, 
-  Settings, Target, PanelRightClose, PanelRight
+  Target, PanelRightClose, PanelRight
 } from 'lucide-react';
 import ResumeForm from '@/components/resume/ResumeForm';
 import ResumePreview from '@/components/resume/ResumePreview';
@@ -79,6 +79,8 @@ const ResumeBuilder = () => {
   const [showPremiumGate, setShowPremiumGate] = useState(false);
   const [jobDescription, setJobDescription] = useState('');
   const [isTailoring, setIsTailoring] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showTailoring, setShowTailoring] = useState(false);
@@ -105,8 +107,12 @@ const ResumeBuilder = () => {
   }, [user?.id]);
 
   const loadUserProfile = async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      toast.error('Please login to load your profile');
+      return;
+    }
 
+    setIsLoadingProfile(true);
     try {
       const { data: skills } = await supabase
         .from('skills')
@@ -181,6 +187,9 @@ const ResumeBuilder = () => {
       toast.success('Profile data loaded!');
     } catch (error) {
       console.error('Error loading profile:', error);
+      toast.error('Failed to load profile');
+    } finally {
+      setIsLoadingProfile(false);
     }
   };
 
@@ -188,51 +197,70 @@ const ResumeBuilder = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'];
+    const allowedTypes = [
+      'application/pdf', 
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
+      'application/msword',
+      'text/plain'
+    ];
+    
     if (!allowedTypes.includes(file.type)) {
-      toast.error("Please upload a PDF or Word document");
+      toast.error("Please upload a PDF, Word document, or text file");
       event.target.value = '';
       return;
     }
 
-    toast.info("Parsing your resume...");
+    setIsUploading(true);
+    toast.info("Parsing your resume... This may take a moment.");
 
     try {
-      const fileContent = await readFileAsText(file);
+      // Read file as base64 for binary files (PDF, DOC)
+      const fileBase64 = await readFileAsBase64(file);
       
       const { data, error } = await supabase.functions.invoke('resume-ai-assistant', {
         body: { 
           type: 'parse',
           context: { 
             fileName: file.name,
-            fileContent: fileContent.substring(0, 10000)
+            mimeType: file.type,
+            fileBase64: fileBase64
           }
         }
       });
 
       if (error) throw error;
 
+      if (data?.parseError) {
+        toast.warning(data.parseError);
+      }
+
       if (data?.resumeData) {
         const mergedData = mergeResumeData(resumeData, data.resumeData);
         setResumeData(mergedData);
-        toast.success("Resume parsed successfully!");
+        toast.success("Resume parsed successfully! Review and customize as needed.");
       } else {
-        toast.warning("Could not extract all data. Please fill in missing details.");
+        toast.warning("Could not extract data. Please fill in details manually.");
       }
     } catch (error: any) {
       console.error('Error parsing resume:', error);
       toast.error(error.message || "Could not process your resume.");
     } finally {
+      setIsUploading(false);
       event.target.value = '';
     }
   };
 
-  const readFileAsText = (file: File): Promise<string> => {
+  const readFileAsBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target?.result as string || '');
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        // Remove the data URL prefix to get just the base64 string
+        const base64 = result.split(',')[1] || result;
+        resolve(base64);
+      };
       reader.onerror = reject;
-      reader.readAsText(file);
+      reader.readAsDataURL(file);
     });
   };
 
@@ -249,7 +277,8 @@ const ResumeBuilder = () => {
       },
       experience: parsed.experience?.length > 0 ? parsed.experience.map(exp => ({
         ...exp,
-        id: exp.id || crypto.randomUUID()
+        id: exp.id || crypto.randomUUID(),
+        items: undefined // Remove if present from wrong structure
       })) : existing.experience,
       education: parsed.education?.length > 0 ? parsed.education.map(edu => ({
         ...edu,
@@ -258,7 +287,7 @@ const ResumeBuilder = () => {
       skills: parsed.skills?.length > 0 ? parsed.skills.map(skill => ({
         ...skill,
         id: skill.id || crypto.randomUUID(),
-        items: skill.items || []
+        items: Array.isArray(skill.items) ? skill.items : []
       })) : existing.skills,
       certifications: parsed.certifications?.length > 0 ? parsed.certifications.map(cert => ({
         ...cert,
@@ -267,7 +296,7 @@ const ResumeBuilder = () => {
       projects: parsed.projects?.length > 0 ? parsed.projects.map(proj => ({
         ...proj,
         id: proj.id || crypto.randomUUID(),
-        technologies: proj.technologies || []
+        technologies: Array.isArray(proj.technologies) ? proj.technologies : []
       })) : existing.projects,
     };
   };
@@ -410,19 +439,39 @@ const ResumeBuilder = () => {
               {/* Quick Actions */}
               <div className="flex flex-wrap gap-2">
                 {user && (
-                  <Button onClick={loadUserProfile} variant="outline" size="sm" className="gap-1.5">
-                    <User className="h-4 w-4" />
+                  <Button 
+                    onClick={loadUserProfile} 
+                    variant="outline" 
+                    size="sm" 
+                    className="gap-1.5"
+                    disabled={isLoadingProfile}
+                  >
+                    {isLoadingProfile ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <User className="h-4 w-4" />
+                    )}
                     Load Profile
                   </Button>
                 )}
-                <Button variant="outline" size="sm" className="relative gap-1.5">
-                  <Upload className="h-4 w-4" />
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="relative gap-1.5"
+                  disabled={isUploading}
+                >
+                  {isUploading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Upload className="h-4 w-4" />
+                  )}
                   Upload Resume
                   <input
                     type="file"
-                    accept=".pdf,.doc,.docx"
+                    accept=".pdf,.doc,.docx,.txt"
                     onChange={handleFileUpload}
                     className="absolute inset-0 opacity-0 cursor-pointer"
+                    disabled={isUploading}
                   />
                 </Button>
                 <Button onClick={handleDownload} size="sm" className="gap-1.5">
