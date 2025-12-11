@@ -101,7 +101,7 @@ const MinimalTemplate = ({ data }: TemplateProps) => {
             {data.skills.map((skill) => (
               <div key={skill.id} className="text-center">
                 <span className="font-medium text-gray-900 text-xs">{skill.category}</span>
-                <span className="text-gray-600 text-xs"> • {skill.items.join(', ')}</span>
+                <span className="text-gray-600 text-xs"> • {(skill.items || []).join(', ')}</span>
               </div>
             ))}
           </div>
@@ -119,7 +119,9 @@ const MinimalTemplate = ({ data }: TemplateProps) => {
               <div key={project.id} className="space-y-1">
                 <h3 className="font-medium text-gray-900 text-xs">{project.name}</h3>
                 <p className="text-gray-700 text-xs">{project.description}</p>
-                <p className="text-gray-600 text-xs">{project.technologies.join(', ')}</p>
+                {project.technologies && project.technologies.length > 0 && (
+                  <p className="text-gray-600 text-xs">{project.technologies.join(', ')}</p>
+                )}
               </div>
             ))}
           </div>

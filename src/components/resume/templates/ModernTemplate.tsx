@@ -93,13 +93,15 @@ const ModernTemplate = ({ data }: TemplateProps) => {
                 Projects
               </h2>
               <div className="space-y-3">
-                {data.projects.map((project) => (
+                  {data.projects.map((project) => (
                   <div key={project.id}>
                     <h3 className="font-bold text-gray-900">{project.name}</h3>
                     <p className="text-gray-700 text-xs mb-1">{project.description}</p>
-                    <p className="text-blue-700 text-xs">
-                      {project.technologies.join(' • ')}
-                    </p>
+                    {project.technologies && project.technologies.length > 0 && (
+                      <p className="text-blue-700 text-xs">
+                        {project.technologies.join(' • ')}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
@@ -120,7 +122,7 @@ const ModernTemplate = ({ data }: TemplateProps) => {
                   <div key={skill.id}>
                     <h3 className="font-bold text-gray-900 text-xs mb-1">{skill.category}</h3>
                     <div className="space-y-1">
-                      {skill.items.map((item, idx) => (
+                      {(skill.items || []).map((item, idx) => (
                         <div key={idx} className="flex items-center gap-1">
                           <Circle className="h-1.5 w-1.5 fill-blue-600 text-blue-600" />
                           <span className="text-xs text-gray-700">{item}</span>

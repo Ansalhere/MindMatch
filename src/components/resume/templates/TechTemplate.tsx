@@ -69,7 +69,7 @@ const TechTemplate = ({ data }: TemplateProps) => {
               <div key={skill.id} className="bg-white p-3 rounded border-l-2 border-blue-500">
                 <h3 className="font-bold text-blue-700 text-xs mb-1">{skill.category}</h3>
                 <div className="flex flex-wrap gap-1.5">
-                  {skill.items.map((item, idx) => (
+                  {(skill.items || []).map((item, idx) => (
                     <span
                       key={idx}
                       className="text-xs bg-blue-50 text-gray-700 px-2 py-0.5 rounded"
@@ -157,13 +157,15 @@ const TechTemplate = ({ data }: TemplateProps) => {
               <div key={project.id} className="bg-white p-3 rounded border-l-2 border-cyan-400">
                 <h3 className="font-bold text-gray-900 text-sm">{project.name}</h3>
                 <p className="text-gray-700 text-xs my-1">{project.description}</p>
-                <div className="flex flex-wrap gap-1">
-                  {project.technologies.map((tech, idx) => (
-                    <span key={idx} className="text-xs bg-cyan-50 text-cyan-700 px-2 py-0.5 rounded font-medium">
-                      {tech}
-                    </span>
-                  ))}
-                </div>
+                {project.technologies && project.technologies.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {project.technologies.map((tech, idx) => (
+                      <span key={idx} className="text-xs bg-cyan-50 text-cyan-700 px-2 py-0.5 rounded font-medium">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>

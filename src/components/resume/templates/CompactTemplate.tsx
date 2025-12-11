@@ -66,7 +66,9 @@ const CompactTemplate = ({ data }: TemplateProps) => {
                 <div key={project.id} className="mb-2">
                   <h3 className="font-bold text-gray-900 text-xs">{project.name}</h3>
                   <p className="text-gray-600 text-xs">{project.description}</p>
-                  <p className="text-gray-500 text-xs">{project.technologies.join(', ')}</p>
+                  {project.technologies && project.technologies.length > 0 && (
+                    <p className="text-gray-500 text-xs">{project.technologies.join(', ')}</p>
+                  )}
                 </div>
               ))}
             </div>
@@ -85,7 +87,7 @@ const CompactTemplate = ({ data }: TemplateProps) => {
                 <div key={skill.id} className="mb-2">
                   <h3 className="font-bold text-gray-800 text-xs">{skill.category}</h3>
                   <div className="text-gray-600 text-xs">
-                    {skill.items.join(', ')}
+                    {(skill.items || []).join(', ')}
                   </div>
                 </div>
               ))}

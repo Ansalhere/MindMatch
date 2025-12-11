@@ -6,7 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { FileText, Download, Eye, Upload, User, Crown, CheckCircle2, AlertTriangle, Sparkles, Loader2 } from 'lucide-react';
+import { 
+  FileText, Download, Eye, Upload, User, Crown, CheckCircle2, 
+  Sparkles, Loader2, ChevronDown, ChevronUp, Palette, 
+  Settings, Target, PanelRightClose, PanelRight
+} from 'lucide-react';
 import ResumeForm from '@/components/resume/ResumeForm';
 import ResumePreview from '@/components/resume/ResumePreview';
 import TemplateSelector from '@/components/resume/TemplateSelector';
@@ -16,7 +20,7 @@ import { toast } from 'sonner';
 import { useUser } from '@/hooks/useUser';
 import { useResumeLimit } from '@/hooks/useResumeLimit';
 import { supabase } from '@/integrations/supabase/client';
-import { ScrollReveal } from '@/components/ui/scroll-reveal';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 export type ResumeTemplate = 'professional' | 'modern' | 'creative' | 'minimal' | 'executive' | 'tech' | 'compact';
 
@@ -75,6 +79,9 @@ const ResumeBuilder = () => {
   const [showPremiumGate, setShowPremiumGate] = useState(false);
   const [jobDescription, setJobDescription] = useState('');
   const [isTailoring, setIsTailoring] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [showTailoring, setShowTailoring] = useState(false);
   const [resumeData, setResumeData] = useState<ResumeData>({
     personalInfo: {
       fullName: '',
@@ -101,34 +108,29 @@ const ResumeBuilder = () => {
     if (!user?.id) return;
 
     try {
-      // Fetch user skills
       const { data: skills } = await supabase
         .from('skills')
         .select('*')
         .eq('user_id', user.id);
 
-      // Fetch experiences
       const { data: experiences } = await supabase
         .from('experiences')
         .select('*')
         .eq('user_id', user.id)
         .order('start_date', { ascending: false });
 
-      // Fetch education
       const { data: education } = await supabase
         .from('education')
         .select('*')
         .eq('user_id', user.id)
         .order('start_date', { ascending: false });
 
-      // Fetch certifications
       const { data: certifications } = await supabase
         .from('certifications')
         .select('*')
         .eq('user_id', user.id)
         .order('issue_date', { ascending: false });
 
-      // Transform and set data
       const skillsGrouped = skills?.reduce((acc, skill) => {
         const category = 'Technical Skills';
         const existing = acc.find(s => s.category === category);
@@ -176,7 +178,7 @@ const ResumeBuilder = () => {
         projects: [],
       });
 
-      toast.success('Profile data loaded successfully!');
+      toast.success('Profile data loaded!');
     } catch (error) {
       console.error('Error loading profile:', error);
     }
@@ -193,19 +195,17 @@ const ResumeBuilder = () => {
       return;
     }
 
-    toast.info("Parsing your resume... This may take a moment.");
+    toast.info("Parsing your resume...");
 
     try {
-      // Read file content as text (for simple text extraction)
       const fileContent = await readFileAsText(file);
       
-      // Call edge function to parse resume with AI
       const { data, error } = await supabase.functions.invoke('resume-ai-assistant', {
         body: { 
           type: 'parse',
           context: { 
             fileName: file.name,
-            fileContent: fileContent.substring(0, 10000) // Limit content size
+            fileContent: fileContent.substring(0, 10000)
           }
         }
       });
@@ -213,16 +213,15 @@ const ResumeBuilder = () => {
       if (error) throw error;
 
       if (data?.resumeData) {
-        // Merge with existing data, keeping non-empty fields
         const mergedData = mergeResumeData(resumeData, data.resumeData);
         setResumeData(mergedData);
-        toast.success("Resume parsed successfully! Review and customize as needed.");
+        toast.success("Resume parsed successfully!");
       } else {
         toast.warning("Could not extract all data. Please fill in missing details.");
       }
     } catch (error: any) {
       console.error('Error parsing resume:', error);
-      toast.error(error.message || "Could not process your resume. Please try again.");
+      toast.error(error.message || "Could not process your resume.");
     } finally {
       event.target.value = '';
     }
@@ -285,7 +284,7 @@ const ResumeBuilder = () => {
     }
 
     setIsTailoring(true);
-    toast.info("Tailoring your resume to match the job description...");
+    toast.info("Tailoring your resume...");
 
     try {
       const { data, error } = await supabase.functions.invoke('resume-ai-assistant', {
@@ -302,20 +301,20 @@ const ResumeBuilder = () => {
 
       if (data?.resumeData) {
         setResumeData(data.resumeData);
-        toast.success("Resume tailored successfully! Review the changes.");
+        toast.success("Resume tailored successfully!");
+        setShowTailoring(false);
       } else {
         toast.warning("Could not tailor resume. Please try again.");
       }
     } catch (error: any) {
       console.error('Error tailoring resume:', error);
-      toast.error(error.message || "Could not tailor your resume. Please try again.");
+      toast.error(error.message || "Could not tailor your resume.");
     } finally {
       setIsTailoring(false);
     }
   };
 
   const handleDownload = async () => {
-    // Check if user can download
     if (!canDownload) {
       setShowPremiumGate(true);
       return;
@@ -331,7 +330,7 @@ const ResumeBuilder = () => {
         return;
       }
 
-      toast.info("Generating your ATS-friendly PDF resume...");
+      toast.info("Generating your PDF...");
 
       const canvas = await html2canvas(resumeElement, {
         scale: 2,
@@ -356,211 +355,265 @@ const ResumeBuilder = () => {
       const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, '_') || 'Resume'}_${selectedTemplate}_ATS.pdf`;
       pdf.save(fileName);
 
-      // Record the download
       recordDownload(selectedTemplate);
-
-      toast.success("Your ATS-friendly resume has been downloaded!");
+      toast.success("Resume downloaded!");
     } catch (error) {
       console.error('Error downloading resume:', error);
-      toast.error("There was an error creating your PDF. Please try again.");
+      toast.error("Error creating PDF. Please try again.");
     }
+  };
+
+  const templateNames: Record<ResumeTemplate, string> = {
+    professional: 'Professional',
+    modern: 'Modern',
+    creative: 'Creative',
+    minimal: 'Minimal',
+    executive: 'Executive',
+    tech: 'Tech Pro',
+    compact: 'Compact'
   };
 
   return (
     <>
       <SEOHead
         title="ATS-Friendly Resume Builder - Create Professional Resumes | RankMe.AI"
-        description="Build professional, ATS-optimized resumes with our free resume builder. Real-time ATS score, expert tips, and multiple templates. Download as PDF instantly."
-        keywords="ATS resume builder, ATS-friendly resume, CV maker, professional resume templates, free resume builder, applicant tracking system"
+        description="Build professional, ATS-optimized resumes with our free resume builder. Real-time ATS score, expert tips, and multiple templates."
+        keywords="ATS resume builder, ATS-friendly resume, CV maker, professional resume templates"
         canonical="/resume-builder"
       />
       <Layout>
         <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-          <div className="container mx-auto px-4 py-8 max-w-7xl">
-            {/* Header */}
-            <ScrollReveal>
-              <div className="text-center mb-8">
-                <div className="flex items-center justify-center gap-2 mb-3">
-                  <FileText className="h-8 w-8 text-primary" />
-                  <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                    ATS-Friendly Resume Builder
-                  </h1>
-                  {isPremium && (
-                    <Badge className="ml-2 bg-gradient-to-r from-yellow-500 to-orange-500">
-                      <Crown className="h-3 w-3 mr-1" />
-                      Premium
-                    </Badge>
-                  )}
+          <div className="container mx-auto px-4 py-6 max-w-7xl">
+            {/* Compact Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <FileText className="h-6 w-6 text-primary" />
                 </div>
-                <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                  Create professional, ATS-optimized resumes that pass applicant tracking systems and land more interviews.
-                </p>
-
-                {/* ATS Info Banner */}
-                <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-sm">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  <span>Optimized for 50+ ATS systems including Workday, Taleo, Greenhouse</span>
-                </div>
-                
-                {/* Action Buttons */}
-                <div className="mt-6 flex gap-3 justify-center flex-wrap">
-                  {user && (
-                    <Button onClick={loadUserProfile} variant="outline" className="gap-2">
-                      <User className="h-4 w-4" />
-                      Load My Profile
-                    </Button>
-                  )}
-                  <Button variant="outline" className="relative gap-2">
-                    <Upload className="h-4 w-4" />
-                    Upload Existing Resume
-                    <input
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      onChange={handleFileUpload}
-                      className="absolute inset-0 opacity-0 cursor-pointer"
-                    />
-                  </Button>
-                  {!isPremium && (
-                    <Button 
-                      onClick={() => setShowPremiumGate(true)} 
-                      className="gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
-                    >
-                      <Crown className="h-4 w-4" />
-                      Upgrade to Premium
-                    </Button>
-                  )}
-                </div>
-
-                {/* Download Status */}
-                {!isPremium && (
-                  <div className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                    <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                    <span>
-                      {remainingDownloads > 0 
-                        ? `${remainingDownloads} free download remaining` 
-                        : 'Free limit reached. Upgrade for unlimited resumes.'}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </ScrollReveal>
-
-            {/* Template Selector */}
-            <ScrollReveal delay={0.1}>
-              <TemplateSelector
-                selectedTemplate={selectedTemplate}
-                onTemplateChange={setSelectedTemplate}
-              />
-            </ScrollReveal>
-
-            {/* Main Content */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-              {/* Left: Form */}
-              <ScrollReveal delay={0.2}>
-                <div className="space-y-4">
-                  {/* Job Description Tailoring */}
-                  <Card className="p-4 border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Sparkles className="h-5 w-5 text-primary" />
-                      <h3 className="font-semibold">Tailor to Job Description</h3>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Paste a job description to automatically optimize your resume for the role.
-                    </p>
-                    <Textarea 
-                      placeholder="Paste the job description here..."
-                      value={jobDescription}
-                      onChange={(e) => setJobDescription(e.target.value)}
-                      className="min-h-[100px] mb-3"
-                    />
-                    <Button 
-                      onClick={handleTailorToJob} 
-                      disabled={isTailoring || !jobDescription.trim()}
-                      className="w-full gap-2"
-                    >
-                      {isTailoring ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Tailoring...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="h-4 w-4" />
-                          Tailor Resume
-                        </>
-                      )}
-                    </Button>
-                  </Card>
-
-                  {/* ATS Score Card */}
-                  <ATSScoreCard data={resumeData} />
-
-                  <Card className="p-6 h-fit">
-                    <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-xl font-semibold">Resume Details</h2>
-                      <Button onClick={handleDownload} size="sm" className="gap-2">
-                        <Download className="h-4 w-4" />
-                        Download PDF
-                      </Button>
-                    </div>
-
-                    <Tabs defaultValue="personal" className="w-full">
-                      <TabsList className="grid w-full grid-cols-3 mb-4">
-                        <TabsTrigger value="personal">Personal</TabsTrigger>
-                        <TabsTrigger value="experience">Experience</TabsTrigger>
-                        <TabsTrigger value="other">Skills & More</TabsTrigger>
-                      </TabsList>
-                      
-                      <TabsContent value="personal" className="space-y-4">
-                        <ResumeForm 
-                          section="personal" 
-                          data={resumeData}
-                          onChange={setResumeData}
-                        />
-                      </TabsContent>
-                      
-                      <TabsContent value="experience" className="space-y-4">
-                        <ResumeForm 
-                          section="experience" 
-                          data={resumeData}
-                          onChange={setResumeData}
-                        />
-                      </TabsContent>
-                      
-                      <TabsContent value="other" className="space-y-4">
-                        <ResumeForm 
-                          section="skills" 
-                          data={resumeData}
-                          onChange={setResumeData}
-                        />
-                      </TabsContent>
-                    </Tabs>
-                  </Card>
-                </div>
-              </ScrollReveal>
-
-              {/* Right: Preview */}
-              <ScrollReveal delay={0.3}>
-                <div className="sticky top-4">
-                  <Card className="p-6 bg-white dark:bg-card">
-                    <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-lg font-semibold flex items-center gap-2">
-                        <Eye className="h-5 w-5 text-primary" />
-                        Live Preview
-                      </h2>
-                      <Badge variant="outline" className="text-xs">
-                        ATS-Optimized
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-2xl font-bold">Resume Builder</h1>
+                    {isPremium && (
+                      <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500">
+                        <Crown className="h-3 w-3 mr-1" />
+                        Premium
                       </Badge>
-                    </div>
-                    <div className="border rounded-lg overflow-hidden bg-white">
-                      <ResumePreview 
-                        template={selectedTemplate}
-                        data={resumeData}
-                      />
-                    </div>
-                  </Card>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground flex items-center gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                    ATS-Optimized Templates
+                  </p>
                 </div>
-              </ScrollReveal>
+              </div>
+              
+              {/* Quick Actions */}
+              <div className="flex flex-wrap gap-2">
+                {user && (
+                  <Button onClick={loadUserProfile} variant="outline" size="sm" className="gap-1.5">
+                    <User className="h-4 w-4" />
+                    Load Profile
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" className="relative gap-1.5">
+                  <Upload className="h-4 w-4" />
+                  Upload Resume
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={handleFileUpload}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  />
+                </Button>
+                <Button onClick={handleDownload} size="sm" className="gap-1.5">
+                  <Download className="h-4 w-4" />
+                  Download PDF
+                </Button>
+              </div>
+            </div>
+
+            {/* Main Layout */}
+            <div className="flex gap-6">
+              {/* Left Panel - Editor */}
+              <div className={`flex-1 space-y-4 transition-all ${showPreview ? 'lg:max-w-[55%]' : ''}`}>
+                
+                {/* Template & Options Bar */}
+                <Card className="p-3">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setShowTemplates(!showTemplates)}
+                      className="gap-2"
+                    >
+                      <Palette className="h-4 w-4" />
+                      {templateNames[selectedTemplate]}
+                      {showTemplates ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                    </Button>
+                    
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setShowTailoring(!showTailoring)}
+                      className="gap-2"
+                    >
+                      <Target className="h-4 w-4" />
+                      Tailor to Job
+                      {showTailoring ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                    </Button>
+
+                    <div className="flex-1" />
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowPreview(!showPreview)}
+                      className="gap-2 hidden lg:flex"
+                    >
+                      {showPreview ? <PanelRightClose className="h-4 w-4" /> : <PanelRight className="h-4 w-4" />}
+                      {showPreview ? 'Hide Preview' : 'Show Preview'}
+                    </Button>
+
+                    {!isPremium && remainingDownloads <= 0 && (
+                      <Button 
+                        onClick={() => setShowPremiumGate(true)} 
+                        size="sm"
+                        className="gap-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
+                      >
+                        <Crown className="h-3.5 w-3.5" />
+                        Upgrade
+                      </Button>
+                    )}
+                  </div>
+                </Card>
+
+                {/* Template Selector - Collapsible */}
+                <Collapsible open={showTemplates} onOpenChange={setShowTemplates}>
+                  <CollapsibleContent>
+                    <Card className="p-4">
+                      <TemplateSelector
+                        selectedTemplate={selectedTemplate}
+                        onTemplateChange={(t) => {
+                          setSelectedTemplate(t);
+                          setShowTemplates(false);
+                        }}
+                      />
+                    </Card>
+                  </CollapsibleContent>
+                </Collapsible>
+
+                {/* Job Tailoring - Collapsible */}
+                <Collapsible open={showTailoring} onOpenChange={setShowTailoring}>
+                  <CollapsibleContent>
+                    <Card className="p-4 border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Sparkles className="h-5 w-5 text-primary" />
+                        <h3 className="font-semibold">AI Job Tailoring</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Paste a job description to optimize your resume for the role.
+                      </p>
+                      <Textarea 
+                        placeholder="Paste the job description here..."
+                        value={jobDescription}
+                        onChange={(e) => setJobDescription(e.target.value)}
+                        className="min-h-[100px] mb-3"
+                      />
+                      <Button 
+                        onClick={handleTailorToJob} 
+                        disabled={isTailoring || !jobDescription.trim()}
+                        className="w-full gap-2"
+                      >
+                        {isTailoring ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Tailoring...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-4 w-4" />
+                            Tailor Resume
+                          </>
+                        )}
+                      </Button>
+                    </Card>
+                  </CollapsibleContent>
+                </Collapsible>
+
+                {/* ATS Score - Compact */}
+                <ATSScoreCard data={resumeData} />
+
+                {/* Resume Form */}
+                <Card className="p-4">
+                  <Tabs defaultValue="personal" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3 mb-4">
+                      <TabsTrigger value="personal" className="text-sm">Personal</TabsTrigger>
+                      <TabsTrigger value="experience" className="text-sm">Experience</TabsTrigger>
+                      <TabsTrigger value="other" className="text-sm">Skills & More</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="personal" className="space-y-4 mt-0">
+                      <ResumeForm 
+                        section="personal" 
+                        data={resumeData}
+                        onChange={setResumeData}
+                      />
+                    </TabsContent>
+                    
+                    <TabsContent value="experience" className="space-y-4 mt-0">
+                      <ResumeForm 
+                        section="experience" 
+                        data={resumeData}
+                        onChange={setResumeData}
+                      />
+                    </TabsContent>
+                    
+                    <TabsContent value="other" className="space-y-4 mt-0">
+                      <ResumeForm 
+                        section="skills" 
+                        data={resumeData}
+                        onChange={setResumeData}
+                      />
+                    </TabsContent>
+                  </Tabs>
+                </Card>
+              </div>
+
+              {/* Right Panel - Preview */}
+              {showPreview && (
+                <div className="hidden lg:block lg:w-[45%]">
+                  <div className="sticky top-4">
+                    <Card className="p-4 bg-white dark:bg-card">
+                      <div className="flex items-center justify-between mb-3">
+                        <h2 className="text-sm font-semibold flex items-center gap-2">
+                          <Eye className="h-4 w-4 text-primary" />
+                          Live Preview
+                        </h2>
+                        <Badge variant="outline" className="text-xs">
+                          {templateNames[selectedTemplate]}
+                        </Badge>
+                      </div>
+                      <div className="border rounded-lg overflow-auto bg-white max-h-[calc(100vh-180px)]">
+                        <ResumePreview 
+                          template={selectedTemplate}
+                          data={resumeData}
+                        />
+                      </div>
+                    </Card>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Preview Button */}
+            <div className="fixed bottom-4 right-4 lg:hidden z-50">
+              <Button 
+                onClick={() => setShowPreview(!showPreview)}
+                className="shadow-lg gap-2"
+              >
+                <Eye className="h-4 w-4" />
+                Preview
+              </Button>
             </div>
           </div>
         </div>
