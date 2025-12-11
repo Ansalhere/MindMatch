@@ -19,36 +19,74 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
+    console.log('Processing request type:', type);
+
     let systemPrompt = '';
     let userPrompt = '';
+    let messages: any[] = [];
+
+    const jsonSchema = `{
+  "personalInfo": { "fullName": "", "email": "", "phone": "", "location": "", "linkedin": "", "portfolio": "", "summary": "" },
+  "experience": [{ "id": "unique-id", "title": "", "company": "", "location": "", "startDate": "YYYY-MM", "endDate": "YYYY-MM", "current": false, "description": "bullet points" }],
+  "education": [{ "id": "unique-id", "degree": "", "institution": "", "location": "", "graduationDate": "YYYY", "gpa": "" }],
+  "skills": [{ "id": "unique-id", "category": "Category Name", "items": ["skill1", "skill2"] }],
+  "certifications": [{ "id": "unique-id", "name": "", "issuer": "", "date": "YYYY-MM" }],
+  "projects": [{ "id": "unique-id", "name": "", "description": "", "technologies": ["tech1"], "link": "" }]
+}`;
 
     switch (type) {
       case 'parse':
-        // Parse uploaded resume using AI
-        systemPrompt = `You are a resume parser expert. Extract information from the provided resume content and return structured JSON data.
-Return ONLY valid JSON in this exact format, no markdown code blocks, no explanation:
-{
-  "personalInfo": { "fullName": "", "email": "", "phone": "", "location": "", "linkedin": "", "portfolio": "", "summary": "" },
-  "experience": [{ "id": "uuid", "title": "", "company": "", "location": "", "startDate": "YYYY-MM", "endDate": "YYYY-MM", "current": false, "description": "bullet points of achievements" }],
-  "education": [{ "id": "uuid", "degree": "", "institution": "", "location": "", "graduationDate": "YYYY", "gpa": "" }],
-  "skills": [{ "id": "uuid", "category": "Technical Skills", "items": ["skill1", "skill2"] }],
-  "certifications": [{ "id": "uuid", "name": "", "issuer": "", "date": "YYYY-MM" }],
-  "projects": [{ "id": "uuid", "name": "", "description": "", "technologies": ["tech1"], "link": "" }]
-}
-Extract as much information as possible from the resume. Use unique UUIDs for each id field.`;
-        userPrompt = `Parse this resume and extract all information. Return only valid JSON.\n\nResume Content:\n${context.fileContent || 'Unable to read file content. Please provide a basic template structure.'}`;
+        systemPrompt = `You are a resume parser expert. Extract information from the provided resume and return ONLY valid JSON.
+Do NOT include any markdown code blocks, explanations, or text outside the JSON.
+Return data in this exact structure:
+${jsonSchema}
+Generate unique IDs for each array item. Extract as much information as possible.`;
+
+        // Check if we have base64 file content (PDF/DOC)
+        if (context.fileBase64 && context.mimeType) {
+          console.log('Processing file with base64, mime:', context.mimeType);
+          // Use multimodal with file
+          messages = [
+            { role: 'system', content: systemPrompt },
+            { 
+              role: 'user', 
+              content: [
+                {
+                  type: 'file',
+                  file: {
+                    filename: context.fileName || 'resume.pdf',
+                    file_data: `data:${context.mimeType};base64,${context.fileBase64}`
+                  }
+                },
+                {
+                  type: 'text',
+                  text: 'Parse this resume document and extract all information. Return ONLY valid JSON in the specified format.'
+                }
+              ]
+            }
+          ];
+        } else if (context.fileContent) {
+          // Plain text content
+          console.log('Processing plain text content');
+          userPrompt = `Parse this resume text and extract all information. Return ONLY valid JSON.\n\nResume Content:\n${context.fileContent}`;
+          messages = [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ];
+        } else {
+          throw new Error('No resume content provided');
+        }
         break;
 
       case 'tailor-to-job':
-        // Tailor resume to job description
-        systemPrompt = `You are an expert resume writer and ATS optimization specialist. Your task is to tailor a resume to match a specific job description while keeping the information authentic. 
+        systemPrompt = `You are an expert resume writer and ATS optimization specialist. Tailor the resume to match the job description while keeping information authentic.
 Focus on:
-1. Highlighting relevant experience and skills that match the job
+1. Highlighting relevant experience and skills
 2. Using keywords from the job description naturally
 3. Rewriting bullet points to align with job requirements
 4. Prioritizing relevant achievements
-Return ONLY valid JSON in the same resume structure provided, no markdown, no explanation.`;
-        userPrompt = `Tailor this resume to match the following job description. Make it ATS-friendly and highlight relevant qualifications.
+Return ONLY valid JSON in the same structure, no markdown, no explanation.`;
+        userPrompt = `Tailor this resume to match the job description. Make it ATS-friendly.
 
 JOB DESCRIPTION:
 ${context.jobDescription}
@@ -56,27 +94,47 @@ ${context.jobDescription}
 CURRENT RESUME:
 ${JSON.stringify(context.resumeData)}
 
-Return the tailored resume as valid JSON in the same structure.`;
+Return the tailored resume as valid JSON.`;
+        messages = [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ];
         break;
 
       case 'job-description':
-        systemPrompt = 'You are a professional resume writer. Create compelling, achievement-focused job descriptions that highlight impact and results. Use action verbs and quantify achievements when possible.';
-        userPrompt = `Create a professional job description for this role: ${context.title} at ${context.company}. Include 3-4 bullet points focusing on achievements and responsibilities.`;
+        systemPrompt = 'You are a professional resume writer. Create compelling, achievement-focused job descriptions.';
+        userPrompt = `Create a professional job description for: ${context.title} at ${context.company}. Include 3-4 bullet points focusing on achievements.`;
+        messages = [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ];
         break;
       
       case 'professional-summary':
-        systemPrompt = 'You are a career coach specializing in resume writing. Create compelling professional summaries that highlight key strengths and career objectives.';
-        userPrompt = `Create a professional summary for someone with this background: ${context.experience} years of experience in ${context.field}. Skills: ${context.skills}. Keep it concise (2-3 sentences).`;
+        systemPrompt = 'You are a career coach specializing in resume writing. Create compelling professional summaries.';
+        userPrompt = `Create a professional summary for: ${context.experience} years in ${context.field}. Skills: ${context.skills}. Keep it 2-3 sentences.`;
+        messages = [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ];
         break;
       
       case 'improve-bullet':
-        systemPrompt = 'You are a resume optimization expert. Improve resume bullet points to be more impactful, using action verbs and quantifying results.';
-        userPrompt = `Improve this resume bullet point: "${context.text}". Make it more achievement-focused and impactful.`;
+        systemPrompt = 'You are a resume optimization expert. Improve bullet points with action verbs and quantified results.';
+        userPrompt = `Improve this bullet point: "${context.text}". Make it more impactful.`;
+        messages = [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ];
         break;
 
       case 'skills-suggestion':
-        systemPrompt = 'You are a career advisor. Suggest relevant skills based on job experience and career goals.';
-        userPrompt = `Based on this experience: ${context.experience}, suggest 5-7 relevant technical and soft skills for a resume.`;
+        systemPrompt = 'You are a career advisor. Suggest relevant skills based on experience.';
+        userPrompt = `Based on: ${context.experience}, suggest 5-7 relevant technical and soft skills.`;
+        messages = [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ];
         break;
 
       default:
@@ -86,6 +144,8 @@ Return the tailored resume as valid JSON in the same structure.`;
         });
     }
 
+    console.log('Sending request to AI gateway');
+
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -94,14 +154,14 @@ Return the tailored resume as valid JSON in the same structure.`;
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
+        messages,
       }),
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('AI gateway error:', response.status, errorText);
+      
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: 'Rate limits exceeded, please try again later.' }), {
           status: 429,
@@ -109,42 +169,44 @@ Return the tailored resume as valid JSON in the same structure.`;
         });
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: 'Payment required, please add credits to your workspace.' }), {
+        return new Response(JSON.stringify({ error: 'Payment required, please add credits.' }), {
           status: 402,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      const errorText = await response.text();
-      console.error('AI gateway error:', response.status, errorText);
-      return new Response(JSON.stringify({ error: 'AI gateway error' }), {
+      return new Response(JSON.stringify({ error: 'AI gateway error: ' + errorText }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
     const data = await response.json();
-    const generatedText = data.choices[0].message.content;
+    const generatedText = data.choices?.[0]?.message?.content || '';
+    
+    console.log('AI response received, length:', generatedText.length);
 
-    // For parse and tailor-to-job, try to extract JSON
+    // For parse and tailor-to-job, extract JSON
     if (type === 'parse' || type === 'tailor-to-job') {
       try {
-        // Try to extract JSON from the response
         let jsonStr = generatedText;
         // Remove markdown code blocks if present
-        if (jsonStr.includes('```json')) {
-          jsonStr = jsonStr.replace(/```json\n?/g, '').replace(/```\n?/g, '');
-        } else if (jsonStr.includes('```')) {
-          jsonStr = jsonStr.replace(/```\n?/g, '');
+        jsonStr = jsonStr.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+        
+        // Try to find JSON object in response
+        const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          jsonStr = jsonMatch[0];
         }
-        jsonStr = jsonStr.trim();
         
         const resumeData = JSON.parse(jsonStr);
+        console.log('Successfully parsed resume data');
+        
         return new Response(JSON.stringify({ resumeData }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       } catch (parseError) {
-        console.error('JSON parse error:', parseError, 'Response:', generatedText);
-        // Return a default structure if parsing fails
+        console.error('JSON parse error:', parseError, 'Response preview:', generatedText.substring(0, 500));
+        // Return default structure with error
         return new Response(JSON.stringify({ 
           resumeData: {
             personalInfo: { fullName: '', email: '', phone: '', location: '', summary: '' },
@@ -154,7 +216,7 @@ Return the tailored resume as valid JSON in the same structure.`;
             certifications: [], 
             projects: []
           },
-          parseError: 'Could not parse AI response'
+          parseError: 'Could not parse resume. Please try with a different file or enter details manually.'
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -165,7 +227,7 @@ Return the tailored resume as valid JSON in the same structure.`;
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Error in resume-ai-assistant function:', error);
+    console.error('Error in resume-ai-assistant:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
