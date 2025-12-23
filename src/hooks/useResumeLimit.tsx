@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useUser } from './useUser';
 
-const FREE_RESUME_LIMIT = 1;
+const FREE_RESUME_LIMIT = 2;
 const STORAGE_KEY = 'resume_downloads';
 
 interface ResumeDownload {

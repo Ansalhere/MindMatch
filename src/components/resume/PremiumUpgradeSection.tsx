@@ -23,11 +23,11 @@ interface PremiumUpgradeSectionProps {
 const PremiumUpgradeSection = ({ isPremium, downloadCount, onUpgrade }: PremiumUpgradeSectionProps) => {
   const [showPremiumGate, setShowPremiumGate] = useState(false);
 
-  const features = [
-    { icon: FileText, label: 'Unlimited Resumes', free: '2 resumes', premium: 'Unlimited' },
-    { icon: Sparkles, label: 'AI Tailoring', free: 'Basic', premium: 'Advanced' },
+const features = [
+    { icon: FileText, label: 'Unlimited Resumes', free: '2 free', premium: 'Unlimited' },
+    { icon: Sparkles, label: 'AI Tailoring', free: 'Basic', premium: 'Advanced AI' },
     { icon: Download, label: 'Downloads', free: '2/month', premium: 'Unlimited' },
-    { icon: Star, label: 'Premium Templates', free: '4 templates', premium: 'All 7 templates' },
+    { icon: Star, label: 'Premium Templates', free: '4 templates', premium: 'All 7+' },
   ];
 
   if (isPremium) {
