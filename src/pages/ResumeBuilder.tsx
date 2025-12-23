@@ -353,28 +353,27 @@ const ResumeBuilder = () => {
     try {
       const { jsPDF } = await import('jspdf');
       const html2canvas = (await import('html2canvas')).default;
-      
-      const resumeElement = resumeRef.current;
-      if (!resumeElement) {
+
+      // IMPORTANT: use the offscreen A4 render (no CSS scaling) so PDF text sizing is correct
+      const pdfTarget = (resumeRef.current?.querySelector('.resume-preview') as HTMLElement | null) ?? null;
+      if (!pdfTarget) {
         toast.error("Resume preview not found");
-        setIsDownloading(false);
         return;
       }
 
       toast.info("Generating your PDF...");
 
-      // A4 dimensions in mm and pixels at 96 DPI
+      // A4 dimensions in mm
       const a4WidthMM = 210;
       const a4HeightMM = 297;
-      
-      // Create canvas with high quality
-      const canvas = await html2canvas(resumeElement, {
+
+      const canvas = await html2canvas(pdfTarget, {
         scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
-        width: resumeElement.scrollWidth,
-        height: resumeElement.scrollHeight,
+        width: pdfTarget.scrollWidth,
+        height: pdfTarget.scrollHeight,
       });
 
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
@@ -638,9 +637,8 @@ const ResumeBuilder = () => {
                   </Badge>
                 </div>
                 <div className="bg-white rounded-lg shadow-xl overflow-hidden" style={{ maxWidth: '100%' }}>
-                  <div 
-                    ref={resumeRef}
-                    className="resume-preview origin-top-left"
+                  <div
+                    className="resume-preview-frame origin-top-left"
                     style={{ 
                       transform: 'scale(0.65)', 
                       transformOrigin: 'top left',
@@ -665,9 +663,8 @@ const ResumeBuilder = () => {
               </DialogTitle>
             </DialogHeader>
             <div className="bg-white rounded-lg overflow-auto">
-              <div 
-                ref={!resumeRef.current ? resumeRef : undefined}
-                className="resume-preview"
+              <div
+                className="resume-preview-frame"
                 style={{ transform: 'scale(0.5)', transformOrigin: 'top left', width: '200%' }}
               >
                 <ResumePreview template={selectedTemplate} data={resumeData} />
@@ -746,6 +743,13 @@ const ResumeBuilder = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Offscreen A4 render target for PDF export (must NOT be scaled/hidden via opacity) */}
+        <div aria-hidden="true" className="fixed -left-[10000px] top-0 pointer-events-none">
+          <div ref={resumeRef}>
+            <ResumePreview template={selectedTemplate} data={resumeData} />
+          </div>
+        </div>
 
         {/* Premium Gate Modal */}
         <ResumePremiumGate
