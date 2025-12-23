@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,9 @@ import {
   TrendingUp, 
   Award, 
   CheckCircle,
-  ExternalLink
+  ExternalLink,
+  RefreshCw,
+  Trash2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,20 +31,14 @@ interface Skill {
 const SkillsList = () => {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const { user } = useUser();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (user) {
-      fetchUserSkills();
-    }
-  }, [user]);
-
-  const fetchUserSkills = async () => {
+  const fetchUserSkills = useCallback(async () => {
     if (!user) return;
     
     try {
-      setLoading(true);
       const { data, error } = await supabase
         .from('skills')
         .select('*')
@@ -56,6 +52,61 @@ const SkillsList = () => {
       toast.error('Failed to load skills');
     } finally {
       setLoading(false);
+      setRefreshing(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserSkills();
+    }
+  }, [user, fetchUserSkills]);
+
+  // Real-time subscription for skill updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('skills-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'skills',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Skills updated:', payload);
+          fetchUserSkills();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, fetchUserSkills]);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchUserSkills();
+    toast.success('Skills refreshed');
+  };
+
+  const handleDeleteSkill = async (skillId: string) => {
+    try {
+      const { error } = await supabase
+        .from('skills')
+        .delete()
+        .eq('id', skillId);
+
+      if (error) throw error;
+      setSkills(skills.filter(s => s.id !== skillId));
+      toast.success('Skill removed');
+    } catch (error) {
+      console.error('Error deleting skill:', error);
+      toast.error('Failed to remove skill');
     }
   };
 
@@ -68,11 +119,11 @@ const SkillsList = () => {
   };
 
   const getSkillLevelColor = (level: number) => {
-    if (level >= 9) return 'text-green-600 bg-green-50';
-    if (level >= 7) return 'text-blue-600 bg-blue-50';
-    if (level >= 5) return 'text-yellow-600 bg-yellow-50';
-    if (level >= 3) return 'text-orange-600 bg-orange-50';
-    return 'text-gray-600 bg-gray-50';
+    if (level >= 9) return 'text-green-600 bg-green-50 dark:bg-green-900/20';
+    if (level >= 7) return 'text-blue-600 bg-blue-50 dark:bg-blue-900/20';
+    if (level >= 5) return 'text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20';
+    if (level >= 3) return 'text-orange-600 bg-orange-50 dark:bg-orange-900/20';
+    return 'text-gray-600 bg-gray-50 dark:bg-gray-900/20';
   };
 
   if (loading) {
@@ -101,13 +152,23 @@ const SkillsList = () => {
               Your Skills ({skills.length})
             </CardTitle>
             <CardDescription>
-              Showcase your technical expertise and competencies
+              Showcase your technical expertise
             </CardDescription>
           </div>
-          <Button onClick={() => navigate('/add-skill')} size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Skill
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleRefresh}
+              disabled={refreshing}
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+            </Button>
+            <Button onClick={() => navigate('/add-skill')} size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              Add
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -116,7 +177,7 @@ const SkillsList = () => {
             <Code className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">No skills added yet</h3>
             <p className="text-muted-foreground mb-4">
-              Start building your profile by adding your technical skills
+              Add skills to boost your ranking
             </p>
             <Button onClick={() => navigate('/add-skill')}>
               <Plus className="h-4 w-4 mr-2" />
@@ -124,12 +185,12 @@ const SkillsList = () => {
             </Button>
           </div>
         ) : (
-          <div className="space-y-4">
-            {skills.map((skill) => (
-              <div key={skill.id} className="p-4 border rounded-lg hover:shadow-sm transition-shadow">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <h4 className="font-semibold text-lg">{skill.name}</h4>
+          <div className="space-y-3">
+            {skills.slice(0, 5).map((skill) => (
+              <div key={skill.id} className="p-3 border rounded-lg hover:shadow-sm transition-shadow group">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-semibold">{skill.name}</h4>
                     {skill.is_verified && (
                       <Badge variant="default" className="bg-green-500 text-white text-xs">
                         <CheckCircle className="h-3 w-3 mr-1" />
@@ -137,79 +198,84 @@ const SkillsList = () => {
                       </Badge>
                     )}
                   </div>
-                  <Badge 
-                    variant="outline" 
-                    className={getSkillLevelColor(skill.level)}
-                  >
-                    {getSkillLevelLabel(skill.level)}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge 
+                      variant="outline" 
+                      className={getSkillLevelColor(skill.level)}
+                    >
+                      {getSkillLevelLabel(skill.level)}
+                    </Badge>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => handleDeleteSkill(skill.id)}
+                    >
+                      <Trash2 className="h-3 w-3 text-destructive" />
+                    </Button>
+                  </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <div>
-                    <div className="flex items-center justify-between text-sm mb-1">
-                      <span>Proficiency Level</span>
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span>Level</span>
                       <span className="font-medium">{skill.level}/10</span>
                     </div>
-                    <Progress value={skill.level * 10} className="h-2" />
+                    <Progress value={skill.level * 10} className="h-1.5" />
                   </div>
 
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-1">
-                      <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                      <span>Experience: {skill.experience_years} years</span>
-                    </div>
-                    {skill.verification_source && (
-                      <div className="flex items-center gap-1 text-muted-foreground">
-                        <Award className="h-4 w-4" />
-                        <span className="text-xs">{skill.verification_source}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {!skill.is_verified && (
-                    <div className="flex items-center gap-2 p-2 bg-yellow-50 rounded-md">
-                      <Star className="h-4 w-4 text-yellow-600" />
-                      <span className="text-xs text-yellow-700">
-                        Take an assessment to verify this skill and boost your ranking
-                      </span>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>{skill.experience_years} years exp</span>
+                    {!skill.is_verified && (
                       <Button 
-                        variant="outline" 
+                        variant="link" 
                         size="sm" 
-                        className="ml-auto text-xs"
+                        className="text-xs h-auto p-0"
                         onClick={() => navigate('/skills')}
                       >
-                        <ExternalLink className="h-3 w-3 mr-1" />
-                        Verify
+                        Verify Now
                       </Button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
 
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+            {skills.length > 5 && (
+              <Button 
+                variant="ghost" 
+                className="w-full text-sm"
+                onClick={() => navigate('/edit-profile')}
+              >
+                View all {skills.length} skills
+              </Button>
+            )}
+
+            <div className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/10">
               <div className="flex items-start gap-3">
-                <TrendingUp className="h-5 w-5 text-blue-600 mt-0.5" />
+                <TrendingUp className="h-5 w-5 text-primary mt-0.5" />
                 <div>
-                  <h4 className="font-medium text-blue-900 mb-1">Boost Your Ranking</h4>
-                  <p className="text-sm text-blue-700 mb-3">
-                    Add more skills or verify existing ones to improve your candidate ranking
+                  <h4 className="font-medium text-sm mb-1">Boost Your Ranking</h4>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Add more skills or verify existing ones
                   </p>
                   <div className="flex gap-2">
                     <Button 
                       variant="outline" 
                       size="sm"
+                      className="text-xs h-7"
                       onClick={() => navigate('/add-skill')}
                     >
-                      Add More Skills
+                      Add Skills
                     </Button>
                     <Button 
                       variant="outline" 
                       size="sm"
+                      className="text-xs h-7"
                       onClick={() => navigate('/skills')}
                     >
-                      Take Assessments
+                      Take Test
                     </Button>
                   </div>
                 </div>
