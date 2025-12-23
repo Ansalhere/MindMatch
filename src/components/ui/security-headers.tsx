@@ -9,12 +9,12 @@ export const SecurityHeaders = () => {
       cspMeta.httpEquiv = 'Content-Security-Policy';
       cspMeta.content = `
         default-src 'self';
-        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://grbtziyqindonbkkkfkc.supabase.co;
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://grbtziyqindonbkkkfkc.supabase.co https://checkout.razorpay.com;
         style-src 'self' 'unsafe-inline';
         img-src 'self' data: https: blob:;
-        font-src 'self' data:;
-        connect-src 'self' https://grbtziyqindonbkkkfkc.supabase.co wss://grbtziyqindonbkkkfkc.supabase.co;
-        frame-src 'none';
+        font-src 'self' data: https:;
+        connect-src 'self' https://grbtziyqindonbkkkfkc.supabase.co wss://grbtziyqindonbkkkfkc.supabase.co https://api.razorpay.com https://checkout.razorpay.com;
+        frame-src 'self' https://checkout.razorpay.com https://api.razorpay.com;
         object-src 'none';
         base-uri 'self';
         form-action 'self';

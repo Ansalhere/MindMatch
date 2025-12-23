@@ -495,6 +495,19 @@ const ResumeBuilder = () => {
                       <span className="hidden md:inline">Load Profile</span>
                     </Button>
                   )}
+
+                  {!isPremium && (
+                    <Button
+                      onClick={() => setShowPremiumGate(true)}
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5"
+                    >
+                      <Crown className="h-4 w-4 text-primary" />
+                      <span className="hidden sm:inline">Upgrade</span>
+                    </Button>
+                  )}
+
                   <Button 
                     variant="ghost" 
                     size="sm" 
