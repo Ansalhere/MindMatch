@@ -68,17 +68,32 @@ const ResumePremiumGate = ({ open, onClose, resumeCount, onUpgrade }: ResumePrem
         resolve(true);
         return;
       }
-      
-      // Check if script is already being loaded
-      const existingScript = document.querySelector('script[src*="razorpay"]');
+
+      const src = 'https://checkout.razorpay.com/v1/checkout.js';
+      const existingScript = document.querySelector(`script[src="${src}"]`) as HTMLScriptElement | null;
+
+      // If the script tag exists (for example from a previous attempt), the load event might have
+      // already fired before we attach listeners. In that case we must not hang forever.
       if (existingScript) {
-        existingScript.addEventListener('load', () => resolve(true));
-        existingScript.addEventListener('error', () => resolve(false));
+        const finalize = () => resolve(Boolean(window.Razorpay));
+
+        // Some browsers expose readyState; also cover the case where the script is already complete.
+        const readyState = (existingScript as any).readyState as string | undefined;
+        if (readyState === 'complete' || readyState === 'loaded') {
+          finalize();
+          return;
+        }
+
+        existingScript.addEventListener('load', () => resolve(true), { once: true });
+        existingScript.addEventListener('error', () => resolve(false), { once: true });
+
+        // Fallback: if the load event already happened, resolve shortly after.
+        setTimeout(finalize, 1200);
         return;
       }
-      
+
       const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.src = src;
       script.async = true;
       script.onload = () => {
         console.log('Razorpay script loaded');
