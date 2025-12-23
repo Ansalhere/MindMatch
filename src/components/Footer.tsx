@@ -98,7 +98,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                  Contact
+                  Contact Us
                 </Link>
               </li>
               <li>
@@ -108,7 +108,17 @@ const Footer = () => {
               </li>
               <li>
                 <Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                  Terms of Service
+                  Terms & Conditions
+                </Link>
+              </li>
+              <li>
+                <Link to="/refund" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Cancellation & Refund
+                </Link>
+              </li>
+              <li>
+                <Link to="/shipping" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Shipping & Delivery
                 </Link>
               </li>
             </ul>
@@ -119,12 +129,21 @@ const Footer = () => {
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} FresherPools. All rights reserved.
           </p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-4 md:mt-0">
             <Link to="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Privacy
             </Link>
             <Link to="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Terms
+            </Link>
+            <Link to="/refund" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Refund
+            </Link>
+            <Link to="/shipping" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Shipping
+            </Link>
+            <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Contact
             </Link>
             <Link to="/admin-setup" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Admin
