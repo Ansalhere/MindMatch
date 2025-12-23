@@ -9,14 +9,21 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, Crown, FileText, Sparkles, Zap, CreditCard } from 'lucide-react';
+import { CheckCircle2, Crown, FileText, Sparkles, Zap, CreditCard, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ResumePremiumGateProps {
   open: boolean;
   onClose: () => void;
   resumeCount: number;
   onUpgrade: () => void;
+}
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
 }
 
 const ResumePremiumGate = ({ open, onClose, resumeCount, onUpgrade }: ResumePremiumGateProps) => {
@@ -54,19 +61,118 @@ const ResumePremiumGate = ({ open, onClose, resumeCount, onUpgrade }: ResumePrem
     },
   ];
 
+  const loadRazorpayScript = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const handlePayment = async () => {
     setProcessing(true);
     
-    // Simulate payment processing
-    toast.info('Redirecting to payment gateway...');
-    
-    // In production, integrate with Stripe or Razorpay
-    setTimeout(() => {
+    try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Please login to continue');
+        setProcessing(false);
+        return;
+      }
+
+      const selectedPlanData = plans.find(p => p.id === selectedPlan);
+      if (!selectedPlanData) return;
+
+      // Load Razorpay script
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        toast.error('Failed to load payment gateway');
+        setProcessing(false);
+        return;
+      }
+
+      // Create order
+      const { data: orderData, error: orderError } = await supabase.functions.invoke('razorpay-order', {
+        body: {
+          amount: selectedPlanData.price,
+          currency: 'INR',
+          receipt: `resume_${user.id}_${Date.now()}`,
+          notes: {
+            plan: selectedPlan,
+            user_id: user.id,
+          },
+        },
+      });
+
+      if (orderError || !orderData) {
+        console.error('Order creation failed:', orderError);
+        toast.error('Failed to create order. Please try again.');
+        setProcessing(false);
+        return;
+      }
+
+      // Initialize Razorpay
+      const options = {
+        key: orderData.keyId,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: 'FresherPools',
+        description: `${selectedPlanData.name} - Resume Builder`,
+        order_id: orderData.orderId,
+        handler: async (response: any) => {
+          try {
+            // Verify payment
+            const { data: verifyData, error: verifyError } = await supabase.functions.invoke('razorpay-verify', {
+              body: {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                user_id: user.id,
+                package_type: selectedPlan,
+              },
+            });
+
+            if (verifyError || !verifyData?.success) {
+              toast.error('Payment verification failed. Please contact support.');
+              return;
+            }
+
+            toast.success('Payment successful! Premium features unlocked.');
+            onUpgrade();
+            onClose();
+          } catch (error) {
+            console.error('Payment verification error:', error);
+            toast.error('Payment verification failed. Please contact support.');
+          }
+        },
+        prefill: {
+          email: user.email,
+        },
+        theme: {
+          color: '#6366f1',
+        },
+        modal: {
+          ondismiss: () => {
+            setProcessing(false);
+          },
+        },
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
       setProcessing(false);
-      toast.success('Payment feature coming soon! For now, enjoy free access.');
-      onUpgrade();
-      onClose();
-    }, 2000);
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast.error('Something went wrong. Please try again.');
+      setProcessing(false);
+    }
   };
 
   return (
@@ -135,7 +241,7 @@ const ResumePremiumGate = ({ open, onClose, resumeCount, onUpgrade }: ResumePrem
           >
             {processing ? (
               <>
-                <Zap className="h-5 w-5 animate-pulse" />
+                <Loader2 className="h-5 w-5 animate-spin" />
                 Processing...
               </>
             ) : (
