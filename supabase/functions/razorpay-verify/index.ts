@@ -43,10 +43,31 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Update user to premium
+    // Calculate expiry and remaining downloads based on package type
+    const expiryDate = new Date();
+    let remainingDownloads = 0;
+    
+    if (package_type === 'unlimited') {
+      // Unlimited plan: 1 year validity, unlimited downloads (use -1 to indicate unlimited)
+      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+      remainingDownloads = -1; // -1 means unlimited
+    } else {
+      // Single plan: 30 days validity, 1 additional download
+      expiryDate.setDate(expiryDate.getDate() + 30);
+      remainingDownloads = 1;
+    }
+
+    console.log('Package type:', package_type, 'Remaining downloads:', remainingDownloads, 'Expiry:', expiryDate.toISOString());
+
+    // Update user with premium details
     const { error: updateError } = await supabase
       .from('users')
-      .update({ is_premium: true })
+      .update({ 
+        is_premium: true,
+        resume_premium_type: package_type,
+        resume_premium_downloads_remaining: remainingDownloads,
+        resume_premium_expires_at: expiryDate.toISOString()
+      })
       .eq('id', user_id);
 
     if (updateError) {
@@ -54,7 +75,7 @@ serve(async (req) => {
       throw new Error('Failed to update premium status');
     }
 
-    console.log('User premium status updated successfully for:', user_id);
+    console.log('User premium status updated successfully for:', user_id, 'Package:', package_type);
 
     // Create a subscription record if packages table exists
     try {
