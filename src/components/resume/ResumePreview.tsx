@@ -42,9 +42,10 @@ const ResumePreview = ({ template, data }: ResumePreviewProps) => {
 
   return (
     <div 
-      className="resume-preview bg-white text-black"
+      className="resume-preview bg-white text-black w-full"
       style={{
-        width: `${A4_WIDTH_PX}px`,
+        width: '100%',
+        maxWidth: `${A4_WIDTH_PX}px`,
         minHeight: `${A4_HEIGHT_PX}px`,
         padding: `${PADDING_PX}px`,
         boxSizing: 'border-box',
@@ -53,6 +54,29 @@ const ResumePreview = ({ template, data }: ResumePreviewProps) => {
         fontFamily: 'Arial, Helvetica, sans-serif',
       }}
     >
+      <style>{`
+        .resume-preview h2 {
+          break-after: avoid;
+          page-break-after: avoid;
+        }
+        .resume-preview h2 + * {
+          break-before: avoid;
+          page-break-before: avoid;
+        }
+        .resume-preview section,
+        .resume-preview .resume-section {
+          break-inside: avoid-column;
+          page-break-inside: avoid;
+        }
+        .resume-preview h3 {
+          break-after: avoid;
+          page-break-after: avoid;
+        }
+        .resume-preview h3 + * {
+          break-before: avoid;
+          page-break-before: avoid;
+        }
+      `}</style>
       {renderTemplate()}
     </div>
   );
