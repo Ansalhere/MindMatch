@@ -17,7 +17,7 @@ import PagedResumePreview from '@/components/resume/PagedResumePreview';
 import TemplateSelector from '@/components/resume/TemplateSelector';
 import ATSScoreCard from '@/components/resume/ATSScoreCard';
 import ResumePremiumGate from '@/components/resume/ResumePremiumGate';
-import PremiumUpgradeSection from '@/components/resume/PremiumUpgradeSection';
+import PremiumFloatingBanner from '@/components/resume/PremiumFloatingBanner';
 import { toast } from 'sonner';
 import { useUser } from '@/hooks/useUser';
 import { useResumeLimit } from '@/hooks/useResumeLimit';
@@ -575,15 +575,6 @@ const ResumeBuilder = () => {
                 {/* ATS Score Card */}
                 <ATSScoreCard data={resumeData} />
 
-                {/* Premium Upgrade Section */}
-                {!isPremium && (
-                  <PremiumUpgradeSection 
-                    isPremium={isPremium} 
-                    downloadCount={downloadCount}
-                    onUpgrade={upgradeToPremium}
-                  />
-                )}
-
                 {/* Form Tabs */}
                 <Card className="overflow-hidden">
                   <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -793,6 +784,13 @@ const ResumeBuilder = () => {
           open={showPremiumGate}
           onClose={() => setShowPremiumGate(false)}
           resumeCount={downloadCount}
+          onUpgrade={upgradeToPremium}
+        />
+        
+        {/* Floating Premium Banner */}
+        <PremiumFloatingBanner
+          isPremium={isPremium}
+          downloadCount={downloadCount}
           onUpgrade={upgradeToPremium}
         />
       </Layout>
