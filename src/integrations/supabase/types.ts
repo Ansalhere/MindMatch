@@ -811,6 +811,9 @@ export type Database = {
           name: string | null
           phone: string | null
           rank_score: number | null
+          resume_premium_downloads_remaining: number | null
+          resume_premium_expires_at: string | null
+          resume_premium_type: string | null
           resume_url: string | null
           size: string | null
           user_type: string
@@ -833,6 +836,9 @@ export type Database = {
           name?: string | null
           phone?: string | null
           rank_score?: number | null
+          resume_premium_downloads_remaining?: number | null
+          resume_premium_expires_at?: string | null
+          resume_premium_type?: string | null
           resume_url?: string | null
           size?: string | null
           user_type: string
@@ -855,6 +861,9 @@ export type Database = {
           name?: string | null
           phone?: string | null
           rank_score?: number | null
+          resume_premium_downloads_remaining?: number | null
+          resume_premium_expires_at?: string | null
+          resume_premium_type?: string | null
           resume_url?: string | null
           size?: string | null
           user_type?: string

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useUser } from './useUser';
+import { supabase } from '@/integrations/supabase/client';
 
 const FREE_RESUME_LIMIT = 2;
 const STORAGE_KEY = 'resume_downloads';
@@ -10,10 +11,63 @@ interface ResumeDownload {
   template: string;
 }
 
+interface PremiumStatus {
+  type: 'single' | 'unlimited' | null;
+  remainingDownloads: number;
+  expiresAt: string | null;
+}
+
 export const useResumeLimit = () => {
   const { user, profile, refreshUser } = useUser();
   const [downloads, setDownloads] = useState<ResumeDownload[]>([]);
   const [isPremium, setIsPremium] = useState(false);
+  const [premiumStatus, setPremiumStatus] = useState<PremiumStatus>({
+    type: null,
+    remainingDownloads: 0,
+    expiresAt: null,
+  });
+
+  // Fetch premium status from database
+  const fetchPremiumStatus = useCallback(async () => {
+    if (!user?.id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('is_premium, resume_premium_type, resume_premium_downloads_remaining, resume_premium_expires_at')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching premium status:', error);
+        return;
+      }
+
+      if (data) {
+        const now = new Date();
+        const expiresAt = data.resume_premium_expires_at ? new Date(data.resume_premium_expires_at) : null;
+        const isExpired = expiresAt && expiresAt < now;
+
+        if (data.is_premium && !isExpired) {
+          setIsPremium(true);
+          setPremiumStatus({
+            type: data.resume_premium_type as 'single' | 'unlimited' | null,
+            remainingDownloads: data.resume_premium_downloads_remaining ?? 0,
+            expiresAt: data.resume_premium_expires_at,
+          });
+        } else {
+          setIsPremium(false);
+          setPremiumStatus({
+            type: null,
+            remainingDownloads: 0,
+            expiresAt: null,
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch premium status:', err);
+    }
+  }, [user?.id]);
 
   useEffect(() => {
     // Load downloads from localStorage
@@ -34,24 +88,50 @@ export const useResumeLimit = () => {
       }
     }
 
-    // Check premium status from profile (Supabase source of truth)
-    if (profile?.is_premium) {
-      setIsPremium(true);
-      // Sync localStorage with DB
-      localStorage.setItem('resume_premium_status', 'active');
-    } else {
-      // Fallback: Check localStorage for premium upgrade (offline support)
-      const premiumStatus = localStorage.getItem('resume_premium_status');
-      if (premiumStatus === 'active') {
-        setIsPremium(true);
-      }
+    // Fetch premium status from DB
+    fetchPremiumStatus();
+  }, [fetchPremiumStatus, profile]);
+
+  // Determine if user can download based on their plan
+  const canDownload = (() => {
+    if (!isPremium) {
+      // Free user: check download limit
+      return downloads.length < FREE_RESUME_LIMIT;
     }
-  }, [profile]);
+    
+    // Premium user
+    if (premiumStatus.type === 'unlimited') {
+      // Unlimited plan: always can download
+      return true;
+    }
+    
+    if (premiumStatus.type === 'single') {
+      // Single plan: check remaining downloads
+      return premiumStatus.remainingDownloads > 0;
+    }
+    
+    // Fallback
+    return downloads.length < FREE_RESUME_LIMIT;
+  })();
 
-  const canDownload = isPremium || downloads.length < FREE_RESUME_LIMIT;
-  const remainingDownloads = isPremium ? Infinity : Math.max(0, FREE_RESUME_LIMIT - downloads.length);
+  // Calculate remaining downloads
+  const remainingDownloads = (() => {
+    if (!isPremium) {
+      return Math.max(0, FREE_RESUME_LIMIT - downloads.length);
+    }
+    
+    if (premiumStatus.type === 'unlimited') {
+      return Infinity;
+    }
+    
+    if (premiumStatus.type === 'single') {
+      return premiumStatus.remainingDownloads;
+    }
+    
+    return Math.max(0, FREE_RESUME_LIMIT - downloads.length);
+  })();
 
-  const recordDownload = (template: string) => {
+  const recordDownload = async (template: string) => {
     const newDownload: ResumeDownload = {
       id: crypto.randomUUID(),
       date: new Date().toISOString(),
@@ -60,33 +140,48 @@ export const useResumeLimit = () => {
     const updated = [...downloads, newDownload];
     setDownloads(updated);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+
+    // If single plan, decrement remaining downloads in DB
+    if (isPremium && premiumStatus.type === 'single' && user?.id) {
+      try {
+        const newRemaining = Math.max(0, premiumStatus.remainingDownloads - 1);
+        await supabase
+          .from('users')
+          .update({ resume_premium_downloads_remaining: newRemaining })
+          .eq('id', user.id);
+        
+        setPremiumStatus(prev => ({
+          ...prev,
+          remainingDownloads: newRemaining,
+        }));
+        
+        console.log('Decremented single plan downloads, remaining:', newRemaining);
+      } catch (err) {
+        console.error('Failed to update remaining downloads:', err);
+      }
+    }
   };
 
   const upgradeToPremium = useCallback(async () => {
-    // Immediately update local state for instant UI feedback
-    setIsPremium(true);
-    localStorage.setItem('resume_premium_status', 'active');
-    
-    // Set expiry date for 1 year
-    const expiryDate = new Date();
-    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-    localStorage.setItem('resume_premium_expiry', expiryDate.toISOString());
-
-    // Refresh user profile from Supabase to get the updated is_premium from DB
+    // Refresh user profile from Supabase to get the updated premium status from DB
     try {
       await refreshUser();
+      await fetchPremiumStatus();
       console.log('User profile refreshed after premium upgrade');
     } catch (error) {
       console.error('Failed to refresh user profile:', error);
     }
-  }, [refreshUser]);
+  }, [refreshUser, fetchPremiumStatus]);
 
   return {
     canDownload,
     remainingDownloads,
     downloadCount: downloads.length,
     isPremium,
+    premiumType: premiumStatus.type,
+    premiumExpiresAt: premiumStatus.expiresAt,
     recordDownload,
     upgradeToPremium,
+    refreshPremiumStatus: fetchPremiumStatus,
   };
 };
