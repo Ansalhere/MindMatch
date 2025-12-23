@@ -361,11 +361,18 @@ const ResumeBuilder = () => {
 
       toast.info("Generating your PDF...");
 
+      // A4 dimensions in mm
+      const a4Width = 210;
+      const a4Height = 297;
+      
+      // Create canvas with high quality
       const canvas = await html2canvas(resumeElement, {
         scale: 2,
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        windowWidth: resumeElement.scrollWidth,
+        windowHeight: resumeElement.scrollHeight,
       });
 
       const imgData = canvas.toDataURL('image/png');
@@ -376,10 +383,28 @@ const ResumeBuilder = () => {
         format: 'a4'
       });
 
-      const imgWidth = 210;
+      // Calculate image dimensions maintaining aspect ratio
+      const imgWidth = a4Width;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      // Calculate number of pages needed
+      const pageHeight = a4Height;
+      let heightLeft = imgHeight;
+      let position = 0;
+      let pageNum = 1;
+
+      // Add first page
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      // Add additional pages if content overflows
+      while (heightLeft > 0) {
+        position = -pageHeight * pageNum;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        pageNum++;
+      }
       
       const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, '_') || 'Resume'}_${selectedTemplate}_ATS.pdf`;
       pdf.save(fileName);

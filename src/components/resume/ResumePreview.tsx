@@ -35,7 +35,16 @@ const ResumePreview = ({ template, data }: ResumePreviewProps) => {
   };
 
   return (
-    <div className="w-full min-h-[11in] bg-white text-black p-8 resume-preview">
+    <div 
+      className="resume-preview bg-white text-black"
+      style={{
+        width: '210mm',
+        minHeight: '297mm',
+        padding: '20mm',
+        boxSizing: 'border-box',
+        margin: '0 auto',
+      }}
+    >
       {renderTemplate()}
     </div>
   );
