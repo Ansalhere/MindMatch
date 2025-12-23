@@ -2,3 +2,15 @@ project_id = "grbtziyqindonbkkkfkc"
 
 [functions.notify-subscribers]
 verify_jwt = true
+
+[functions.resume-ai-assistant]
+verify_jwt = false
+
+[functions.rank-calculator]
+verify_jwt = true
+
+[functions.job-match]
+verify_jwt = true
+
+[functions.send-notification-email]
+verify_jwt = true
