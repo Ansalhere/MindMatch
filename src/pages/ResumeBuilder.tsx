@@ -354,10 +354,11 @@ const ResumeBuilder = () => {
       const { jsPDF } = await import('jspdf');
       const html2canvas = (await import('html2canvas')).default;
 
-      // IMPORTANT: use the offscreen A4 render (no CSS scaling) so PDF text sizing is correct
-      const pdfTarget = (resumeRef.current?.querySelector('.resume-preview') as HTMLElement | null) ?? null;
+      // Get the offscreen A4 render target (unscaled)
+      const pdfTarget = resumeRef.current?.querySelector('.resume-preview') as HTMLElement | null;
       if (!pdfTarget) {
         toast.error("Resume preview not found");
+        setIsDownloading(false);
         return;
       }
 
@@ -366,17 +367,23 @@ const ResumeBuilder = () => {
       // A4 dimensions in mm
       const a4WidthMM = 210;
       const a4HeightMM = 297;
+      
+      // A4 at 96 DPI = 794 x 1123 px
+      const a4WidthPx = 794;
+      const a4HeightPx = 1123;
 
+      // Capture at 2x scale for better quality
       const canvas = await html2canvas(pdfTarget, {
         scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
-        width: pdfTarget.scrollWidth,
+        width: a4WidthPx,
         height: pdfTarget.scrollHeight,
+        windowWidth: a4WidthPx,
       });
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const imgData = canvas.toDataURL('image/png', 1.0);
       
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -384,24 +391,29 @@ const ResumeBuilder = () => {
         format: 'a4'
       });
 
-      // Calculate dimensions
-      const imgWidth = a4WidthMM;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      // Calculate the actual content height in mm
+      const contentHeightMM = (canvas.height / 2) * (a4WidthMM / a4WidthPx);
       
       // Calculate number of pages needed
-      let heightLeft = imgHeight;
-      let position = 0;
-      let pageCount = 0;
-
-      // Add pages
-      while (heightLeft > 0) {
-        if (pageCount > 0) {
+      const totalPages = Math.ceil(contentHeightMM / a4HeightMM);
+      
+      for (let page = 0; page < totalPages; page++) {
+        if (page > 0) {
           pdf.addPage();
         }
-        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-        heightLeft -= a4HeightMM;
-        position -= a4HeightMM;
-        pageCount++;
+        
+        // Calculate the vertical offset for this page
+        const yOffset = -(page * a4HeightMM);
+        
+        // Add the full image, positioned so the correct portion shows on each page
+        pdf.addImage(
+          imgData, 
+          'PNG', 
+          0, 
+          yOffset, 
+          a4WidthMM, 
+          contentHeightMM
+        );
       }
       
       const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, '_') || 'Resume'}_${selectedTemplate}.pdf`;
@@ -636,13 +648,14 @@ const ResumeBuilder = () => {
                     {templateNames[selectedTemplate]}
                   </Badge>
                 </div>
-                <div className="bg-white rounded-lg shadow-xl overflow-hidden" style={{ maxWidth: '100%' }}>
+                <div className="bg-white rounded-lg shadow-xl overflow-hidden">
                   <div
-                    className="resume-preview-frame origin-top-left"
+                    className="origin-top-left"
                     style={{ 
-                      transform: 'scale(0.65)', 
+                      transform: 'scale(0.52)', 
                       transformOrigin: 'top left',
-                      width: '153.8%', // 1/0.65 to compensate for scale
+                      width: '192%', // 1/0.52 to compensate for scale
+                      marginBottom: '-40%', // Compensate for the scaled height
                     }}
                   >
                     <ResumePreview template={selectedTemplate} data={resumeData} />
@@ -662,10 +675,14 @@ const ResumeBuilder = () => {
                 Resume Preview
               </DialogTitle>
             </DialogHeader>
-            <div className="bg-white rounded-lg overflow-auto">
+            <div className="bg-white rounded-lg overflow-auto max-h-[60vh]">
               <div
-                className="resume-preview-frame"
-                style={{ transform: 'scale(0.5)', transformOrigin: 'top left', width: '200%' }}
+                style={{ 
+                  transform: 'scale(0.45)', 
+                  transformOrigin: 'top left', 
+                  width: '222%',
+                  marginBottom: '-55%',
+                }}
               >
                 <ResumePreview template={selectedTemplate} data={resumeData} />
               </div>

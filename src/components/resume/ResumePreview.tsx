@@ -12,6 +12,12 @@ interface ResumePreviewProps {
   data: ResumeData;
 }
 
+// A4 dimensions at 96 DPI (standard screen resolution)
+// 210mm × 297mm = 794px × 1123px at 96 DPI
+const A4_WIDTH_PX = 794;
+const A4_HEIGHT_PX = 1123;
+const PADDING_PX = 48; // ~12.7mm padding
+
 const ResumePreview = ({ template, data }: ResumePreviewProps) => {
   const renderTemplate = () => {
     switch (template) {
@@ -38,11 +44,13 @@ const ResumePreview = ({ template, data }: ResumePreviewProps) => {
     <div 
       className="resume-preview bg-white text-black"
       style={{
-        width: '210mm',
-        minHeight: '297mm',
-        padding: '20mm',
+        width: `${A4_WIDTH_PX}px`,
+        minHeight: `${A4_HEIGHT_PX}px`,
+        padding: `${PADDING_PX}px`,
         boxSizing: 'border-box',
-        margin: '0 auto',
+        fontSize: '12px',
+        lineHeight: '1.5',
+        fontFamily: 'Arial, Helvetica, sans-serif',
       }}
     >
       {renderTemplate()}
