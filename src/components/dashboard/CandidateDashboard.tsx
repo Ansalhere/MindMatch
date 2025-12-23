@@ -5,10 +5,11 @@ import { ReferralCard } from '@/components/referral/ReferralCard';
 import RecommendedJobs from './RecommendedJobs';
 import SkillsList from './SkillsList';
 import ApplicationActions from '../candidate/ApplicationActions';
+import RankingHowItWorks from '@/components/ranking/RankingHowItWorks';
 import { 
   Award, Trophy, TrendingUp, Briefcase, MapPin, Phone, 
   FileText, User, Target, Zap, ArrowUpRight, Sparkles,
-  ChevronRight, Star, Calendar, Clock
+  ChevronRight, Star, Calendar, Clock, Crown
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -160,22 +161,46 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="relative z-10 mt-6 flex flex-wrap gap-3">
-            <Button onClick={() => navigate('/add-skill')} className="gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Improve Ranking
+          {/* Featured Action Buttons */}
+          <div className="relative z-10 mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Button 
+              onClick={() => navigate('/add-skill')} 
+              className="gap-2 h-auto py-3 flex-col"
+            >
+              <TrendingUp className="h-5 w-5" />
+              <span className="text-xs">Improve Ranking</span>
             </Button>
-            <Button variant="outline" onClick={() => navigate('/ranking-explanation')} className="gap-2">
-              <Sparkles className="h-4 w-4" />
-              How Rankings Work
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/resume-builder')} 
+              className="gap-2 h-auto py-3 flex-col"
+            >
+              <FileText className="h-5 w-5" />
+              <span className="text-xs">Build Resume</span>
             </Button>
-            <Button variant="ghost" onClick={() => navigate('/edit-profile')} className="gap-2">
-              Edit Profile
-              <ChevronRight className="h-4 w-4" />
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/skills')} 
+              className="gap-2 h-auto py-3 flex-col"
+            >
+              <Award className="h-5 w-5" />
+              <span className="text-xs">Take Assessment</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/ranking-explanation')} 
+              className="gap-2 h-auto py-3 flex-col"
+            >
+              <Sparkles className="h-5 w-5" />
+              <span className="text-xs">How Rankings Work</span>
             </Button>
           </div>
         </div>
+      </ScrollReveal>
+
+      {/* Ranking How It Works Section */}
+      <ScrollReveal delay={0.15}>
+        <RankingHowItWorks currentScore={userData.ranking.overall || userData.rank_score || 0} />
       </ScrollReveal>
 
       {/* Profile Overview Card */}
