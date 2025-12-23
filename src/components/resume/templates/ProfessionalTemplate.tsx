@@ -7,7 +7,7 @@ interface TemplateProps {
 
 const ProfessionalTemplate = ({ data }: TemplateProps) => {
   return (
-    <div className="space-y-6 text-sm">
+    <div className="space-y-6 text-sm w-full">
       {/* Header */}
       <div className="border-b-2 border-gray-800 pb-4">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -49,23 +49,23 @@ const ProfessionalTemplate = ({ data }: TemplateProps) => {
 
       {/* Summary */}
       {data.personalInfo.summary && (
-        <div>
+        <section className="resume-section">
           <h2 className="text-lg font-bold text-gray-900 mb-2 uppercase tracking-wide">
             Professional Summary
           </h2>
           <p className="text-gray-700 leading-relaxed">{data.personalInfo.summary}</p>
-        </div>
+        </section>
       )}
 
       {/* Experience */}
       {data.experience.length > 0 && (
-        <div>
+        <section className="resume-section">
           <h2 className="text-lg font-bold text-gray-900 mb-3 uppercase tracking-wide">
             Work Experience
           </h2>
           <div className="space-y-4">
             {data.experience.map((exp) => (
-              <div key={exp.id}>
+              <div key={exp.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                 <div className="flex justify-between items-baseline mb-1">
                   <h3 className="font-bold text-gray-900">{exp.title || 'Job Title'}</h3>
                   <span className="text-gray-600 text-xs">
@@ -84,18 +84,18 @@ const ProfessionalTemplate = ({ data }: TemplateProps) => {
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {/* Education */}
       {data.education.length > 0 && (
-        <div>
+        <section className="resume-section">
           <h2 className="text-lg font-bold text-gray-900 mb-3 uppercase tracking-wide">
             Education
           </h2>
           <div className="space-y-3">
             {data.education.map((edu) => (
-              <div key={edu.id}>
+              <div key={edu.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                 <div className="flex justify-between items-baseline mb-1">
                   <h3 className="font-bold text-gray-900">{edu.degree || 'Degree'}</h3>
                   <span className="text-gray-600 text-xs">{edu.graduationDate}</span>
@@ -108,12 +108,12 @@ const ProfessionalTemplate = ({ data }: TemplateProps) => {
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {/* Skills */}
       {data.skills.length > 0 && (
-        <div>
+        <section className="resume-section">
           <h2 className="text-lg font-bold text-gray-900 mb-3 uppercase tracking-wide">
             Skills
           </h2>
@@ -125,12 +125,12 @@ const ProfessionalTemplate = ({ data }: TemplateProps) => {
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {/* Certifications */}
       {data.certifications.length > 0 && (
-        <div>
+        <section className="resume-section">
           <h2 className="text-lg font-bold text-gray-900 mb-3 uppercase tracking-wide">
             Certifications
           </h2>
@@ -145,18 +145,18 @@ const ProfessionalTemplate = ({ data }: TemplateProps) => {
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {/* Projects */}
       {data.projects.length > 0 && (
-        <div>
+        <section className="resume-section">
           <h2 className="text-lg font-bold text-gray-900 mb-3 uppercase tracking-wide">
             Projects
           </h2>
           <div className="space-y-3">
             {data.projects.map((project) => (
-              <div key={project.id}>
+              <div key={project.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                 <h3 className="font-bold text-gray-900">{project.name}</h3>
                 {project.description && (
                   <p className="text-gray-700 mb-1">{project.description}</p>
@@ -174,7 +174,7 @@ const ProfessionalTemplate = ({ data }: TemplateProps) => {
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
     </div>
   );

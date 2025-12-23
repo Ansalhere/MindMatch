@@ -551,6 +551,16 @@ const ResumeBuilder = () => {
                     <Sparkles className="h-4 w-4" />
                     AI Tailor
                   </Button>
+                  {!isPremium && (
+                    <Button
+                      size="sm"
+                      onClick={() => setShowPremiumGate(true)}
+                      className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+                    >
+                      <Crown className="h-4 w-4" />
+                      Upgrade to Premium
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"
@@ -661,11 +671,11 @@ const ResumeBuilder = () => {
                 </div>
                 <div className="bg-white rounded-lg shadow-xl overflow-auto max-h-[calc(100vh-200px)]">
                   <div
-                    className="origin-top-left"
+                    className="origin-top-left w-full"
                     style={{ 
-                      transform: 'scale(0.52)', 
+                      transform: 'scale(0.65)', 
                       transformOrigin: 'top left',
-                      width: '192%',
+                      width: '154%',
                     }}
                   >
                     <PagedResumePreview template={selectedTemplate} data={resumeData} showPageBreaks={true} />
@@ -687,10 +697,11 @@ const ResumeBuilder = () => {
             </DialogHeader>
             <div className="bg-white rounded-lg overflow-auto max-h-[60vh]">
               <div
+                className="w-full"
                 style={{ 
-                  transform: 'scale(0.45)', 
+                  transform: 'scale(0.5)', 
                   transformOrigin: 'top left', 
-                  width: '222%',
+                  width: '200%',
                 }}
               >
                 <PagedResumePreview template={selectedTemplate} data={resumeData} showPageBreaks={true} />
