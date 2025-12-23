@@ -64,13 +64,30 @@ const ResumePremiumGate = ({ open, onClose, resumeCount, onUpgrade }: ResumePrem
   const loadRazorpayScript = (): Promise<boolean> => {
     return new Promise((resolve) => {
       if (window.Razorpay) {
+        console.log('Razorpay already loaded');
         resolve(true);
         return;
       }
+      
+      // Check if script is already being loaded
+      const existingScript = document.querySelector('script[src*="razorpay"]');
+      if (existingScript) {
+        existingScript.addEventListener('load', () => resolve(true));
+        existingScript.addEventListener('error', () => resolve(false));
+        return;
+      }
+      
       const script = document.createElement('script');
       script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
+      script.async = true;
+      script.onload = () => {
+        console.log('Razorpay script loaded');
+        resolve(true);
+      };
+      script.onerror = (e) => {
+        console.error('Failed to load Razorpay script:', e);
+        resolve(false);
+      };
       document.body.appendChild(script);
     });
   };
@@ -90,13 +107,19 @@ const ResumePremiumGate = ({ open, onClose, resumeCount, onUpgrade }: ResumePrem
       const selectedPlanData = plans.find(p => p.id === selectedPlan);
       if (!selectedPlanData) return;
 
-      // Load Razorpay script
+      // Load Razorpay script first
+      toast.loading('Loading payment gateway...', { id: 'payment-loading' });
       const loaded = await loadRazorpayScript();
-      if (!loaded) {
-        toast.error('Failed to load payment gateway');
+      
+      if (!loaded || !window.Razorpay) {
+        toast.dismiss('payment-loading');
+        toast.error('Failed to load payment gateway. Please check your internet connection and try again.');
         setProcessing(false);
         return;
       }
+      
+      toast.dismiss('payment-loading');
+      toast.loading('Creating order...', { id: 'order-loading' });
 
       // Create order
       const { data: orderData, error: orderError } = await supabase.functions.invoke('razorpay-order', {
@@ -110,13 +133,24 @@ const ResumePremiumGate = ({ open, onClose, resumeCount, onUpgrade }: ResumePrem
           },
         },
       });
+      
+      toast.dismiss('order-loading');
 
-      if (orderError || !orderData) {
+      if (orderError) {
         console.error('Order creation failed:', orderError);
         toast.error('Failed to create order. Please try again.');
         setProcessing(false);
         return;
       }
+      
+      if (!orderData || !orderData.orderId) {
+        console.error('Invalid order data:', orderData);
+        toast.error('Failed to create order. Please try again.');
+        setProcessing(false);
+        return;
+      }
+      
+      console.log('Order created:', orderData);
 
       // Initialize Razorpay
       const options = {
