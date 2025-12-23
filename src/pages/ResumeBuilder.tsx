@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import ResumeForm from '@/components/resume/ResumeForm';
 import ResumePreview from '@/components/resume/ResumePreview';
+import PagedResumePreview from '@/components/resume/PagedResumePreview';
 import TemplateSelector from '@/components/resume/TemplateSelector';
 import ATSScoreCard from '@/components/resume/ATSScoreCard';
 import ResumePremiumGate from '@/components/resume/ResumePremiumGate';
@@ -648,17 +649,16 @@ const ResumeBuilder = () => {
                     {templateNames[selectedTemplate]}
                   </Badge>
                 </div>
-                <div className="bg-white rounded-lg shadow-xl overflow-hidden">
+                <div className="bg-white rounded-lg shadow-xl overflow-auto max-h-[calc(100vh-200px)]">
                   <div
                     className="origin-top-left"
                     style={{ 
                       transform: 'scale(0.52)', 
                       transformOrigin: 'top left',
-                      width: '192%', // 1/0.52 to compensate for scale
-                      marginBottom: '-40%', // Compensate for the scaled height
+                      width: '192%',
                     }}
                   >
-                    <ResumePreview template={selectedTemplate} data={resumeData} />
+                    <PagedResumePreview template={selectedTemplate} data={resumeData} showPageBreaks={true} />
                   </div>
                 </div>
               </div>
@@ -681,10 +681,9 @@ const ResumeBuilder = () => {
                   transform: 'scale(0.45)', 
                   transformOrigin: 'top left', 
                   width: '222%',
-                  marginBottom: '-55%',
                 }}
               >
-                <ResumePreview template={selectedTemplate} data={resumeData} />
+                <PagedResumePreview template={selectedTemplate} data={resumeData} showPageBreaks={true} />
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-4">
