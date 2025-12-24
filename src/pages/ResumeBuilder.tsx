@@ -104,6 +104,17 @@ const ResumeBuilder = () => {
     projects: [],
   });
 
+  // Track Google Ads conversion for Resume Builder page visit
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'conversion', {
+        'send_to': 'AW-803431504/Qx-DCPaVvNYbENDIjf8C',
+        'value': 1.0,
+        'currency': 'USD'
+      });
+    }
+  }, []);
+
   useEffect(() => {
     if (user?.id) {
       loadUserProfile();
