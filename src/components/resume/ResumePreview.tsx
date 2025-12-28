@@ -9,6 +9,9 @@ import CompactTemplate from './templates/CompactTemplate';
 import ElegantTemplate from './templates/ElegantTemplate';
 import BoldTemplate from './templates/BoldTemplate';
 import ClassicTemplate from './templates/ClassicTemplate';
+import GraduateTemplate from './templates/GraduateTemplate';
+import ATSFriendlyTemplate from './templates/ATSFriendlyTemplate';
+import InfographicTemplate from './templates/InfographicTemplate';
 
 interface ResumePreviewProps {
   template: ResumeTemplate;
@@ -44,6 +47,12 @@ const ResumePreview = ({ template, data }: ResumePreviewProps) => {
         return <BoldTemplate data={data} />;
       case 'classic':
         return <ClassicTemplate data={data} />;
+      case 'graduate':
+        return <GraduateTemplate data={data} />;
+      case 'ats-friendly':
+        return <ATSFriendlyTemplate data={data} />;
+      case 'infographic':
+        return <InfographicTemplate data={data} />;
       default:
         return <ProfessionalTemplate data={data} />;
     }
