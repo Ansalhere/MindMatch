@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { 
   FileText, Download, Eye, Upload, User, Crown, CheckCircle2, 
   Sparkles, Loader2, ChevronRight, ChevronLeft, 
-  Briefcase, Award, EyeOff
+  Briefcase, Award, EyeOff, Zap
 } from 'lucide-react';
 import ResumeForm from '@/components/resume/ResumeForm';
 import ResumePreview from '@/components/resume/ResumePreview';
@@ -18,13 +18,15 @@ import TemplateSelector from '@/components/resume/TemplateSelector';
 import ATSScoreCard from '@/components/resume/ATSScoreCard';
 import ResumePremiumGate from '@/components/resume/ResumePremiumGate';
 import PremiumFloatingBanner from '@/components/resume/PremiumFloatingBanner';
+import ResumeBuilderComments from '@/components/resume/ResumeBuilderComments';
+import AuthGateModal from '@/components/resume/AuthGateModal';
 import { toast } from 'sonner';
 import { useUser } from '@/hooks/useUser';
 import { useResumeLimit } from '@/hooks/useResumeLimit';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
-export type ResumeTemplate = 'professional' | 'modern' | 'creative' | 'minimal' | 'executive' | 'tech' | 'compact' | 'elegant' | 'bold' | 'classic';
+export type ResumeTemplate = 'professional' | 'modern' | 'creative' | 'minimal' | 'executive' | 'tech' | 'compact' | 'elegant' | 'bold' | 'classic' | 'graduate' | 'ats-friendly' | 'infographic';
 
 export interface ResumeData {
   personalInfo: {
@@ -75,7 +77,7 @@ export interface ResumeData {
 }
 
 const ResumeBuilder = () => {
-  const { user } = useUser();
+  const { user, profile } = useUser();
   const { canDownload, remainingDownloads, downloadCount, isPremium, recordDownload, upgradeToPremium } = useResumeLimit();
   const resumeRef = useRef<HTMLDivElement>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplate>('professional');
@@ -89,6 +91,7 @@ const ResumeBuilder = () => {
   const [showMobilePreview, setShowMobilePreview] = useState(false);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showTailorModal, setShowTailorModal] = useState(false);
+  const [showAuthGate, setShowAuthGate] = useState(false);
   const [resumeData, setResumeData] = useState<ResumeData>({
     personalInfo: {
       fullName: '',
@@ -356,6 +359,12 @@ const ResumeBuilder = () => {
   };
 
   const handleDownload = async () => {
+    // Require login to download
+    if (!user) {
+      setShowAuthGate(true);
+      return;
+    }
+
     if (!canDownload) {
       setShowPremiumGate(true);
       return;
@@ -452,7 +461,10 @@ const ResumeBuilder = () => {
     compact: 'Compact',
     elegant: 'Elegant',
     bold: 'Bold',
-    classic: 'Classic'
+    classic: 'Classic',
+    graduate: 'Graduate',
+    'ats-friendly': 'ATS-Friendly',
+    infographic: 'Infographic'
   };
 
   const formSections = [
@@ -813,6 +825,12 @@ const ResumeBuilder = () => {
           resumeCount={downloadCount}
           onUpgrade={upgradeToPremium}
         />
+
+        {/* Auth Gate Modal */}
+        <AuthGateModal
+          open={showAuthGate}
+          onClose={() => setShowAuthGate(false)}
+        />
         
         {/* Floating Premium Banner */}
         <PremiumFloatingBanner
@@ -820,6 +838,11 @@ const ResumeBuilder = () => {
           downloadCount={downloadCount}
           onUpgrade={upgradeToPremium}
         />
+
+        {/* User Reviews Section */}
+        <div className="container mx-auto px-4 py-8 border-t">
+          <ResumeBuilderComments isAdmin={profile?.user_type === 'admin'} />
+        </div>
       </Layout>
     </>
   );

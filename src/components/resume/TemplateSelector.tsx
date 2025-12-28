@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check } from 'lucide-react';
+import { Check, Sparkles } from 'lucide-react';
 import { ResumeTemplate, ResumeData } from '@/pages/ResumeBuilder';
 import ProfessionalTemplate from './templates/ProfessionalTemplate';
 import ModernTemplate from './templates/ModernTemplate';
@@ -12,6 +12,9 @@ import CompactTemplate from './templates/CompactTemplate';
 import ElegantTemplate from './templates/ElegantTemplate';
 import BoldTemplate from './templates/BoldTemplate';
 import ClassicTemplate from './templates/ClassicTemplate';
+import GraduateTemplate from './templates/GraduateTemplate';
+import ATSFriendlyTemplate from './templates/ATSFriendlyTemplate';
+import InfographicTemplate from './templates/InfographicTemplate';
 
 interface TemplateSelectorProps {
   selectedTemplate: ResumeTemplate;
@@ -35,6 +38,24 @@ const templates = [
     id: 'tech' as ResumeTemplate,
     name: 'Tech Pro',
     description: 'Tech-focused design with skills highlighted prominently',
+    badge: null,
+  },
+  {
+    id: 'ats-friendly' as ResumeTemplate,
+    name: 'ATS-Friendly',
+    description: 'Maximum ATS compatibility with simple text-based format',
+    badge: 'Recommended',
+  },
+  {
+    id: 'graduate' as ResumeTemplate,
+    name: 'Graduate',
+    description: 'Perfect for fresh graduates with education-focused layout',
+    badge: 'New',
+  },
+  {
+    id: 'infographic' as ResumeTemplate,
+    name: 'Infographic',
+    description: 'Visual resume with skill bars and modern sidebar design',
     badge: 'New',
   },
   {
@@ -65,13 +86,13 @@ const templates = [
     id: 'elegant' as ResumeTemplate,
     name: 'Elegant',
     description: 'Refined typography with centered layout for a sophisticated look',
-    badge: 'New',
+    badge: null,
   },
   {
     id: 'bold' as ResumeTemplate,
     name: 'Bold',
     description: 'High contrast dark header with vibrant accents for impact',
-    badge: 'New',
+    badge: null,
   },
   {
     id: 'classic' as ResumeTemplate,
@@ -158,6 +179,12 @@ const TemplatePreview = ({ templateId }: { templateId: ResumeTemplate }) => {
         return <BoldTemplate data={sampleData} />;
       case 'classic':
         return <ClassicTemplate data={sampleData} />;
+      case 'graduate':
+        return <GraduateTemplate data={sampleData} />;
+      case 'ats-friendly':
+        return <ATSFriendlyTemplate data={sampleData} />;
+      case 'infographic':
+        return <InfographicTemplate data={sampleData} />;
       default:
         return <ProfessionalTemplate data={sampleData} />;
     }
