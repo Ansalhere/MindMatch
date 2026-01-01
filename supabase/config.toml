@@ -1,5 +1,8 @@
 project_id = "grbtziyqindonbkkkfkc"
 
+[functions.track-email]
+verify_jwt = false
+
 [functions.notify-subscribers]
 verify_jwt = true
 

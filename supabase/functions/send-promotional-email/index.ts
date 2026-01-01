@@ -21,7 +21,7 @@ interface PromotionalEmailRequest {
   testEmail?: string; // For preview/test sends
 }
 
-const getEmailTemplate = (content: string, unsubscribeUrl: string) => `
+const getEmailTemplate = (content: string, unsubscribeUrl: string, trackingPixelUrl: string) => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -61,6 +61,8 @@ const getEmailTemplate = (content: string, unsubscribeUrl: string) => `
       </p>
     </div>
   </div>
+  <!-- Tracking Pixel -->
+  <img src="${trackingPixelUrl}" alt="" width="1" height="1" style="display:none;width:1px;height:1px;border:0;" />
 </body>
 </html>
 `;
@@ -121,7 +123,10 @@ const handler = async (req: Request): Promise<Response> => {
       const emailPromises = batch.map(async (recipient) => {
         try {
           const unsubscribeUrl = `${frontendUrl}/unsubscribe?email=${encodeURIComponent(recipient.email)}`;
-          const htmlContent = getEmailTemplate(content, unsubscribeUrl);
+          // Create tracking pixel URL with encoded email
+          const encodedEmail = btoa(recipient.email);
+          const trackingPixelUrl = `${supabaseUrl}/functions/v1/track-email?cid=${campaignId}&e=${encodedEmail}&t=open`;
+          const htmlContent = getEmailTemplate(content, unsubscribeUrl, trackingPixelUrl);
           
           await resend.emails.send({
             from: "RankMe <onboarding@resend.dev>", // Change to your verified domain

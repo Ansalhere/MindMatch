@@ -227,12 +227,14 @@ export type Database = {
           failed_count: number | null
           id: string
           name: string
+          open_count: number | null
           recipient_filter: string
           scheduled_at: string | null
           sent_at: string | null
           sent_count: number | null
           status: string
           subject: string
+          unique_opens: number | null
           updated_at: string | null
         }
         Insert: {
@@ -242,12 +244,14 @@ export type Database = {
           failed_count?: number | null
           id?: string
           name: string
+          open_count?: number | null
           recipient_filter?: string
           scheduled_at?: string | null
           sent_at?: string | null
           sent_count?: number | null
           status?: string
           subject: string
+          unique_opens?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -257,15 +261,55 @@ export type Database = {
           failed_count?: number | null
           id?: string
           name?: string
+          open_count?: number | null
           recipient_filter?: string
           scheduled_at?: string | null
           sent_at?: string | null
           sent_count?: number | null
           status?: string
           subject?: string
+          unique_opens?: number | null
           updated_at?: string | null
         }
         Relationships: []
+      }
+      email_events: {
+        Row: {
+          campaign_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          recipient_email: string
+          user_agent: string | null
+        }
+        Insert: {
+          campaign_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          recipient_email: string
+          user_agent?: string | null
+        }
+        Update: {
+          campaign_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          recipient_email?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_events_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       experiences: {
         Row: {
