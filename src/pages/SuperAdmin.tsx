@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/table";
 import EmailCampaignManager from '@/components/admin/EmailCampaignManager';
 import SubscriberManagement from '@/components/admin/SubscriberManagement';
+import EmailAnalyticsDashboard from '@/components/admin/EmailAnalyticsDashboard';
 
 const SuperAdmin = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -264,12 +265,13 @@ const SuperAdmin = () => {
         </div>
         
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-9 max-w-6xl">
+          <TabsList className="grid w-full grid-cols-10 max-w-7xl">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="jobs">Jobs</TabsTrigger>
             <TabsTrigger value="post-job">Post Job</TabsTrigger>
             <TabsTrigger value="email">Email</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="subscribers">Subscribers</TabsTrigger>
             <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="system">System</TabsTrigger>
@@ -452,6 +454,10 @@ const SuperAdmin = () => {
 
           <TabsContent value="email">
             <EmailCampaignManager />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <EmailAnalyticsDashboard />
           </TabsContent>
 
           <TabsContent value="subscribers">
