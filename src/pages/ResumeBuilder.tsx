@@ -389,12 +389,14 @@ const ResumeBuilder = () => {
       // A4 dimensions in mm
       const a4WidthMM = 210;
       const a4HeightMM = 297;
-      
+
       // A4 at 96 DPI = 794 x 1123 px
       const a4WidthPx = 794;
+      const a4HeightPx = 1123;
 
-      // Get actual content height
-      const contentHeightPx = pdfTarget.scrollHeight;
+      // Get actual content height (tolerate tiny overflow to avoid an extra blank page)
+      const measuredHeightPx = Math.ceil(pdfTarget.scrollHeight);
+      const captureHeightPx = measuredHeightPx <= a4HeightPx + 2 ? a4HeightPx : measuredHeightPx;
 
       // Capture at 2x scale for better quality
       const canvas = await html2canvas(pdfTarget, {
@@ -403,44 +405,36 @@ const ResumeBuilder = () => {
         logging: false,
         backgroundColor: '#ffffff',
         width: a4WidthPx,
-        height: contentHeightPx,
+        height: captureHeightPx,
         windowWidth: a4WidthPx,
       });
 
       const imgData = canvas.toDataURL('image/png', 1.0);
-      
+
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4'
+        format: 'a4',
       });
 
-      // Calculate the actual content height in mm (canvas is at 2x scale)
       const imgWidthMM = a4WidthMM;
       const imgHeightMM = (canvas.height / canvas.width) * a4WidthMM;
-      
-      // Calculate number of pages needed - only add extra pages if content exceeds one page
-      const totalPages = Math.max(1, Math.ceil(imgHeightMM / a4HeightMM));
-      
-      for (let page = 0; page < totalPages; page++) {
-        if (page > 0) {
-          pdf.addPage();
-        }
-        
-        // Calculate the vertical offset for this page
-        const yOffset = -(page * a4HeightMM);
-        
-        // Add the full image, positioned so the correct portion shows on each page
-        pdf.addImage(
-          imgData, 
-          'PNG', 
-          0, 
-          yOffset, 
-          imgWidthMM, 
-          imgHeightMM
-        );
+
+      // Prevent a near-empty last page due to rounding (common source of "extra blank page")
+      let totalPages = Math.max(1, Math.ceil(imgHeightMM / a4HeightMM));
+      const fullPages = Math.floor(imgHeightMM / a4HeightMM);
+      const remainderMM = imgHeightMM - fullPages * a4HeightMM;
+      if (totalPages > 1 && remainderMM > 0 && remainderMM < 0.8) {
+        totalPages -= 1;
       }
-      
+
+      for (let page = 0; page < totalPages; page++) {
+        if (page > 0) pdf.addPage();
+
+        const yOffset = -(page * a4HeightMM);
+        pdf.addImage(imgData, 'PNG', 0, yOffset, imgWidthMM, imgHeightMM);
+      }
+
       const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, '_') || 'Resume'}_${selectedTemplate}.pdf`;
       pdf.save(fileName);
 
