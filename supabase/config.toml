@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.razorpay-verify]
 verify_jwt = false
+
+[functions.send-promotional-email]
+verify_jwt = true
