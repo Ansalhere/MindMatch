@@ -26,7 +26,7 @@ import { useResumeLimit } from '@/hooks/useResumeLimit';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
-export type ResumeTemplate = 'professional' | 'modern' | 'creative' | 'minimal' | 'executive' | 'tech' | 'compact' | 'elegant' | 'bold' | 'classic' | 'graduate' | 'ats-friendly' | 'infographic';
+export type ResumeTemplate = 'professional' | 'modern' | 'creative' | 'minimal' | 'executive' | 'tech' | 'compact' | 'elegant' | 'bold' | 'classic' | 'graduate' | 'ats-friendly' | 'infographic' | 'neon' | 'timeline' | 'split' | 'metro';
 
 export interface ResumeData {
   personalInfo: {
@@ -461,7 +461,11 @@ const ResumeBuilder = () => {
     classic: 'Classic',
     graduate: 'Graduate',
     'ats-friendly': 'ATS-Friendly',
-    infographic: 'Infographic'
+    infographic: 'Infographic',
+    neon: 'Neon',
+    timeline: 'Timeline',
+    split: 'Split',
+    metro: 'Metro'
   };
 
   const formSections = [
