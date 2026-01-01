@@ -17,7 +17,8 @@ import {
   MessageSquare, 
   Bell, 
   Database,
-  Plus
+  Plus,
+  Mail
 } from 'lucide-react';
 import { toast } from "sonner";
 import { useUser } from '@/hooks/useUser';
@@ -34,6 +35,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import EmailCampaignManager from '@/components/admin/EmailCampaignManager';
+import SubscriberManagement from '@/components/admin/SubscriberManagement';
 
 const SuperAdmin = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -261,11 +264,13 @@ const SuperAdmin = () => {
         </div>
         
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-7 max-w-5xl">
+          <TabsList className="grid w-full grid-cols-9 max-w-6xl">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="jobs">Jobs</TabsTrigger>
             <TabsTrigger value="post-job">Post Job</TabsTrigger>
+            <TabsTrigger value="email">Email</TabsTrigger>
+            <TabsTrigger value="subscribers">Subscribers</TabsTrigger>
             <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="system">System</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -444,7 +449,14 @@ const SuperAdmin = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
+          <TabsContent value="email">
+            <EmailCampaignManager />
+          </TabsContent>
+
+          <TabsContent value="subscribers">
+            <SubscriberManagement />
+          </TabsContent>
           
           <TabsContent value="content">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

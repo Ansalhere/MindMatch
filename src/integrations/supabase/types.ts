@@ -219,6 +219,54 @@ export type Database = {
           },
         ]
       }
+      email_campaigns: {
+        Row: {
+          content: string
+          created_at: string | null
+          created_by: string | null
+          failed_count: number | null
+          id: string
+          name: string
+          recipient_filter: string
+          scheduled_at: string | null
+          sent_at: string | null
+          sent_count: number | null
+          status: string
+          subject: string
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          failed_count?: number | null
+          id?: string
+          name: string
+          recipient_filter?: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          sent_count?: number | null
+          status?: string
+          subject: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          failed_count?: number | null
+          id?: string
+          name?: string
+          recipient_filter?: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          sent_count?: number | null
+          status?: string
+          subject?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       experiences: {
         Row: {
           company: string
