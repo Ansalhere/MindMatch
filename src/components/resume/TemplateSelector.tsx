@@ -15,6 +15,10 @@ import ClassicTemplate from './templates/ClassicTemplate';
 import GraduateTemplate from './templates/GraduateTemplate';
 import ATSFriendlyTemplate from './templates/ATSFriendlyTemplate';
 import InfographicTemplate from './templates/InfographicTemplate';
+import NeonTemplate from './templates/NeonTemplate';
+import TimelineTemplate from './templates/TimelineTemplate';
+import SplitTemplate from './templates/SplitTemplate';
+import MetroTemplate from './templates/MetroTemplate';
 
 interface TemplateSelectorProps {
   selectedTemplate: ResumeTemplate;
@@ -99,6 +103,30 @@ const templates = [
     name: 'Classic',
     description: 'Traditional timeless design perfect for any industry',
     badge: null,
+  },
+  {
+    id: 'neon' as ResumeTemplate,
+    name: 'Neon',
+    description: 'Dark theme with vibrant neon accents for creative tech roles',
+    badge: 'Hot',
+  },
+  {
+    id: 'timeline' as ResumeTemplate,
+    name: 'Timeline',
+    description: 'Visual timeline layout showcasing your career journey',
+    badge: 'New',
+  },
+  {
+    id: 'split' as ResumeTemplate,
+    name: 'Split',
+    description: 'Two-tone split design with dark sidebar and light content',
+    badge: 'New',
+  },
+  {
+    id: 'metro' as ResumeTemplate,
+    name: 'Metro',
+    description: 'Bold colorful tiles inspired by metro UI design',
+    badge: 'Creative',
   },
 ];
 
@@ -185,6 +213,14 @@ const TemplatePreview = ({ templateId }: { templateId: ResumeTemplate }) => {
         return <ATSFriendlyTemplate data={sampleData} />;
       case 'infographic':
         return <InfographicTemplate data={sampleData} />;
+      case 'neon':
+        return <NeonTemplate data={sampleData} />;
+      case 'timeline':
+        return <TimelineTemplate data={sampleData} />;
+      case 'split':
+        return <SplitTemplate data={sampleData} />;
+      case 'metro':
+        return <MetroTemplate data={sampleData} />;
       default:
         return <ProfessionalTemplate data={sampleData} />;
     }

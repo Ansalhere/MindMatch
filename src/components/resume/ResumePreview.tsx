@@ -12,6 +12,10 @@ import ClassicTemplate from './templates/ClassicTemplate';
 import GraduateTemplate from './templates/GraduateTemplate';
 import ATSFriendlyTemplate from './templates/ATSFriendlyTemplate';
 import InfographicTemplate from './templates/InfographicTemplate';
+import NeonTemplate from './templates/NeonTemplate';
+import TimelineTemplate from './templates/TimelineTemplate';
+import SplitTemplate from './templates/SplitTemplate';
+import MetroTemplate from './templates/MetroTemplate';
 
 interface ResumePreviewProps {
   template: ResumeTemplate;
@@ -53,6 +57,14 @@ const ResumePreview = ({ template, data }: ResumePreviewProps) => {
         return <ATSFriendlyTemplate data={data} />;
       case 'infographic':
         return <InfographicTemplate data={data} />;
+      case 'neon':
+        return <NeonTemplate data={data} />;
+      case 'timeline':
+        return <TimelineTemplate data={data} />;
+      case 'split':
+        return <SplitTemplate data={data} />;
+      case 'metro':
+        return <MetroTemplate data={data} />;
       default:
         return <ProfessionalTemplate data={data} />;
     }
