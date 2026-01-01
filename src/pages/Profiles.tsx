@@ -40,6 +40,8 @@ const Profiles = () => {
   const [skillFilter, setSkillFilter] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'candidates');
+  const [totalCandidatesCount, setTotalCandidatesCount] = useState(0);
+  const [totalEmployersCount, setTotalEmployersCount] = useState(0);
 
   useEffect(() => {
     fetchProfiles();
@@ -52,6 +54,15 @@ const Profiles = () => {
   const fetchProfiles = async () => {
     try {
       setLoading(true);
+      
+      // Get total count of public candidates from users table
+      const { count: candidateCount } = await supabase
+        .from('users')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_type', 'candidate')
+        .eq('is_profile_public', true);
+      
+      setTotalCandidatesCount(candidateCount || 0);
       
       // Fetch public-safe candidate data via RPC (no sensitive columns)
       const { data: candidatesData, error: candidatesError } = await supabase
@@ -67,6 +78,14 @@ const Profiles = () => {
         availableForWork: Math.random() > 0.3,
         skills: candidate.skills || []
       })) || [];
+
+      // Get total count of employers
+      const { count: employerCount } = await supabase
+        .from('users')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_type', 'employer');
+      
+      setTotalEmployersCount(employerCount || 0);
 
       // Fetch employers using the new safe RPC function
       const { data: employersData, error: employersError } = await supabase
@@ -151,7 +170,7 @@ const Profiles = () => {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-center mb-2">
                     <Trophy className="h-8 w-8 text-primary mr-2" />
-                    <span className="text-3xl font-bold text-primary">{candidates.length}</span>
+                    <span className="text-3xl font-bold text-primary">{totalCandidatesCount}</span>
                   </div>
                   <p className="text-muted-foreground">Verified Candidates</p>
                 </CardContent>
@@ -160,7 +179,7 @@ const Profiles = () => {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-center mb-2">
                     <Building className="h-8 w-8 text-emerald-600 mr-2" />
-                    <span className="text-3xl font-bold text-emerald-600">{employers.length}</span>
+                    <span className="text-3xl font-bold text-emerald-600">{totalEmployersCount}</span>
                   </div>
                   <p className="text-muted-foreground">Active Companies</p>
                 </CardContent>
