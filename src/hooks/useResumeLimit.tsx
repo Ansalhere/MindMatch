@@ -3,7 +3,7 @@ import { useUser } from './useUser';
 import { supabase } from '@/integrations/supabase/client';
 
 const FREE_RESUME_LIMIT = 2;
-const STORAGE_KEY = 'resume_downloads';
+const getStorageKey = (userId?: string) => `resume_downloads_${userId || 'anonymous'}`;
 
 interface ResumeDownload {
   id: string;
@@ -70,8 +70,9 @@ export const useResumeLimit = () => {
   }, [user?.id]);
 
   useEffect(() => {
-    // Load downloads from localStorage
-    const stored = localStorage.getItem(STORAGE_KEY);
+    // Load downloads from localStorage using user-specific key
+    const storageKey = getStorageKey(user?.id);
+    const stored = localStorage.getItem(storageKey);
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
@@ -82,15 +83,18 @@ export const useResumeLimit = () => {
           new Date(d.date) > thirtyDaysAgo
         );
         setDownloads(recentDownloads);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(recentDownloads));
+        localStorage.setItem(storageKey, JSON.stringify(recentDownloads));
       } catch (e) {
         setDownloads([]);
       }
+    } else {
+      // Reset downloads for new/different user
+      setDownloads([]);
     }
 
     // Fetch premium status from DB
     fetchPremiumStatus();
-  }, [fetchPremiumStatus, profile]);
+  }, [fetchPremiumStatus, profile, user?.id]);
 
   // Determine if user can download based on their plan
   const canDownload = (() => {
@@ -132,6 +136,7 @@ export const useResumeLimit = () => {
   })();
 
   const recordDownload = async (template: string) => {
+    const storageKey = getStorageKey(user?.id);
     const newDownload: ResumeDownload = {
       id: crypto.randomUUID(),
       date: new Date().toISOString(),
@@ -139,7 +144,7 @@ export const useResumeLimit = () => {
     };
     const updated = [...downloads, newDownload];
     setDownloads(updated);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    localStorage.setItem(storageKey, JSON.stringify(updated));
 
     // If single plan, decrement remaining downloads in DB
     if (isPremium && premiumStatus.type === 'single' && user?.id) {
