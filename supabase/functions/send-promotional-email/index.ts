@@ -49,8 +49,7 @@ const getEmailTemplate = (content: string, unsubscribeUrl: string, trackingPixel
       </p>
       <div style="margin-bottom: 20px;">
         <a href="https://fresherpools.com" style="display: inline-block; margin: 0 8px; color: #2563eb; text-decoration: none;">Website</a>
-        <a href="#" style="display: inline-block; margin: 0 8px; color: #2563eb; text-decoration: none;">LinkedIn</a>
-        <a href="#" style="display: inline-block; margin: 0 8px; color: #2563eb; text-decoration: none;">Instagram</a>
+        <a href="https://linkedin.com/company/fresher-pools/" style="display: inline-block; margin: 0 8px; color: #2563eb; text-decoration: none;">LinkedIn</a>
       </div>
       <p style="margin: 0 0 10px 0; color: #94a3b8; font-size: 12px;">
         © ${new Date().getFullYear()} FresherPools. All rights reserved.
