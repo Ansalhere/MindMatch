@@ -113,9 +113,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     const frontendUrl = Deno.env.get('FRONTEND_URL') || 'https://fresherpools.com';
     
-    // Send emails with rate limiting (batch of 10 with delay)
-    const batchSize = 10;
-    const delayMs = 1000; // 1 second between batches
+    // Send emails with rate limiting (batch of 5 with longer delay to avoid rate limits)
+    const batchSize = 5;
+    const delayMs = 2000; // 2 seconds between batches for better deliverability
+
+    const emailResults: { email: string; status: string; error?: string; resendId?: string }[] = [];
 
     for (let i = 0; i < recipients.length; i += batchSize) {
       const batch = recipients.slice(i, i + batchSize);
@@ -128,18 +130,41 @@ const handler = async (req: Request): Promise<Response> => {
           const trackingPixelUrl = `${supabaseUrl}/functions/v1/track-email?cid=${campaignId}&e=${encodedEmail}&t=open`;
           const htmlContent = getEmailTemplate(content, unsubscribeUrl, trackingPixelUrl);
           
-          await resend.emails.send({
+          const result = await resend.emails.send({
             from: "FresherPools <noreply@fresherpools.com>",
             to: [recipient.email],
             subject: subject,
             html: htmlContent,
           });
           
-          sentCount++;
-          console.log(`Email sent to: ${recipient.email}`);
-        } catch (error) {
+          // Log full response from Resend
+          console.log(`Resend response for ${recipient.email}:`, JSON.stringify(result));
+          
+          if (result.error) {
+            failedCount++;
+            emailResults.push({ 
+              email: recipient.email, 
+              status: 'failed', 
+              error: result.error.message || 'Unknown error' 
+            });
+            console.error(`Resend error for ${recipient.email}:`, result.error);
+          } else {
+            sentCount++;
+            emailResults.push({ 
+              email: recipient.email, 
+              status: 'sent', 
+              resendId: result.data?.id 
+            });
+            console.log(`Email sent to: ${recipient.email}, Resend ID: ${result.data?.id}`);
+          }
+        } catch (error: any) {
           failedCount++;
-          console.error(`Failed to send to ${recipient.email}:`, error);
+          emailResults.push({ 
+            email: recipient.email, 
+            status: 'error', 
+            error: error.message || 'Exception occurred' 
+          });
+          console.error(`Exception sending to ${recipient.email}:`, error.message, error.statusCode);
         }
       });
 
@@ -147,8 +172,15 @@ const handler = async (req: Request): Promise<Response> => {
       
       // Add delay between batches (except for last batch)
       if (i + batchSize < recipients.length) {
+        console.log(`Batch ${Math.floor(i / batchSize) + 1} complete. Waiting ${delayMs}ms before next batch...`);
         await new Promise(resolve => setTimeout(resolve, delayMs));
       }
+    }
+
+    // Log summary of failed emails
+    const failedEmails = emailResults.filter(r => r.status !== 'sent');
+    if (failedEmails.length > 0) {
+      console.log(`Failed emails summary:`, JSON.stringify(failedEmails));
     }
 
     // Update campaign stats if not a test

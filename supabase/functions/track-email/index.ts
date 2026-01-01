@@ -70,19 +70,26 @@ const handler = async (req: Request): Promise<Response> => {
 
           const isFirstOpen = existingOpens && existingOpens.length === 1;
 
-          // Increment open_count
-          await supabase.rpc("increment_campaign_opens", {
-            p_campaign_id: campaignId,
-            p_is_unique: isFirstOpen,
-          }).catch(() => {
-            // Fallback if RPC doesn't exist - use direct update
-            supabase
+          // Increment open_count directly since RPC may not exist
+          try {
+            const { data: campaign } = await supabase
               .from("email_campaigns")
-              .update({ 
-                open_count: supabase.rpc ? undefined : 1 
-              })
-              .eq("id", campaignId);
-          });
+              .select("open_count, unique_opens")
+              .eq("id", campaignId)
+              .single();
+
+            if (campaign) {
+              await supabase
+                .from("email_campaigns")
+                .update({ 
+                  open_count: (campaign.open_count || 0) + 1,
+                  unique_opens: isFirstOpen ? (campaign.unique_opens || 0) + 1 : campaign.unique_opens
+                })
+                .eq("id", campaignId);
+            }
+          } catch (updateError) {
+            console.error("Error updating campaign stats:", updateError);
+          }
         }
       }
     }
