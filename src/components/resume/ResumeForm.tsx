@@ -122,67 +122,73 @@ const ResumeForm = ({ section, data, onChange }: ResumeFormProps) => {
     return (
       <div className="space-y-4">
         <div>
-          <Label htmlFor="fullName">Full Name *</Label>
+          <Label htmlFor="fullName" className="text-sm font-medium">Full Name *</Label>
           <Input
             id="fullName"
             value={data.personalInfo.fullName}
             onChange={(e) => updatePersonalInfo('fullName', e.target.value)}
             placeholder="John Doe"
+            className="mt-1"
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="email">Email *</Label>
+            <Label htmlFor="email" className="text-sm font-medium">Email *</Label>
             <Input
               id="email"
               type="email"
               value={data.personalInfo.email}
               onChange={(e) => updatePersonalInfo('email', e.target.value)}
               placeholder="john@example.com"
+              className="mt-1"
             />
           </div>
           <div>
-            <Label htmlFor="phone">Phone *</Label>
+            <Label htmlFor="phone" className="text-sm font-medium">Phone *</Label>
             <Input
               id="phone"
               value={data.personalInfo.phone}
               onChange={(e) => updatePersonalInfo('phone', e.target.value)}
               placeholder="+1 (555) 000-0000"
+              className="mt-1"
             />
           </div>
         </div>
         <div>
-          <Label htmlFor="location">Location *</Label>
+          <Label htmlFor="location" className="text-sm font-medium">Location *</Label>
           <Input
             id="location"
             value={data.personalInfo.location}
             onChange={(e) => updatePersonalInfo('location', e.target.value)}
             placeholder="San Francisco, CA"
+            className="mt-1"
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="linkedin">LinkedIn (Optional)</Label>
+            <Label htmlFor="linkedin" className="text-sm font-medium">LinkedIn (Optional)</Label>
             <Input
               id="linkedin"
               value={data.personalInfo.linkedin || ''}
               onChange={(e) => updatePersonalInfo('linkedin', e.target.value)}
               placeholder="linkedin.com/in/johndoe"
+              className="mt-1"
             />
           </div>
           <div>
-            <Label htmlFor="portfolio">Portfolio/Website (Optional)</Label>
+            <Label htmlFor="portfolio" className="text-sm font-medium">Portfolio (Optional)</Label>
             <Input
               id="portfolio"
               value={data.personalInfo.portfolio || ''}
               onChange={(e) => updatePersonalInfo('portfolio', e.target.value)}
               placeholder="johndoe.com"
+              className="mt-1"
             />
           </div>
         </div>
         <div>
-          <div className="flex justify-between items-center mb-2">
-            <Label htmlFor="summary">Professional Summary *</Label>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-2">
+            <Label htmlFor="summary" className="text-sm font-medium">Professional Summary *</Label>
             <AIAssistantButton
               type="professional-summary"
               context={{
@@ -200,9 +206,10 @@ const ResumeForm = ({ section, data, onChange }: ResumeFormProps) => {
             onChange={(e) => updatePersonalInfo('summary', e.target.value)}
             placeholder="A brief summary of your professional background and career objectives..."
             rows={4}
+            className="mt-1"
           />
-          <p className="text-xs text-muted-foreground mt-1">
-            2-3 sentences highlighting your key strengths and career goals
+          <p className="text-xs text-muted-foreground mt-1.5">
+            Write 2-3 sentences about your key strengths and goals
           </p>
         </div>
       </div>
@@ -214,16 +221,21 @@ const ResumeForm = ({ section, data, onChange }: ResumeFormProps) => {
       <div className="space-y-6">
         {/* Experience Section */}
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold">Work Experience</h3>
-            <Button onClick={addExperience} size="sm" variant="outline">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+            <h3 className="font-semibold text-base">Work Experience</h3>
+            <Button onClick={addExperience} size="sm" variant="outline" className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Add Experience
             </Button>
           </div>
+          {data.experience.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg">
+              No experience added yet. Click "Add Experience" to get started.
+            </p>
+          )}
           {data.experience.map((exp) => (
             <Card key={exp.id} className="p-4 mb-4 relative">
-              <div className="flex justify-between items-start mb-3">
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-2 mb-3">
                 <AIAssistantButton
                   type="job-description"
                   context={{
@@ -231,63 +243,69 @@ const ResumeForm = ({ section, data, onChange }: ResumeFormProps) => {
                     company: exp.company
                   }}
                   onGenerated={(text) => updateExperience(exp.id, 'description', text)}
-                  label="AI Generate Description"
+                  label="AI Generate"
                 />
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => removeExperience(exp.id)}
+                  className="absolute top-2 right-2 sm:static"
                 >
                   <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
               </div>
               <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <Label>Job Title *</Label>
+                    <Label className="text-sm">Job Title *</Label>
                     <Input
                       value={exp.title}
                       onChange={(e) => updateExperience(exp.id, 'title', e.target.value)}
-                      placeholder="Senior Software Engineer"
+                      placeholder="Software Engineer"
+                      className="mt-1"
                     />
                   </div>
                   <div>
-                    <Label>Company *</Label>
+                    <Label className="text-sm">Company *</Label>
                     <Input
                       value={exp.company}
                       onChange={(e) => updateExperience(exp.id, 'company', e.target.value)}
                       placeholder="Tech Corp"
+                      className="mt-1"
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <Label>Location</Label>
+                    <Label className="text-sm">Location</Label>
                     <Input
                       value={exp.location}
                       onChange={(e) => updateExperience(exp.id, 'location', e.target.value)}
                       placeholder="New York, NY"
+                      className="mt-1"
                     />
                   </div>
                   <div>
-                    <Label>Start Date *</Label>
+                    <Label className="text-sm">Start Date *</Label>
                     <Input
                       type="month"
                       value={exp.startDate}
                       onChange={(e) => updateExperience(exp.id, 'startDate', e.target.value)}
+                      className="mt-1"
                     />
                   </div>
                   <div>
-                    <Label>End Date</Label>
+                    <Label className="text-sm">End Date</Label>
                     <Input
                       type="month"
                       value={exp.endDate}
                       onChange={(e) => updateExperience(exp.id, 'endDate', e.target.value)}
                       disabled={exp.current}
+                      className="mt-1"
                     />
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 py-1">
                   <Checkbox
                     id={`current-${exp.id}`}
                     checked={exp.current}
@@ -295,20 +313,21 @@ const ResumeForm = ({ section, data, onChange }: ResumeFormProps) => {
                       updateExperience(exp.id, 'current', checked)
                     }
                   />
-                  <Label htmlFor={`current-${exp.id}`} className="text-sm font-normal">
+                  <Label htmlFor={`current-${exp.id}`} className="text-sm font-normal cursor-pointer">
                     I currently work here
                   </Label>
                 </div>
                 <div>
-                  <Label>Description *</Label>
+                  <Label className="text-sm">Description *</Label>
                   <Textarea
                     value={exp.description}
                     onChange={(e) => updateExperience(exp.id, 'description', e.target.value)}
-                    placeholder="• Led team of 5 developers&#10;• Increased performance by 40%&#10;• Implemented CI/CD pipelines"
+                    placeholder="• Led team of 5 developers&#10;• Increased performance by 40%"
                     rows={4}
+                    className="mt-1"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Use bullet points to highlight key achievements
+                    Use bullet points for achievements
                   </p>
                 </div>
               </div>
@@ -318,13 +337,18 @@ const ResumeForm = ({ section, data, onChange }: ResumeFormProps) => {
 
         {/* Education Section */}
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold">Education</h3>
-            <Button onClick={addEducation} size="sm" variant="outline">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+            <h3 className="font-semibold text-base">Education</h3>
+            <Button onClick={addEducation} size="sm" variant="outline" className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Add Education
             </Button>
           </div>
+          {data.education.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg">
+              No education added yet. Click "Add Education" to get started.
+            </p>
+          )}
           {data.education.map((edu) => (
             <Card key={edu.id} className="p-4 mb-4 relative">
               <Button
@@ -336,47 +360,52 @@ const ResumeForm = ({ section, data, onChange }: ResumeFormProps) => {
                 <Trash2 className="h-4 w-4 text-destructive" />
               </Button>
               <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <Label>Degree *</Label>
+                    <Label className="text-sm">Degree *</Label>
                     <Input
                       value={edu.degree}
                       onChange={(e) => updateEducation(edu.id, 'degree', e.target.value)}
                       placeholder="B.S. Computer Science"
+                      className="mt-1"
                     />
                   </div>
                   <div>
-                    <Label>Institution *</Label>
+                    <Label className="text-sm">Institution *</Label>
                     <Input
                       value={edu.institution}
                       onChange={(e) => updateEducation(edu.id, 'institution', e.target.value)}
                       placeholder="Stanford University"
+                      className="mt-1"
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <Label>Location</Label>
+                    <Label className="text-sm">Location</Label>
                     <Input
                       value={edu.location}
                       onChange={(e) => updateEducation(edu.id, 'location', e.target.value)}
                       placeholder="Stanford, CA"
+                      className="mt-1"
                     />
                   </div>
                   <div>
-                    <Label>Graduation Date *</Label>
+                    <Label className="text-sm">Graduation *</Label>
                     <Input
                       type="month"
                       value={edu.graduationDate}
                       onChange={(e) => updateEducation(edu.id, 'graduationDate', e.target.value)}
+                      className="mt-1"
                     />
                   </div>
                   <div>
-                    <Label>GPA (Optional)</Label>
+                    <Label className="text-sm">GPA (Optional)</Label>
                     <Input
                       value={edu.gpa || ''}
                       onChange={(e) => updateEducation(edu.id, 'gpa', e.target.value)}
                       placeholder="3.8/4.0"
+                      className="mt-1"
                     />
                   </div>
                 </div>
@@ -392,13 +421,18 @@ const ResumeForm = ({ section, data, onChange }: ResumeFormProps) => {
   return (
     <div className="space-y-6">
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold">Skills</h3>
-          <Button onClick={addSkillCategory} size="sm" variant="outline">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+          <h3 className="font-semibold text-base">Skills</h3>
+          <Button onClick={addSkillCategory} size="sm" variant="outline" className="w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
-            Add Category
+            Add Skill Category
           </Button>
         </div>
+        {data.skills.length === 0 && (
+          <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg">
+            No skills added yet. Click "Add Skill Category" to organize your skills.
+          </p>
+        )}
         {data.skills.map((skill) => (
           <Card key={skill.id} className="p-4 mb-4 relative">
             <Button
@@ -409,26 +443,31 @@ const ResumeForm = ({ section, data, onChange }: ResumeFormProps) => {
             >
               <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
-            <div className="space-y-3">
+            <div className="space-y-3 pr-8">
               <div>
-                <Label>Category *</Label>
+                <Label className="text-sm">Category *</Label>
                 <Input
                   value={skill.category}
                   onChange={(e) =>
                     updateSkillCategory(skill.id, e.target.value, skill.items.join(', '))
                   }
                   placeholder="Programming Languages"
+                  className="mt-1"
                 />
               </div>
               <div>
-                <Label>Skills (comma separated) *</Label>
+                <Label className="text-sm">Skills (comma separated) *</Label>
                 <Input
                   value={skill.items.join(', ')}
                   onChange={(e) =>
                     updateSkillCategory(skill.id, skill.category, e.target.value)
                   }
-                  placeholder="JavaScript, Python, React, Node.js"
+                  placeholder="JavaScript, Python, React"
+                  className="mt-1"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Separate each skill with a comma
+                </p>
               </div>
             </div>
           </Card>

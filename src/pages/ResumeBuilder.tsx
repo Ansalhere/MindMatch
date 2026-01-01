@@ -476,45 +476,45 @@ const ResumeBuilder = () => {
   return (
     <>
       <SEOHead
-        title="ATS-Friendly Resume Builder - Create Professional Resumes | RankMe.AI"
-        description="Build professional, ATS-optimized resumes with our free resume builder. Real-time ATS score, expert tips, and multiple templates."
-        keywords="ATS resume builder, ATS-friendly resume, CV maker, professional resume templates"
+        title="Free ATS Resume Builder - Create Professional Resumes Online | RankMe"
+        description="Build a professional, ATS-optimized resume in minutes with our free online resume builder. Choose from 13+ templates, get AI suggestions, and download as PDF. Beat applicant tracking systems."
+        keywords="free resume builder, ATS resume builder, ATS-friendly resume, CV maker, professional resume templates, online resume maker, resume generator, job resume, career resume"
         canonical="/resume-builder"
       />
       <Layout>
         <div className="min-h-screen bg-background">
-          {/* Header */}
-          <div className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-40">
-            <div className="container mx-auto px-4 py-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-xl">
-                    <FileText className="h-5 w-5 text-primary" />
+          {/* Mobile-Optimized Header */}
+          <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-40">
+            <div className="container mx-auto px-3 sm:px-4 py-2.5 sm:py-3">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                  <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg sm:rounded-xl flex-shrink-0">
+                    <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   </div>
-                  <div>
-                    <h1 className="text-lg font-bold flex items-center gap-2">
+                  <div className="min-w-0">
+                    <h1 className="text-sm sm:text-lg font-bold flex items-center gap-1.5 truncate">
                       Resume Builder
                       {isPremium && (
-                        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px]">
-                          <Crown className="h-2.5 w-2.5 mr-0.5" />
+                        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[8px] sm:text-[10px] px-1 sm:px-1.5">
+                          <Crown className="h-2 w-2 sm:h-2.5 sm:w-2.5 mr-0.5" />
                           PRO
                         </Badge>
                       )}
                     </h1>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <CheckCircle2 className="h-3 w-3 text-green-500" />
+                    <p className="text-[10px] sm:text-xs text-muted-foreground hidden xs:flex items-center gap-1">
+                      <CheckCircle2 className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-green-500" />
                       ATS-Optimized
                     </p>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                   {user && (
                     <Button 
                       onClick={loadUserProfile} 
                       variant="ghost" 
                       size="sm" 
-                      className="hidden sm:flex gap-1.5"
+                      className="hidden sm:flex gap-1.5 h-8"
                       disabled={isLoadingProfile}
                     >
                       {isLoadingProfile ? <Loader2 className="h-4 w-4 animate-spin" /> : <User className="h-4 w-4" />}
@@ -527,9 +527,9 @@ const ResumeBuilder = () => {
                       onClick={() => setShowPremiumGate(true)}
                       variant="outline"
                       size="sm"
-                      className="gap-1.5"
+                      className="gap-1 h-8 px-2 sm:px-3"
                     >
-                      <Crown className="h-4 w-4 text-primary" />
+                      <Crown className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                       <span className="hidden sm:inline">Upgrade</span>
                     </Button>
                   )}
@@ -537,105 +537,109 @@ const ResumeBuilder = () => {
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="relative gap-1.5"
+                    className="relative gap-1 h-8 px-2 sm:px-3"
                     disabled={isUploading}
                   >
-                    {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                    <span className="hidden md:inline">Upload</span>
+                    {isUploading ? <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" /> : <Upload className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
+                    <span className="hidden sm:inline">Upload</span>
                     <input
                       type="file"
                       accept=".pdf,.doc,.docx,.txt"
                       onChange={handleFileUpload}
                       className="absolute inset-0 opacity-0 cursor-pointer"
                       disabled={isUploading}
+                      aria-label="Upload existing resume"
                     />
                   </Button>
                   <Button 
                     onClick={handleDownload} 
                     size="sm" 
-                    className="gap-1.5"
+                    className="gap-1 h-8 px-2 sm:px-3"
                     disabled={isDownloading}
                   >
-                    {isDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                    <span className="hidden sm:inline">Download</span>
+                    {isDownloading ? <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" /> : <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
+                    <span className="hidden xs:inline">Download</span>
                   </Button>
                 </div>
               </div>
             </div>
-          </div>
+          </header>
 
-          {/* Main Content - Two Column Layout */}
-          <div className="flex h-[calc(100vh-73px)]">
+          {/* Main Content - Responsive Layout */}
+          <main className="flex flex-col lg:flex-row min-h-[calc(100vh-57px)] sm:min-h-[calc(100vh-65px)]">
             {/* Left Side - Form Editor */}
-            <div className="w-full lg:w-1/2 overflow-y-auto border-r">
-              <div className="p-4 space-y-4 max-w-2xl mx-auto">
-                {/* Quick Actions */}
+            <section className="w-full lg:w-1/2 overflow-y-auto lg:border-r" aria-label="Resume form editor">
+              <div className="p-3 sm:p-4 space-y-3 sm:space-y-4 max-w-2xl mx-auto pb-24 lg:pb-4">
+                {/* Quick Actions - Mobile Optimized */}
                 <div className="flex flex-wrap gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setShowTemplateModal(true)}
-                    className="gap-2"
+                    className="gap-1.5 text-xs sm:text-sm h-8 sm:h-9"
                   >
-                    <Eye className="h-4 w-4" />
-                    {templateNames[selectedTemplate]}
+                    <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="truncate max-w-[80px] sm:max-w-none">{templateNames[selectedTemplate]}</span>
                     <ChevronRight className="h-3 w-3" />
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setShowTailorModal(true)}
-                    className="gap-2"
+                    className="gap-1.5 text-xs sm:text-sm h-8 sm:h-9"
                   >
-                    <Sparkles className="h-4 w-4" />
-                    AI Tailor
+                    <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="hidden xs:inline">AI</span> Tailor
                   </Button>
+                  {user && (
+                    <Button 
+                      onClick={loadUserProfile} 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-1.5 text-xs sm:text-sm h-8 sm:h-9 sm:hidden"
+                      disabled={isLoadingProfile}
+                    >
+                      {isLoadingProfile ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <User className="h-3.5 w-3.5" />}
+                      Profile
+                    </Button>
+                  )}
                   {!isPremium && (
                     <Button
                       size="sm"
                       onClick={() => setShowPremiumGate(true)}
-                      className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+                      className="gap-1.5 text-xs sm:text-sm h-8 sm:h-9 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white hidden sm:flex"
                     >
-                      <Crown className="h-4 w-4" />
-                      Upgrade to Premium
+                      <Crown className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                      Upgrade
                     </Button>
                   )}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowMobilePreview(true)}
-                    className="lg:hidden gap-2 ml-auto"
-                  >
-                    <Eye className="h-4 w-4" />
-                    Preview
-                  </Button>
                 </div>
 
                 {/* ATS Score Card */}
                 <ATSScoreCard data={resumeData} />
 
-                {/* Form Tabs */}
+                {/* Form Tabs - Mobile Optimized */}
                 <Card className="overflow-hidden">
                   <Tabs value={activeTab} onValueChange={setActiveTab}>
-                    <div className="border-b bg-muted/30 p-1">
-                      <TabsList className="w-full h-auto flex-wrap gap-1 bg-transparent">
+                    <nav className="border-b bg-muted/30 p-1" aria-label="Resume sections">
+                      <TabsList className="w-full h-auto grid grid-cols-3 gap-1 bg-transparent">
                         {formSections.map((section) => {
                           const Icon = section.icon;
                           return (
                             <TabsTrigger 
                               key={section.id} 
                               value={section.id}
-                              className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                              className="gap-1 sm:gap-1.5 px-2 sm:px-4 py-2 text-xs sm:text-sm data-[state=active]:bg-background data-[state=active]:shadow-sm"
                             >
-                              <Icon className="h-3.5 w-3.5" />
-                              <span className="hidden sm:inline text-xs">{section.label}</span>
+                              <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                              <span className="truncate">{section.label}</span>
                             </TabsTrigger>
                           );
                         })}
                       </TabsList>
-                    </div>
+                    </nav>
                     
-                    <div className="p-4">
+                    <div className="p-3 sm:p-4">
                       <TabsContent value="personal" className="mt-0">
                         <ResumeForm section="personal" data={resumeData} onChange={setResumeData} />
                       </TabsContent>
@@ -652,7 +656,7 @@ const ResumeBuilder = () => {
                 </Card>
 
                 {/* Navigation Buttons */}
-                <div className="flex justify-between pt-2">
+                <div className="flex justify-between gap-2 pt-1">
                   <Button
                     variant="outline"
                     size="sm"
@@ -663,9 +667,9 @@ const ResumeBuilder = () => {
                       }
                     }}
                     disabled={activeTab === 'personal'}
-                    className="gap-1"
+                    className="gap-1 text-xs sm:text-sm h-8 sm:h-9"
                   >
-                    <ChevronLeft className="h-4 w-4" />
+                    <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     Previous
                   </Button>
                   <Button
@@ -678,17 +682,17 @@ const ResumeBuilder = () => {
                       }
                     }}
                     disabled={activeTab === 'skills'}
-                    className="gap-1"
+                    className="gap-1 text-xs sm:text-sm h-8 sm:h-9"
                   >
                     Next
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </Button>
                 </div>
               </div>
-            </div>
+            </section>
 
             {/* Right Side - Live Preview (Desktop Only) */}
-            <div className="hidden lg:block w-1/2 bg-muted/30 overflow-y-auto">
+            <aside className="hidden lg:block w-1/2 bg-muted/30 overflow-y-auto" aria-label="Resume preview">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-sm font-semibold flex items-center gap-2">
@@ -712,37 +716,59 @@ const ResumeBuilder = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </aside>
+          </main>
+
+          {/* Mobile Fixed Bottom Actions */}
+          <div className="fixed bottom-0 left-0 right-0 lg:hidden bg-background border-t p-3 flex gap-2 z-50 shadow-lg">
+            <Button
+              variant="outline"
+              onClick={() => setShowMobilePreview(true)}
+              className="flex-1 gap-2"
+            >
+              <Eye className="h-4 w-4" />
+              Preview
+            </Button>
+            <Button 
+              onClick={handleDownload} 
+              className="flex-1 gap-2"
+              disabled={isDownloading}
+            >
+              {isDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+              Download PDF
+            </Button>
           </div>
         </div>
 
-        {/* Mobile Preview Modal */}
+        {/* Mobile Preview Modal - Improved */}
         <Dialog open={showMobilePreview} onOpenChange={setShowMobilePreview}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Eye className="h-5 w-5" />
+          <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-hidden p-0">
+            <DialogHeader className="p-4 pb-2 border-b">
+              <DialogTitle className="flex items-center gap-2 text-base">
+                <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
                 Resume Preview
               </DialogTitle>
             </DialogHeader>
-            <div className="bg-white rounded-lg overflow-auto max-h-[60vh]">
-              <div
-                className="w-full"
-                style={{ 
-                  transform: 'scale(0.5)', 
-                  transformOrigin: 'top left', 
-                  width: '200%',
-                }}
-              >
-                <PagedResumePreview template={selectedTemplate} data={resumeData} showPageBreaks={true} />
+            <div className="overflow-auto max-h-[calc(90vh-140px)] p-4 bg-muted/30">
+              <div className="bg-white rounded-lg shadow-lg mx-auto" style={{ maxWidth: '400px' }}>
+                <div
+                  className="w-full"
+                  style={{ 
+                    transform: 'scale(0.5)', 
+                    transformOrigin: 'top left', 
+                    width: '200%',
+                  }}
+                >
+                  <PagedResumePreview template={selectedTemplate} data={resumeData} showPageBreaks={true} />
+                </div>
               </div>
             </div>
-            <div className="flex justify-end gap-2 mt-4">
-              <Button variant="outline" onClick={() => setShowMobilePreview(false)}>
+            <div className="flex flex-col xs:flex-row justify-end gap-2 p-4 border-t">
+              <Button variant="outline" onClick={() => setShowMobilePreview(false)} className="w-full xs:w-auto">
                 <EyeOff className="h-4 w-4 mr-2" />
                 Close
               </Button>
-              <Button onClick={handleDownload} disabled={isDownloading}>
+              <Button onClick={handleDownload} disabled={isDownloading} className="w-full xs:w-auto">
                 {isDownloading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Download className="h-4 w-4 mr-2" />}
                 Download PDF
               </Button>
