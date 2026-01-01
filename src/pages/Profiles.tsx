@@ -55,12 +55,11 @@ const Profiles = () => {
     try {
       setLoading(true);
       
-      // Get total count of public candidates from users table
+      // Get total count of all candidates from users table
       const { count: candidateCount } = await supabase
         .from('users')
         .select('*', { count: 'exact', head: true })
-        .eq('user_type', 'candidate')
-        .eq('is_profile_public', true);
+        .eq('user_type', 'candidate');
       
       setTotalCandidatesCount(candidateCount || 0);
       
