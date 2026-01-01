@@ -27,14 +27,14 @@ const getEmailTemplate = (content: string, unsubscribeUrl: string, trackingPixel
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RankMe</title>
+  <title>FresherPools</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f5;">
   <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
     <!-- Header -->
     <div style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); padding: 30px 20px; text-align: center;">
-      <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">RankMe</h1>
-      <p style="margin: 10px 0 0 0; color: #bfdbfe; font-size: 14px;">Your Career, Ranked Higher</p>
+      <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">FresherPools</h1>
+      <p style="margin: 10px 0 0 0; color: #bfdbfe; font-size: 14px;">Your Gateway to Fresh Career Opportunities</p>
     </div>
     
     <!-- Content -->
@@ -48,12 +48,12 @@ const getEmailTemplate = (content: string, unsubscribeUrl: string, trackingPixel
         Connect with us on social media
       </p>
       <div style="margin-bottom: 20px;">
+        <a href="https://fresherpools.com" style="display: inline-block; margin: 0 8px; color: #2563eb; text-decoration: none;">Website</a>
         <a href="#" style="display: inline-block; margin: 0 8px; color: #2563eb; text-decoration: none;">LinkedIn</a>
-        <a href="#" style="display: inline-block; margin: 0 8px; color: #2563eb; text-decoration: none;">Twitter</a>
         <a href="#" style="display: inline-block; margin: 0 8px; color: #2563eb; text-decoration: none;">Instagram</a>
       </div>
       <p style="margin: 0 0 10px 0; color: #94a3b8; font-size: 12px;">
-        © ${new Date().getFullYear()} RankMe. All rights reserved.
+        © ${new Date().getFullYear()} FresherPools. All rights reserved.
       </p>
       <p style="margin: 0; color: #94a3b8; font-size: 12px;">
         <a href="${unsubscribeUrl}" style="color: #94a3b8; text-decoration: underline;">Unsubscribe</a> | 
@@ -111,7 +111,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Found ${recipients.length} recipients for campaign`);
 
-    const frontendUrl = Deno.env.get('FRONTEND_URL') || 'https://rankme.in';
+    const frontendUrl = Deno.env.get('FRONTEND_URL') || 'https://fresherpools.com';
     
     // Send emails with rate limiting (batch of 10 with delay)
     const batchSize = 10;
@@ -129,7 +129,7 @@ const handler = async (req: Request): Promise<Response> => {
           const htmlContent = getEmailTemplate(content, unsubscribeUrl, trackingPixelUrl);
           
           await resend.emails.send({
-            from: "RankMe <onboarding@resend.dev>", // Change to your verified domain
+            from: "FresherPools <noreply@fresherpools.com>",
             to: [recipient.email],
             subject: subject,
             html: htmlContent,
