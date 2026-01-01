@@ -290,22 +290,22 @@ const ResumePremiumGate = ({ open, onClose, resumeCount, onUpgrade }: ResumePrem
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-2xl">
-            <Crown className="h-6 w-6 text-yellow-500" />
-            Unlock Premium Resume Builder
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+        <DialogHeader className="text-left">
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-2xl">
+            <Crown className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-500 shrink-0" />
+            <span>Unlock Premium Resume Builder</span>
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm">
             You've created {resumeCount} resume(s). Upgrade to create more ATS-friendly resumes.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid md:grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-4">
           {plans.map((plan) => (
             <Card
               key={plan.id}
-              className={`p-4 cursor-pointer transition-all relative ${
+              className={`p-3 sm:p-4 cursor-pointer transition-all relative ${
                 selectedPlan === plan.id
                   ? 'ring-2 ring-primary border-primary'
                   : 'hover:border-primary/50'
@@ -313,20 +313,20 @@ const ResumePremiumGate = ({ open, onClose, resumeCount, onUpgrade }: ResumePrem
               onClick={() => setSelectedPlan(plan.id)}
             >
               {plan.popular && (
-                <Badge className="absolute -top-2 right-4 bg-gradient-to-r from-primary to-purple-500">
+                <Badge className="absolute -top-2 right-2 sm:right-4 bg-gradient-to-r from-primary to-purple-500 text-xs">
                   <Sparkles className="h-3 w-3 mr-1" />
-                  Most Popular
+                  Popular
                 </Badge>
               )}
               
-              <div className="flex items-center gap-2 mb-3">
-                <FileText className="h-5 w-5 text-primary" />
-                <h3 className="font-semibold">{plan.name}</h3>
+              <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
+                <h3 className="font-semibold text-sm sm:text-base">{plan.name}</h3>
               </div>
 
-              <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-3xl font-bold">₹{plan.price}</span>
-                <span className="text-muted-foreground line-through text-sm">
+              <div className="flex items-baseline gap-2 mb-3 sm:mb-4 flex-wrap">
+                <span className="text-2xl sm:text-3xl font-bold">₹{plan.price}</span>
+                <span className="text-muted-foreground line-through text-xs sm:text-sm">
                   ₹{plan.originalPrice}
                 </span>
                 <Badge variant="secondary" className="text-xs">
@@ -334,10 +334,10 @@ const ResumePremiumGate = ({ open, onClose, resumeCount, onUpgrade }: ResumePrem
                 </Badge>
               </div>
 
-              <ul className="space-y-2">
+              <ul className="space-y-1.5 sm:space-y-2">
                 {plan.features.map((feature, index) => (
-                  <li key={index} className="flex items-start gap-2 text-sm">
-                    <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+                  <li key={index} className="flex items-start gap-2 text-xs sm:text-sm">
+                    <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-500 shrink-0 mt-0.5" />
                     <span className="text-muted-foreground">{feature}</span>
                   </li>
                 ))}
@@ -346,20 +346,20 @@ const ResumePremiumGate = ({ open, onClose, resumeCount, onUpgrade }: ResumePrem
           ))}
         </div>
 
-        <div className="mt-6 space-y-3">
+        <div className="mt-4 sm:mt-6 space-y-3">
           <Button
             onClick={handlePayment}
             disabled={processing}
-            className="w-full h-12 text-lg gap-2 bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90"
+            className="w-full h-10 sm:h-12 text-sm sm:text-lg gap-2 bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90"
           >
             {processing ? (
               <>
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
                 Processing...
               </>
             ) : (
               <>
-                <CreditCard className="h-5 w-5" />
+                <CreditCard className="h-4 w-4 sm:h-5 sm:w-5" />
                 Pay ₹{plans.find(p => p.id === selectedPlan)?.price} - Get Started
               </>
             )}
@@ -370,12 +370,12 @@ const ResumePremiumGate = ({ open, onClose, resumeCount, onUpgrade }: ResumePrem
           </p>
         </div>
 
-        <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-          <h4 className="font-medium text-sm mb-2 flex items-center gap-2">
-            <Zap className="h-4 w-4 text-yellow-500" />
+        <div className="mt-3 sm:mt-4 p-2.5 sm:p-3 bg-muted/50 rounded-lg">
+          <h4 className="font-medium text-xs sm:text-sm mb-1.5 sm:mb-2 flex items-center gap-2">
+            <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-yellow-500 shrink-0" />
             Why upgrade?
           </h4>
-          <ul className="text-sm text-muted-foreground space-y-1">
+          <ul className="text-xs sm:text-sm text-muted-foreground space-y-0.5 sm:space-y-1">
             <li>• 78% of resumes are rejected by ATS before human review</li>
             <li>• Our premium templates are optimized for 50+ major ATS systems</li>
             <li>• AI-powered suggestions increase interview callbacks by 3x</li>
