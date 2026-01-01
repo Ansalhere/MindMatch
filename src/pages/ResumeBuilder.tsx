@@ -17,7 +17,7 @@ import PagedResumePreview from '@/components/resume/PagedResumePreview';
 import TemplateSelector from '@/components/resume/TemplateSelector';
 import ATSScoreCard from '@/components/resume/ATSScoreCard';
 import ResumePremiumGate from '@/components/resume/ResumePremiumGate';
-import PremiumFloatingBanner from '@/components/resume/PremiumFloatingBanner';
+
 import ResumeBuilderComments from '@/components/resume/ResumeBuilderComments';
 import AuthGateModal from '@/components/resume/AuthGateModal';
 import { toast } from 'sonner';
@@ -742,35 +742,35 @@ const ResumeBuilder = () => {
 
         {/* Mobile Preview Modal - Improved */}
         <Dialog open={showMobilePreview} onOpenChange={setShowMobilePreview}>
-          <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-hidden p-0">
-            <DialogHeader className="p-4 pb-2 border-b">
-              <DialogTitle className="flex items-center gap-2 text-base">
-                <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+          <DialogContent className="w-[95vw] max-w-3xl max-h-[90vh] overflow-hidden p-0">
+            <DialogHeader className="px-4 py-3 border-b bg-background">
+              <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
+                <Eye className="h-4 w-4" />
                 Resume Preview
               </DialogTitle>
             </DialogHeader>
-            <div className="overflow-auto max-h-[calc(90vh-140px)] p-4 bg-muted/30">
-              <div className="bg-white rounded-lg shadow-lg mx-auto" style={{ maxWidth: '400px' }}>
+            <div className="overflow-auto flex-1 p-3 sm:p-4 bg-muted/30" style={{ maxHeight: 'calc(90vh - 130px)' }}>
+              <div className="bg-white rounded-lg shadow-lg mx-auto overflow-hidden" style={{ width: 'fit-content', maxWidth: '100%' }}>
                 <div
-                  className="w-full"
                   style={{ 
-                    transform: 'scale(0.5)', 
+                    transform: 'scale(0.45)', 
                     transformOrigin: 'top left', 
-                    width: '200%',
+                    width: '794px',
+                    marginBottom: '-55%',
                   }}
                 >
                   <PagedResumePreview template={selectedTemplate} data={resumeData} showPageBreaks={true} />
                 </div>
               </div>
             </div>
-            <div className="flex flex-col xs:flex-row justify-end gap-2 p-4 border-t">
-              <Button variant="outline" onClick={() => setShowMobilePreview(false)} className="w-full xs:w-auto">
+            <div className="flex gap-2 p-3 border-t bg-background">
+              <Button variant="outline" onClick={() => setShowMobilePreview(false)} className="flex-1 h-10">
                 <EyeOff className="h-4 w-4 mr-2" />
                 Close
               </Button>
-              <Button onClick={handleDownload} disabled={isDownloading} className="w-full xs:w-auto">
+              <Button onClick={handleDownload} disabled={isDownloading} className="flex-1 h-10">
                 {isDownloading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Download className="h-4 w-4 mr-2" />}
-                Download PDF
+                Download
               </Button>
             </div>
           </DialogContent>
@@ -858,12 +858,6 @@ const ResumeBuilder = () => {
           onClose={() => setShowAuthGate(false)}
         />
         
-        {/* Floating Premium Banner */}
-        <PremiumFloatingBanner
-          isPremium={isPremium}
-          downloadCount={downloadCount}
-          onUpgrade={upgradeToPremium}
-        />
 
         {/* User Reviews Section */}
         <div className="container mx-auto px-4 py-8 border-t">
