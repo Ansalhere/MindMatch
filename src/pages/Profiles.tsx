@@ -22,7 +22,9 @@ import {
   Briefcase,
   GraduationCap,
   Code,
-  Filter
+  Filter,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { globalCities } from '@/data/centralizedLocations';
@@ -30,6 +32,8 @@ import { globalCities } from '@/data/centralizedLocations';
 const getRandomGlobalCity = () => {
   return globalCities[Math.floor(Math.random() * globalCities.length)];
 };
+
+const ITEMS_PER_PAGE = 20;
 
 const Profiles = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -42,6 +46,8 @@ const Profiles = () => {
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'candidates');
   const [totalCandidatesCount, setTotalCandidatesCount] = useState(0);
   const [totalEmployersCount, setTotalEmployersCount] = useState(0);
+  const [candidatePage, setCandidatePage] = useState(1);
+  const [employerPage, setEmployerPage] = useState(1);
 
   useEffect(() => {
     fetchProfiles();
@@ -146,6 +152,107 @@ const Profiles = () => {
 
     return matchesSearch && matchesLocation;
   });
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCandidatePage(1);
+    setEmployerPage(1);
+  }, [searchTerm, skillFilter, locationFilter]);
+
+  // Pagination calculations
+  const totalCandidatePages = Math.ceil(filteredCandidates.length / ITEMS_PER_PAGE);
+  const totalEmployerPages = Math.ceil(filteredEmployers.length / ITEMS_PER_PAGE);
+  
+  const paginatedCandidates = filteredCandidates.slice(
+    (candidatePage - 1) * ITEMS_PER_PAGE,
+    candidatePage * ITEMS_PER_PAGE
+  );
+  
+  const paginatedEmployers = filteredEmployers.slice(
+    (employerPage - 1) * ITEMS_PER_PAGE,
+    employerPage * ITEMS_PER_PAGE
+  );
+
+  const PaginationControls = ({ 
+    currentPage, 
+    totalPages, 
+    onPageChange 
+  }: { 
+    currentPage: number; 
+    totalPages: number; 
+    onPageChange: (page: number) => void;
+  }) => {
+    if (totalPages <= 1) return null;
+    
+    const pages = [];
+    const showEllipsisStart = currentPage > 3;
+    const showEllipsisEnd = currentPage < totalPages - 2;
+    
+    // Always show first page
+    pages.push(1);
+    
+    if (showEllipsisStart) {
+      pages.push('...');
+    }
+    
+    // Show pages around current
+    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+      if (!pages.includes(i)) {
+        pages.push(i);
+      }
+    }
+    
+    if (showEllipsisEnd) {
+      pages.push('...');
+    }
+    
+    // Always show last page
+    if (totalPages > 1 && !pages.includes(totalPages)) {
+      pages.push(totalPages);
+    }
+    
+    return (
+      <div className="flex items-center justify-center gap-2 mt-8">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Previous
+        </Button>
+        
+        <div className="flex items-center gap-1">
+          {pages.map((page, index) => (
+            typeof page === 'number' ? (
+              <Button
+                key={index}
+                variant={currentPage === page ? "default" : "outline"}
+                size="sm"
+                className="w-10"
+                onClick={() => onPageChange(page)}
+              >
+                {page}
+              </Button>
+            ) : (
+              <span key={index} className="px-2 text-muted-foreground">...</span>
+            )
+          ))}
+        </div>
+        
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          Next
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    );
+  };
 
   return (
     <Layout>
@@ -258,80 +365,92 @@ const Profiles = () => {
                       <div key={i} className="h-64 bg-muted animate-pulse rounded-xl" />
                     ))}
                   </div>
-                ) : filteredCandidates.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredCandidates.map((candidate) => (
-                      <Card key={candidate.id} className="group hover:shadow-xl transition-all duration-300 border-primary/20 hover:border-primary/40">
-                        <CardHeader className="pb-3">
-                          <div className="flex items-center gap-3 mb-3">
-                            <Avatar className="h-14 w-14 border-2 border-primary/20 group-hover:border-primary/40 transition-colors">
-                              <AvatarImage src={candidate.avatar_url} />
-                              <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
-                                {candidate.name?.charAt(0) || 'C'}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-lg group-hover:text-primary transition-colors truncate">
-                                {candidate.name}
-                              </h3>
-                              <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                                <MapPin className="h-3.5 w-3.5 shrink-0" />
-                                <span className="truncate">{candidate.location}</span>
-                              </div>
-                              {candidate.company && (
-                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
-                                  <Building className="h-3 w-3 shrink-0" />
-                                  <span className="truncate">{candidate.company}</span>
+                ) : paginatedCandidates.length > 0 ? (
+                  <>
+                    <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
+                      <span>
+                        Showing {((candidatePage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(candidatePage * ITEMS_PER_PAGE, filteredCandidates.length)} of {filteredCandidates.length} candidates
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {paginatedCandidates.map((candidate) => (
+                        <Card key={candidate.id} className="group hover:shadow-xl transition-all duration-300 border-primary/20 hover:border-primary/40">
+                          <CardHeader className="pb-3">
+                            <div className="flex items-center gap-3 mb-3">
+                              <Avatar className="h-14 w-14 border-2 border-primary/20 group-hover:border-primary/40 transition-colors">
+                                <AvatarImage src={candidate.avatar_url} />
+                                <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
+                                  {candidate.name?.charAt(0) || 'C'}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-semibold text-lg group-hover:text-primary transition-colors truncate">
+                                  {candidate.name}
+                                </h3>
+                                <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                                  <MapPin className="h-3.5 w-3.5 shrink-0" />
+                                  <span className="truncate">{candidate.location}</span>
                                 </div>
-                              )}
+                                {candidate.company && (
+                                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                                    <Building className="h-3 w-3 shrink-0" />
+                                    <span className="truncate">{candidate.company}</span>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                          <div className="flex items-center justify-between pt-2 border-t">
-                            <div className="flex items-center gap-1 text-primary font-bold">
-                              <Trophy className="h-4 w-4" />
-                              <span>{Math.round(candidate.rank_score || 0)}</span>
+                            <div className="flex items-center justify-between pt-2 border-t">
+                              <div className="flex items-center gap-1 text-primary font-bold">
+                                <Trophy className="h-4 w-4" />
+                                <span>{Math.round(candidate.rank_score || 0)}</span>
+                              </div>
+                              <Badge variant={candidate.availableForWork ? "default" : "secondary"} className="text-xs">
+                                {candidate.availableForWork ? "Available" : "Busy"}
+                              </Badge>
                             </div>
-                            <Badge variant={candidate.availableForWork ? "default" : "secondary"} className="text-xs">
-                              {candidate.availableForWork ? "Available" : "Busy"}
-                            </Badge>
-                          </div>
-                        </CardHeader>
-                        
-                        <CardContent className="space-y-4">
-                          <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">
-                            {candidate.bio}
-                          </p>
+                          </CardHeader>
                           
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-sm">
-                              <Code className="h-4 w-4 text-primary shrink-0" />
-                              <span className="font-medium text-xs">Top Skills</span>
+                          <CardContent className="space-y-4">
+                            <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">
+                              {candidate.bio}
+                            </p>
+                            
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2 text-sm">
+                                <Code className="h-4 w-4 text-primary shrink-0" />
+                                <span className="font-medium text-xs">Top Skills</span>
+                              </div>
+                              <div className="flex flex-wrap gap-1.5">
+                                {candidate.skills?.slice(0, 4).map((skill: string, index: number) => (
+                                  <Badge key={index} variant="outline" className="text-xs">
+                                    {skill}
+                                  </Badge>
+                                ))}
+                                {candidate.skills?.length > 4 && (
+                                  <Badge variant="outline" className="text-xs">
+                                    +{candidate.skills.length - 4}
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
-                            <div className="flex flex-wrap gap-1.5">
-                              {candidate.skills?.slice(0, 4).map((skill: string, index: number) => (
-                                <Badge key={index} variant="outline" className="text-xs">
-                                  {skill}
-                                </Badge>
-                              ))}
-                              {candidate.skills?.length > 4 && (
-                                <Badge variant="outline" className="text-xs">
-                                  +{candidate.skills.length - 4}
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                          
-                          <Button 
-                            className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                            variant="outline"
-                            onClick={() => window.location.href = `/profile/${candidate.id}/candidate`}
-                          >
-                            View Full Profile
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                            
+                            <Button 
+                              className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+                              variant="outline"
+                              onClick={() => window.location.href = `/profile/${candidate.id}/candidate`}
+                            >
+                              View Full Profile
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                    <PaginationControls 
+                      currentPage={candidatePage}
+                      totalPages={totalCandidatePages}
+                      onPageChange={setCandidatePage}
+                    />
+                  </>
                 ) : (
                   <Card className="text-center py-12">
                     <CardContent>
@@ -350,83 +469,95 @@ const Profiles = () => {
                       <div key={i} className="h-64 bg-muted animate-pulse rounded-xl" />
                     ))}
                   </div>
-                ) : filteredEmployers.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredEmployers.map((employer) => (
-                       <Card key={employer.id} className="group hover:shadow-xl transition-all duration-300 border-emerald-200 hover:border-emerald-400">
-                         <CardHeader className="pb-3">
-                           <div className="flex items-center gap-3 mb-3">
-                             <Avatar className="h-12 w-12 border-2 border-emerald-200 group-hover:border-emerald-400 transition-colors">
-                               <AvatarImage src={employer.avatar_url} />
-                               <AvatarFallback className="bg-emerald-100 text-emerald-700 font-semibold">
-                                 {employer.company?.charAt(0) || employer.name?.charAt(0) || 'C'}
-                               </AvatarFallback>
-                             </Avatar>
-                             <div className="flex-1">
-                               <h3 className="font-semibold text-lg group-hover:text-emerald-600 transition-colors">
-                                 {employer.company || employer.name}
-                               </h3>
-                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                 <MapPin className="h-3 w-3" />
-                                 <span>{employer.location}</span>
+                ) : paginatedEmployers.length > 0 ? (
+                  <>
+                    <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
+                      <span>
+                        Showing {((employerPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(employerPage * ITEMS_PER_PAGE, filteredEmployers.length)} of {filteredEmployers.length} companies
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {paginatedEmployers.map((employer) => (
+                         <Card key={employer.id} className="group hover:shadow-xl transition-all duration-300 border-emerald-200 hover:border-emerald-400">
+                           <CardHeader className="pb-3">
+                             <div className="flex items-center gap-3 mb-3">
+                               <Avatar className="h-12 w-12 border-2 border-emerald-200 group-hover:border-emerald-400 transition-colors">
+                                 <AvatarImage src={employer.avatar_url} />
+                                 <AvatarFallback className="bg-emerald-100 text-emerald-700 font-semibold">
+                                   {employer.company?.charAt(0) || employer.name?.charAt(0) || 'C'}
+                                 </AvatarFallback>
+                               </Avatar>
+                               <div className="flex-1">
+                                 <h3 className="font-semibold text-lg group-hover:text-emerald-600 transition-colors">
+                                   {employer.company || employer.name}
+                                 </h3>
+                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                   <MapPin className="h-3 w-3" />
+                                   <span>{employer.location}</span>
+                                 </div>
+                                 {employer.industry && (
+                                   <div className="flex items-center gap-2 text-xs text-emerald-600 mt-1">
+                                     <Building className="h-3 w-3" />
+                                     <span>{employer.industry}</span>
+                                   </div>
+                                 )}
                                </div>
-                               {employer.industry && (
-                                 <div className="flex items-center gap-2 text-xs text-emerald-600 mt-1">
-                                   <Building className="h-3 w-3" />
-                                   <span>{employer.industry}</span>
+                               <div className="text-right">
+                                 <div className="flex items-center gap-1 text-amber-500 mb-1">
+                                   <Star className="h-4 w-4 fill-current" />
+                                   <span className="font-semibold">4.{Math.floor(Math.random() * 10)}</span>
+                                 </div>
+                                 {employer.size && (
+                                   <div className="text-xs text-muted-foreground">
+                                     {employer.size} employees
+                                   </div>
+                                 )}
+                               </div>
+                             </div>
+                           </CardHeader>
+                          
+                          <CardContent className="space-y-4">
+                            <p className="text-sm text-muted-foreground line-clamp-2">
+                              {employer.bio}
+                            </p>
+                            
+                             <div className="grid grid-cols-2 gap-4 text-sm">
+                               <div className="flex items-center gap-2">
+                                 <Briefcase className="h-4 w-4 text-muted-foreground" />
+                                 <span>{employer.open_positions || 0} Open Positions</span>
+                               </div>
+                               <div className="flex items-center gap-2">
+                                 <Users className="h-4 w-4 text-muted-foreground" />
+                                 <span>{employer.size || 'Team size'}</span>
+                               </div>
+                               {employer.website && (
+                                 <div className="col-span-2">
+                                   <a href={employer.website} target="_blank" rel="noopener noreferrer" 
+                                      className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 transition-colors">
+                                     <Globe className="h-4 w-4" />
+                                     <span className="text-sm">Visit Website</span>
+                                   </a>
                                  </div>
                                )}
                              </div>
-                             <div className="text-right">
-                               <div className="flex items-center gap-1 text-amber-500 mb-1">
-                                 <Star className="h-4 w-4 fill-current" />
-                                 <span className="font-semibold">4.{Math.floor(Math.random() * 10)}</span>
-                               </div>
-                               {employer.size && (
-                                 <div className="text-xs text-muted-foreground">
-                                   {employer.size} employees
-                                 </div>
-                               )}
-                             </div>
-                           </div>
-                         </CardHeader>
-                        
-                        <CardContent className="space-y-4">
-                          <p className="text-sm text-muted-foreground line-clamp-2">
-                            {employer.bio}
-                          </p>
-                          
-                           <div className="grid grid-cols-2 gap-4 text-sm">
-                             <div className="flex items-center gap-2">
-                               <Briefcase className="h-4 w-4 text-muted-foreground" />
-                               <span>{employer.open_positions || 0} Open Positions</span>
-                             </div>
-                             <div className="flex items-center gap-2">
-                               <Users className="h-4 w-4 text-muted-foreground" />
-                               <span>{employer.size || 'Team size'}</span>
-                             </div>
-                             {employer.website && (
-                               <div className="col-span-2">
-                                 <a href={employer.website} target="_blank" rel="noopener noreferrer" 
-                                    className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 transition-colors">
-                                   <Globe className="h-4 w-4" />
-                                   <span className="text-sm">Visit Website</span>
-                                 </a>
-                               </div>
-                             )}
-                           </div>
-                          
-                            <Button 
-                              className="w-full group-hover:bg-emerald-600 group-hover:text-white transition-colors"
-                              variant="outline"
-                              onClick={() => window.location.href = `/company/${employer.id}`}
-                            >
-                              View Company Details
-                            </Button>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                            
+                              <Button 
+                                className="w-full group-hover:bg-emerald-600 group-hover:text-white transition-colors"
+                                variant="outline"
+                                onClick={() => window.location.href = `/company/${employer.id}`}
+                              >
+                                View Company Details
+                              </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                    <PaginationControls 
+                      currentPage={employerPage}
+                      totalPages={totalEmployerPages}
+                      onPageChange={setEmployerPage}
+                    />
+                  </>
                 ) : (
                   <Card className="text-center py-12">
                     <CardContent>
