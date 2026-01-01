@@ -36,6 +36,8 @@ import {
 import { toast } from "sonner";
 import { supabase } from '@/integrations/supabase/client';
 
+type EmailDesignTemplate = 'modern' | 'gradient' | 'minimal' | 'bold' | 'festive' | 'dark';
+
 interface EmailCampaign {
   id: string;
   name: string;
@@ -50,21 +52,30 @@ interface EmailCampaign {
   created_at: string;
 }
 
+const designTemplates: { id: EmailDesignTemplate; name: string; description: string; preview: string }[] = [
+  { id: 'modern', name: 'Modern', description: 'Clean blue gradient header', preview: '🔵' },
+  { id: 'gradient', name: 'Gradient Wave', description: 'Purple gradient with rounded cards', preview: '🟣' },
+  { id: 'minimal', name: 'Minimal', description: 'Simple clean design', preview: '⚪' },
+  { id: 'bold', name: 'Bold Impact', description: 'Dark theme with amber accents', preview: '🟡' },
+  { id: 'festive', name: 'Festive', description: 'Celebration style with warm colors', preview: '🎉' },
+  { id: 'dark', name: 'Dark Mode', description: 'Sleek dark theme with neon accents', preview: '🌙' },
+];
+
 const emailTemplates = [
   {
     name: "New Feature Announcement",
-    subject: "🚀 Exciting New Features on RankMe!",
+    subject: "🚀 Exciting New Features on FresherPools!",
     content: `<h2 style="color: #1e293b; margin-bottom: 20px;">New Features Just Launched!</h2>
 <p style="color: #475569; line-height: 1.8; margin-bottom: 20px;">
   We're excited to announce some amazing new features that will help you in your career journey:
 </p>
 <ul style="color: #475569; line-height: 2; margin-bottom: 20px;">
-  <li><strong>Enhanced Resume Builder</strong> - Create stunning resumes with new templates</li>
+  <li><strong>Enhanced Resume Builder</strong> - Create stunning resumes with 17+ templates</li>
   <li><strong>Skill Assessments</strong> - Verify your skills and boost your rank</li>
   <li><strong>Job Matching AI</strong> - Get personalized job recommendations</li>
 </ul>
 <div style="text-align: center; margin: 30px 0;">
-  <a href="https://rankme.in/dashboard" style="background: #2563eb; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">Explore Now</a>
+  <a href="https://fresherpools.com/dashboard" style="background: #2563eb; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">Explore Now</a>
 </div>`
   },
   {
@@ -80,15 +91,15 @@ const emailTemplates = [
   </p>
 </div>
 <div style="text-align: center; margin: 30px 0;">
-  <a href="https://rankme.in/jobs" style="background: #2563eb; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">View Jobs</a>
+  <a href="https://fresherpools.com/jobs" style="background: #2563eb; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">View Jobs</a>
 </div>`
   },
   {
     name: "Welcome Email",
-    subject: "🎉 Welcome to RankMe!",
+    subject: "🎉 Welcome to FresherPools!",
     content: `<h2 style="color: #1e293b; margin-bottom: 20px;">Welcome to Your Career Journey!</h2>
 <p style="color: #475569; line-height: 1.8; margin-bottom: 20px;">
-  Thank you for joining RankMe! We're excited to help you take your career to the next level.
+  Thank you for joining FresherPools! We're excited to help you take your career to the next level.
 </p>
 <p style="color: #475569; line-height: 1.8; margin-bottom: 20px;">
   Here's what you can do to get started:
@@ -100,7 +111,7 @@ const emailTemplates = [
   <li>Start applying to jobs that match your profile</li>
 </ol>
 <div style="text-align: center; margin: 30px 0;">
-  <a href="https://rankme.in/dashboard" style="background: #2563eb; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">Complete Profile</a>
+  <a href="https://fresherpools.com/dashboard" style="background: #2563eb; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">Complete Profile</a>
 </div>`
   },
   {
@@ -119,7 +130,48 @@ const emailTemplates = [
   </p>
 </div>
 <div style="text-align: center; margin: 30px 0;">
-  <a href="https://rankme.in/pricing" style="background: #f59e0b; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">Claim Offer</a>
+  <a href="https://fresherpools.com/pricing" style="background: #f59e0b; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">Claim Offer</a>
+</div>`
+  },
+  {
+    name: "New Year Greetings",
+    subject: "✨ Happy New Year from FresherPools!",
+    content: `<h2 style="color: #1e293b; margin-bottom: 20px; text-align: center;">🎊 Happy New Year 2026! 🎊</h2>
+<p style="color: #475569; line-height: 1.8; margin-bottom: 20px; text-align: center;">
+  Wishing you a year filled with success, growth, and amazing opportunities!
+</p>
+<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
+  <p style="color: white; margin: 0; font-size: 20px; font-weight: bold;">
+    Make 2026 Your Best Career Year Yet
+  </p>
+  <p style="color: rgba(255,255,255,0.9); margin: 15px 0 0 0;">
+    New features, new opportunities, new beginnings!
+  </p>
+</div>
+<div style="text-align: center; margin: 30px 0;">
+  <a href="https://fresherpools.com/jobs" style="background: #2563eb; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">Explore Opportunities</a>
+</div>`
+  },
+  {
+    name: "Resume Builder Launch",
+    subject: "📄 17+ New Resume Templates Available!",
+    content: `<h2 style="color: #1e293b; margin-bottom: 20px;">Create Your Perfect Resume</h2>
+<p style="color: #475569; line-height: 1.8; margin-bottom: 20px;">
+  We've added 17+ professional resume templates to help you stand out. From modern to minimal, bold to classic – find the perfect style for your industry.
+</p>
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
+  <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; text-align: center;">
+    <strong style="color: #1e293b;">Neon</strong><br><span style="color: #64748b; font-size: 12px;">Dark & Vibrant</span>
+  </div>
+  <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; text-align: center;">
+    <strong style="color: #1e293b;">Timeline</strong><br><span style="color: #64748b; font-size: 12px;">Career Journey</span>
+  </div>
+  <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; text-align: center;">
+    <strong style="color: #1e293b;">Metro</strong><br><span style="color: #64748b; font-size: 12px;">Bold & Colorful</span>
+  </div>
+</div>
+<div style="text-align: center; margin: 30px 0;">
+  <a href="https://fresherpools.com/resume-builder" style="background: #10b981; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">Try Resume Builder</a>
 </div>`
   }
 ];
@@ -134,6 +186,7 @@ const EmailCampaignManager = () => {
   const [subject, setSubject] = useState('');
   const [content, setContent] = useState('');
   const [recipientFilter, setRecipientFilter] = useState('all');
+  const [selectedDesignTemplate, setSelectedDesignTemplate] = useState<EmailDesignTemplate>('modern');
   const [testEmail, setTestEmail] = useState('');
 
   useEffect(() => {
@@ -209,6 +262,7 @@ const EmailCampaignManager = () => {
           subject,
           content,
           recipientFilter,
+          template: selectedDesignTemplate,
           testEmail
         }
       });
@@ -274,7 +328,8 @@ const EmailCampaignManager = () => {
           campaignId: targetCampaignId,
           subject: campaign?.subject || subject,
           content: campaign?.content || content,
-          recipientFilter: campaign?.recipient_filter || recipientFilter
+          recipientFilter: campaign?.recipient_filter || recipientFilter,
+          template: selectedDesignTemplate
         }
       });
 
@@ -314,6 +369,7 @@ const EmailCampaignManager = () => {
     setSubject('');
     setContent('');
     setRecipientFilter('all');
+    setSelectedDesignTemplate('modern');
     setTestEmail('');
   };
 
@@ -384,6 +440,30 @@ const EmailCampaignManager = () => {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+              {/* Email Design Template Selector */}
+              <div className="space-y-3">
+                <Label>Email Design Template</Label>
+                <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                  {designTemplates.map((template) => (
+                    <div
+                      key={template.id}
+                      onClick={() => setSelectedDesignTemplate(template.id)}
+                      className={`cursor-pointer p-3 rounded-lg border-2 transition-all text-center ${
+                        selectedDesignTemplate === template.id
+                          ? 'border-primary bg-primary/5'
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                    >
+                      <div className="text-2xl mb-1">{template.preview}</div>
+                      <div className="text-xs font-medium">{template.name}</div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Selected: <strong>{designTemplates.find(t => t.id === selectedDesignTemplate)?.name}</strong> - {designTemplates.find(t => t.id === selectedDesignTemplate)?.description}
+                </p>
               </div>
 
               <div className="space-y-2">
