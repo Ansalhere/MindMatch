@@ -392,7 +392,9 @@ const ResumeBuilder = () => {
       
       // A4 at 96 DPI = 794 x 1123 px
       const a4WidthPx = 794;
-      const a4HeightPx = 1123;
+
+      // Get actual content height
+      const contentHeightPx = pdfTarget.scrollHeight;
 
       // Capture at 2x scale for better quality
       const canvas = await html2canvas(pdfTarget, {
@@ -401,7 +403,7 @@ const ResumeBuilder = () => {
         logging: false,
         backgroundColor: '#ffffff',
         width: a4WidthPx,
-        height: pdfTarget.scrollHeight,
+        height: contentHeightPx,
         windowWidth: a4WidthPx,
       });
 
@@ -413,11 +415,12 @@ const ResumeBuilder = () => {
         format: 'a4'
       });
 
-      // Calculate the actual content height in mm
-      const contentHeightMM = (canvas.height / 2) * (a4WidthMM / a4WidthPx);
+      // Calculate the actual content height in mm (canvas is at 2x scale)
+      const imgWidthMM = a4WidthMM;
+      const imgHeightMM = (canvas.height / canvas.width) * a4WidthMM;
       
-      // Calculate number of pages needed
-      const totalPages = Math.ceil(contentHeightMM / a4HeightMM);
+      // Calculate number of pages needed - only add extra pages if content exceeds one page
+      const totalPages = Math.max(1, Math.ceil(imgHeightMM / a4HeightMM));
       
       for (let page = 0; page < totalPages; page++) {
         if (page > 0) {
@@ -433,8 +436,8 @@ const ResumeBuilder = () => {
           'PNG', 
           0, 
           yOffset, 
-          a4WidthMM, 
-          contentHeightMM
+          imgWidthMM, 
+          imgHeightMM
         );
       }
       
