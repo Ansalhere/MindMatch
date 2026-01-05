@@ -79,14 +79,50 @@ Generate unique IDs for each array item. Extract as much information as possible
         break;
 
       case 'tailor-to-job':
-        systemPrompt = `You are an expert resume writer and ATS optimization specialist. Tailor the resume to match the job description while keeping information authentic.
-Focus on:
-1. Highlighting relevant experience and skills
-2. Using keywords from the job description naturally
-3. Rewriting bullet points to align with job requirements
-4. Prioritizing relevant achievements
-Return ONLY valid JSON in the same structure, no markdown, no explanation.`;
-        userPrompt = `Tailor this resume to match the job description. Make it ATS-friendly.
+        const strength = context.tailoringStrength || 'moderate';
+        
+        let tailoringInstructions = '';
+        switch (strength) {
+          case 'light':
+            tailoringInstructions = `LIGHT TAILORING - Make subtle adjustments:
+- Keep original experience descriptions mostly intact
+- Add 2-3 relevant keywords from job description naturally
+- Only slightly adjust skill ordering to prioritize relevant ones
+- Preserve the authentic voice and original achievements`;
+            break;
+          case 'strong':
+            tailoringInstructions = `STRONG TAILORING - Significantly optimize for this role:
+- Rewrite ALL experience bullet points to emphasize relevant achievements
+- Mirror the job description's language and terminology heavily
+- Reorganize all skills to prominently feature required skills first
+- Update professional summary to directly address job requirements
+- Add quantified achievements that match the job's success metrics
+- Ensure every bullet point contains keywords from the job posting`;
+            break;
+          default: // moderate
+            tailoringInstructions = `MODERATE TAILORING - Balance authenticity with optimization:
+- Rewrite key experience bullet points to highlight relevant achievements
+- Incorporate important keywords from job description naturally
+- Reorganize skills to feature relevant ones prominently
+- Update professional summary to align with job requirements
+- Keep overall structure and authenticity intact`;
+        }
+        
+        systemPrompt = `You are an expert resume writer and ATS optimization specialist. Tailor the resume to match the job description.
+
+${tailoringInstructions}
+
+CRITICAL REQUIREMENTS:
+1. MUST rewrite experience descriptions/bullet points to be more relevant to the job
+2. MUST update the professional summary to match the role
+3. MUST reorganize skills based on job requirements
+4. Keep information authentic - don't fabricate experiences
+5. Use action verbs and quantified achievements where possible
+6. Ensure the resume passes ATS keyword scanning
+
+Return ONLY valid JSON in the same structure as input, no markdown, no explanation.`;
+        
+        userPrompt = `Tailor this resume with ${strength.toUpperCase()} optimization for this job.
 
 JOB DESCRIPTION:
 ${context.jobDescription}
@@ -94,6 +130,7 @@ ${context.jobDescription}
 CURRENT RESUME:
 ${JSON.stringify(context.resumeData)}
 
+IMPORTANT: You MUST update the experience descriptions to be more relevant. This is critical.
 Return the tailored resume as valid JSON.`;
         messages = [
           { role: 'system', content: systemPrompt },

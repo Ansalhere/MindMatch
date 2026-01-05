@@ -5,6 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 const FREE_RESUME_LIMIT = 2;
 const getStorageKey = (userId?: string) => `resume_downloads_${userId || 'anonymous'}`;
 
+export type TailoringStrength = 'light' | 'moderate' | 'strong';
+
 interface ResumeDownload {
   id: string;
   date: string;
@@ -26,6 +28,9 @@ export const useResumeLimit = () => {
     remainingDownloads: 0,
     expiresAt: null,
   });
+  
+  // Check if user is admin
+  const isAdmin = profile?.user_type === 'admin';
 
   // Fetch premium status from database
   const fetchPremiumStatus = useCallback(async () => {
@@ -98,6 +103,11 @@ export const useResumeLimit = () => {
 
   // Determine if user can download based on their plan
   const canDownload = (() => {
+    // Admin users have unlimited downloads
+    if (isAdmin) {
+      return true;
+    }
+    
     if (!isPremium) {
       // Free user: check download limit
       return downloads.length < FREE_RESUME_LIMIT;
@@ -120,6 +130,11 @@ export const useResumeLimit = () => {
 
   // Calculate remaining downloads
   const remainingDownloads = (() => {
+    // Admin users have unlimited downloads
+    if (isAdmin) {
+      return Infinity;
+    }
+    
     if (!isPremium) {
       return Math.max(0, FREE_RESUME_LIMIT - downloads.length);
     }
@@ -183,6 +198,7 @@ export const useResumeLimit = () => {
     remainingDownloads,
     downloadCount: downloads.length,
     isPremium,
+    isAdmin,
     premiumType: premiumStatus.type,
     premiumExpiresAt: premiumStatus.expiresAt,
     recordDownload,

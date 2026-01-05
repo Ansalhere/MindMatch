@@ -83,6 +83,7 @@ const ResumeBuilder = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplate>('professional');
   const [showPremiumGate, setShowPremiumGate] = useState(false);
   const [jobDescription, setJobDescription] = useState('');
+  const [tailoringStrength, setTailoringStrength] = useState<'light' | 'moderate' | 'strong'>('moderate');
   const [isTailoring, setIsTailoring] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
@@ -328,7 +329,7 @@ const ResumeBuilder = () => {
     }
 
     setIsTailoring(true);
-    toast.info("Tailoring your resume...");
+    toast.info(`Tailoring your resume (${tailoringStrength} optimization)...`);
 
     try {
       const { data, error } = await supabase.functions.invoke('resume-ai-assistant', {
@@ -336,7 +337,8 @@ const ResumeBuilder = () => {
           type: 'tailor-to-job',
           context: { 
             jobDescription: jobDescription.trim(),
-            resumeData 
+            resumeData,
+            tailoringStrength
           }
         }
       });
@@ -806,6 +808,49 @@ const ResumeBuilder = () => {
               <p className="text-sm text-muted-foreground">
                 Paste a job description and our AI will optimize your resume to match the role's requirements.
               </p>
+              
+              {/* Tailoring Strength Selector */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Tailoring Strength</label>
+                <div className="grid grid-cols-3 gap-2">
+                  <Button
+                    type="button"
+                    variant={tailoringStrength === 'light' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setTailoringStrength('light')}
+                    className="flex flex-col h-auto py-3"
+                  >
+                    <span className="font-medium">Light</span>
+                    <span className="text-xs opacity-70">Subtle changes</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={tailoringStrength === 'moderate' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setTailoringStrength('moderate')}
+                    className="flex flex-col h-auto py-3"
+                  >
+                    <span className="font-medium">Moderate</span>
+                    <span className="text-xs opacity-70">Balanced</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={tailoringStrength === 'strong' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setTailoringStrength('strong')}
+                    className="flex flex-col h-auto py-3"
+                  >
+                    <span className="font-medium">Strong</span>
+                    <span className="text-xs opacity-70">Full optimization</span>
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {tailoringStrength === 'light' && 'Preserves your original content with minor keyword additions'}
+                  {tailoringStrength === 'moderate' && 'Balances optimization with authenticity'}
+                  {tailoringStrength === 'strong' && 'Significantly rewrites content to match the job'}
+                </p>
+              </div>
+              
               <Textarea 
                 placeholder="Paste the job description here..."
                 value={jobDescription}
