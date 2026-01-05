@@ -236,23 +236,42 @@ Return the tailored resume as valid JSON.`;
         }
         
         const resumeData = JSON.parse(jsonStr);
+        
+        // Validate the parsed data has required structure
+        if (!resumeData.personalInfo || typeof resumeData.personalInfo !== 'object') {
+          throw new Error('Invalid resume structure: missing personalInfo');
+        }
+        
+        // Ensure arrays exist
+        resumeData.experience = Array.isArray(resumeData.experience) ? resumeData.experience : [];
+        resumeData.education = Array.isArray(resumeData.education) ? resumeData.education : [];
+        resumeData.skills = Array.isArray(resumeData.skills) ? resumeData.skills : [];
+        resumeData.certifications = Array.isArray(resumeData.certifications) ? resumeData.certifications : [];
+        resumeData.projects = Array.isArray(resumeData.projects) ? resumeData.projects : [];
+        
         console.log('Successfully parsed resume data');
         
-        return new Response(JSON.stringify({ resumeData }), {
+        return new Response(JSON.stringify({ resumeData, success: true }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       } catch (parseError) {
         console.error('JSON parse error:', parseError, 'Response preview:', generatedText.substring(0, 500));
-        // Return default structure with error
+        
+        // For tailor-to-job, return error without replacing data
+        if (type === 'tailor-to-job') {
+          return new Response(JSON.stringify({ 
+            success: false,
+            error: 'Could not tailor resume. The AI response was invalid. Please try again.'
+          }), {
+            status: 200, // Return 200 so frontend can handle gracefully
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // For parse, return empty structure with error
         return new Response(JSON.stringify({ 
-          resumeData: {
-            personalInfo: { fullName: '', email: '', phone: '', location: '', summary: '' },
-            experience: [], 
-            education: [], 
-            skills: [], 
-            certifications: [], 
-            projects: []
-          },
+          success: false,
+          resumeData: null,
           parseError: 'Could not parse resume. Please try with a different file or enter details manually.'
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },

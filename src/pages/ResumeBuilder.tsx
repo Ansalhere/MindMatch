@@ -345,10 +345,28 @@ const ResumeBuilder = () => {
 
       if (error) throw error;
 
-      if (data?.resumeData) {
-        setResumeData(data.resumeData);
-        toast.success("Resume tailored successfully!");
-        setShowTailorModal(false);
+      // Check if the response indicates success and has valid data
+      if (data?.success === false) {
+        toast.error(data.error || "Could not tailor resume. Please try again.");
+        return;
+      }
+
+      // Validate the returned data has content before replacing
+      if (data?.resumeData && data.resumeData.personalInfo) {
+        // Additional validation: ensure we're not replacing with empty data
+        const hasContent = 
+          data.resumeData.personalInfo.fullName || 
+          data.resumeData.experience?.length > 0 ||
+          data.resumeData.education?.length > 0 ||
+          data.resumeData.skills?.length > 0;
+        
+        if (hasContent) {
+          setResumeData(data.resumeData);
+          toast.success("Resume tailored successfully!");
+          setShowTailorModal(false);
+        } else {
+          toast.error("Tailoring returned empty data. Your original resume has been preserved.");
+        }
       } else {
         toast.warning("Could not tailor resume. Please try again.");
       }
