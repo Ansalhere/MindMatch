@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, XCircle, Lightbulb, ChevronDown, ChevronUp, Target, TrendingUp, Shield, FileText, Sparkles } from 'lucide-react';
+import { CheckCircle2, XCircle, Lightbulb, ChevronDown, ChevronUp, Target, TrendingUp, Shield, FileText, Sparkles, Lock, Crown } from 'lucide-react';
 import { ResumeData } from '@/pages/ResumeBuilder';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useResumeLimit } from '@/hooks/useResumeLimit';
 
 interface ATSScoreCardProps {
   data: ResumeData;
@@ -25,7 +26,11 @@ interface KeywordMatch {
   found: boolean;
 }
 
+const FREE_ATS_CHECK_LIMIT = 3;
+const getATSCheckStorageKey = (userId?: string) => `ats_checks_${userId || 'anonymous'}`;
+
 const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
+  const { isPremium, isAdmin } = useResumeLimit();
   const [score, setScore] = useState(0);
   const [checks, setChecks] = useState<ATSCheck[]>([]);
   const [showDetails, setShowDetails] = useState(false);
@@ -33,6 +38,33 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
   const [keywordMatches, setKeywordMatches] = useState<KeywordMatch[]>([]);
   const [jdScore, setJdScore] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState('general');
+  const [atsCheckCount, setAtsCheckCount] = useState(0);
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+
+  // Load ATS check count from localStorage
+  useEffect(() => {
+    const storageKey = getATSCheckStorageKey();
+    const stored = localStorage.getItem(storageKey);
+    if (stored) {
+      try {
+        const count = parseInt(stored, 10);
+        setAtsCheckCount(isNaN(count) ? 0 : count);
+      } catch {
+        setAtsCheckCount(0);
+      }
+    }
+  }, []);
+
+  const canCheckATS = isPremium || isAdmin || atsCheckCount < FREE_ATS_CHECK_LIMIT;
+  const remainingATSChecks = Math.max(0, FREE_ATS_CHECK_LIMIT - atsCheckCount);
+
+  const recordATSCheck = () => {
+    if (isPremium || isAdmin) return; // Don't count for premium/admin users
+    const newCount = atsCheckCount + 1;
+    setAtsCheckCount(newCount);
+    const storageKey = getATSCheckStorageKey();
+    localStorage.setItem(storageKey, newCount.toString());
+  };
 
   // Extract keywords from job description
   const extractKeywords = (text: string): string[] => {
@@ -114,6 +146,15 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
       setJdScore(null);
       return;
     }
+
+    // Check if user can perform ATS check
+    if (!canCheckATS) {
+      setShowUpgradePrompt(true);
+      return;
+    }
+
+    // Record this ATS check for free users
+    recordATSCheck();
 
     const keywords = extractKeywords(jobDescription);
     const matches = keywords.map(keyword => ({
@@ -357,11 +398,37 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
         </TabsContent>
 
         <TabsContent value="job-match" className="mt-0 space-y-4">
+          {/* Upgrade Prompt for exceeded limit */}
+          {showUpgradePrompt && !canCheckATS && (
+            <div className="p-4 rounded-lg bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30">
+              <div className="flex items-center gap-3 mb-2">
+                <Crown className="h-5 w-5 text-amber-500" />
+                <h4 className="font-semibold text-sm">ATS Check Limit Reached</h4>
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">
+                You've used all {FREE_ATS_CHECK_LIMIT} free ATS checks. Upgrade to Premium for unlimited ATS score analysis.
+              </p>
+              <Button 
+                size="sm" 
+                className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+                onClick={() => window.location.href = '/resume-builder'}
+              >
+                <Lock className="h-4 w-4" />
+                Upgrade to Premium
+              </Button>
+            </div>
+          )}
+
           {/* Job Description Input */}
           <div className="space-y-2">
             <label className="text-sm font-medium flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" />
               Paste Job Description
+              {!isPremium && !isAdmin && (
+                <Badge variant="outline" className="ml-auto text-xs">
+                  {remainingATSChecks} check{remainingATSChecks !== 1 ? 's' : ''} left
+                </Badge>
+              )}
             </label>
             <Textarea
               placeholder="Paste the job description here to check how well your resume matches..."
@@ -373,10 +440,19 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
               onClick={analyzeJobDescription} 
               size="sm" 
               className="w-full"
-              disabled={!jobDescription.trim()}
+              disabled={!jobDescription.trim() || (!canCheckATS && jdScore === null)}
             >
-              <Target className="h-4 w-4 mr-2" />
-              Analyze Match
+              {canCheckATS ? (
+                <>
+                  <Target className="h-4 w-4 mr-2" />
+                  Analyze Match
+                </>
+              ) : (
+                <>
+                  <Lock className="h-4 w-4 mr-2" />
+                  Upgrade to Analyze
+                </>
+              )}
             </Button>
           </div>
 

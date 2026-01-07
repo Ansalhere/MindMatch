@@ -52,9 +52,9 @@ serve(async (req) => {
       expiryDate.setFullYear(expiryDate.getFullYear() + 1);
       remainingDownloads = -1; // -1 means unlimited
     } else {
-      // Single plan: 30 days validity, 1 additional download
+      // 3 Resume Pack: 30 days validity, 3 downloads
       expiryDate.setDate(expiryDate.getDate() + 30);
-      remainingDownloads = 1;
+      remainingDownloads = 3;
     }
 
     console.log('Package type:', package_type, 'Remaining downloads:', remainingDownloads, 'Expiry:', expiryDate.toISOString());
