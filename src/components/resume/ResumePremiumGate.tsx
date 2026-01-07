@@ -33,13 +33,14 @@ const ResumePremiumGate = ({ open, onClose, resumeCount, onUpgrade }: ResumePrem
   const plans = [
     {
       id: 'single' as const,
-      name: 'Single Resume',
-      price: 99,
-      originalPrice: 199,
+      name: '3 Resume Pack',
+      price: 49,
+      originalPrice: 149,
       features: [
-        'Create 1 additional ATS-optimized resume',
+        'Create 3 ATS-optimized resumes',
         'All premium templates',
         'AI-powered content suggestions',
+        'Unlimited ATS score checks',
         'PDF & Word download',
         'Valid for 30 days',
       ],
