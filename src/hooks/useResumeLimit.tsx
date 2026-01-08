@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useUser } from './useUser';
 import { supabase } from '@/integrations/supabase/client';
 
-const FREE_RESUME_LIMIT = 2;
+const FREE_RESUME_LIMIT = 1;
 const getStorageKey = (userId?: string) => `resume_downloads_${userId || 'anonymous'}`;
 
 export type TailoringStrength = 'light' | 'moderate' | 'strong';

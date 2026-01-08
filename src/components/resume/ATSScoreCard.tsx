@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, XCircle, Lightbulb, ChevronDown, ChevronUp, Target, TrendingUp, Shield, FileText, Sparkles, Lock, Crown } from 'lucide-react';
+import { CheckCircle2, XCircle, Lightbulb, ChevronDown, ChevronUp, Target, TrendingUp, Shield, FileText, Sparkles, Lock, Crown, LogIn } from 'lucide-react';
 import { ResumeData } from '@/pages/ResumeBuilder';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useResumeLimit } from '@/hooks/useResumeLimit';
+import { useUser } from '@/hooks/useUser';
 
 interface ATSScoreCardProps {
   data: ResumeData;
@@ -27,9 +29,11 @@ interface KeywordMatch {
 }
 
 const FREE_ATS_CHECK_LIMIT = 3;
-const getATSCheckStorageKey = (userId?: string) => `ats_checks_${userId || 'anonymous'}`;
+const ANONYMOUS_ATS_KEY = 'ats_checks_anonymous';
 
 const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
+  const navigate = useNavigate();
+  const { user } = useUser();
   const { isPremium, isAdmin } = useResumeLimit();
   const [score, setScore] = useState(0);
   const [checks, setChecks] = useState<ATSCheck[]>([]);
@@ -39,11 +43,14 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
   const [jdScore, setJdScore] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState('general');
   const [atsCheckCount, setAtsCheckCount] = useState(0);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+
+  const isLoggedIn = !!user;
+  const storageKey = isLoggedIn ? `ats_checks_${user.id}` : ANONYMOUS_ATS_KEY;
 
   // Load ATS check count from localStorage
   useEffect(() => {
-    const storageKey = getATSCheckStorageKey();
     const stored = localStorage.getItem(storageKey);
     if (stored) {
       try {
@@ -52,8 +59,10 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
       } catch {
         setAtsCheckCount(0);
       }
+    } else {
+      setAtsCheckCount(0);
     }
-  }, []);
+  }, [storageKey]);
 
   const canCheckATS = isPremium || isAdmin || atsCheckCount < FREE_ATS_CHECK_LIMIT;
   const remainingATSChecks = Math.max(0, FREE_ATS_CHECK_LIMIT - atsCheckCount);
@@ -62,7 +71,6 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
     if (isPremium || isAdmin) return; // Don't count for premium/admin users
     const newCount = atsCheckCount + 1;
     setAtsCheckCount(newCount);
-    const storageKey = getATSCheckStorageKey();
     localStorage.setItem(storageKey, newCount.toString());
   };
 
@@ -149,7 +157,12 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
 
     // Check if user can perform ATS check
     if (!canCheckATS) {
-      setShowUpgradePrompt(true);
+      // If not logged in, show login prompt first
+      if (!isLoggedIn) {
+        setShowLoginPrompt(true);
+      } else {
+        setShowUpgradePrompt(true);
+      }
       return;
     }
 
@@ -398,8 +411,29 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
         </TabsContent>
 
         <TabsContent value="job-match" className="mt-0 space-y-4">
-          {/* Upgrade Prompt for exceeded limit */}
-          {showUpgradePrompt && !canCheckATS && (
+          {/* Login Prompt for anonymous users who exceeded limit */}
+          {showLoginPrompt && !isLoggedIn && !canCheckATS && (
+            <div className="p-4 rounded-lg bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-500/30">
+              <div className="flex items-center gap-3 mb-2">
+                <LogIn className="h-5 w-5 text-blue-500" />
+                <h4 className="font-semibold text-sm">Login for More ATS Checks</h4>
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">
+                You've used all {FREE_ATS_CHECK_LIMIT} free ATS checks. Login to get {FREE_ATS_CHECK_LIMIT} more free ATS checks!
+              </p>
+              <Button 
+                size="sm" 
+                className="w-full gap-2"
+                onClick={() => navigate('/auth?mode=signup')}
+              >
+                <LogIn className="h-4 w-4" />
+                Login / Sign Up
+              </Button>
+            </div>
+          )}
+
+          {/* Upgrade Prompt for logged in users who exceeded limit */}
+          {showUpgradePrompt && isLoggedIn && !canCheckATS && (
             <div className="p-4 rounded-lg bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30">
               <div className="flex items-center gap-3 mb-2">
                 <Crown className="h-5 w-5 text-amber-500" />
@@ -426,7 +460,8 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
               Paste Job Description
               {!isPremium && !isAdmin && (
                 <Badge variant="outline" className="ml-auto text-xs">
-                  {remainingATSChecks} check{remainingATSChecks !== 1 ? 's' : ''} left
+                  {remainingATSChecks} free check{remainingATSChecks !== 1 ? 's' : ''} left
+                  {!isLoggedIn && remainingATSChecks === 0 && ' • Login for more'}
                 </Badge>
               )}
             </label>

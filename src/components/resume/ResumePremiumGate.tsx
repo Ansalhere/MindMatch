@@ -298,7 +298,7 @@ const ResumePremiumGate = ({ open, onClose, resumeCount, onUpgrade }: ResumePrem
             <span>Unlock Premium Resume Builder</span>
           </DialogTitle>
           <DialogDescription className="text-sm">
-            You've created {resumeCount} resume(s). Upgrade to create more ATS-friendly resumes.
+            You've used your {resumeCount > 0 ? `${resumeCount} free resume download${resumeCount > 1 ? 's' : ''}` : 'free resume download'}. Upgrade to create more ATS-friendly resumes.
           </DialogDescription>
         </DialogHeader>
 
