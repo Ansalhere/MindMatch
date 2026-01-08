@@ -115,14 +115,7 @@ const ResumePremiumGate = ({ open, onClose, resumeCount, onUpgrade }: ResumePrem
       // Get current user
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
-      if (authError) {
-        console.error('Auth error:', authError);
-        toast.error('Authentication failed. Please login again.');
-        setProcessing(false);
-        return;
-      }
-      
-      if (!user) {
+      if (authError || !user) {
         toast.error('Please login to continue');
         setProcessing(false);
         return;
@@ -135,95 +128,43 @@ const ResumePremiumGate = ({ open, onClose, resumeCount, onUpgrade }: ResumePrem
         return;
       }
 
-      // Load Razorpay script first
-      toast.loading('Loading payment gateway...', { id: 'payment-loading' });
-      console.log('Loading Razorpay script...');
-      
+      // Load Razorpay script
       const loaded = await loadRazorpayScript();
       
-      if (!loaded) {
-        toast.dismiss('payment-loading');
-        toast.error('Failed to load payment gateway. Please check your internet connection and try again.');
-        console.error('Razorpay script failed to load');
+      if (!loaded || !window.Razorpay) {
+        toast.error('Payment gateway failed to load. Please refresh and try again.');
         setProcessing(false);
         return;
       }
-      
-      if (!window.Razorpay) {
-        toast.dismiss('payment-loading');
-        toast.error('Payment gateway not available. Please refresh and try again.');
-        console.error('window.Razorpay is not defined after script load');
-        setProcessing(false);
-        return;
-      }
-      
-      console.log('Razorpay script loaded successfully');
-      toast.dismiss('payment-loading');
-      toast.loading('Creating order...', { id: 'order-loading' });
 
       // Create order
-      console.log('Creating Razorpay order...', {
-        amount: selectedPlanData.price,
-        plan: selectedPlan,
-        userId: user.id
-      });
-      
       const { data: orderData, error: orderError } = await supabase.functions.invoke('razorpay-order', {
         body: {
           amount: selectedPlanData.price,
           currency: 'INR',
-          receipt: `resume_${user.id}_${Date.now()}`,
-          notes: {
-            plan: selectedPlan,
-            user_id: user.id,
-          },
+          receipt: `res_${Date.now()}`.slice(0, 40),
+          notes: { plan: selectedPlan, user_id: user.id },
         },
       });
-      
-      toast.dismiss('order-loading');
 
-      if (orderError) {
-        console.error('Order creation error:', orderError);
-        toast.error(`Failed to create order: ${orderError.message || 'Unknown error'}`);
+      if (orderError || !orderData?.orderId) {
+        console.error('Order error:', orderError || orderData);
+        toast.error('Failed to create order. Please try again.');
         setProcessing(false);
         return;
       }
-      
-      if (!orderData) {
-        console.error('No order data received');
-        toast.error('Failed to create order. No response from server.');
-        setProcessing(false);
-        return;
-      }
-      
-      if (orderData.error) {
-        console.error('Order error from server:', orderData.error);
-        toast.error(`Order failed: ${orderData.error}`);
-        setProcessing(false);
-        return;
-      }
-      
-      if (!orderData.orderId) {
-        console.error('Invalid order data - missing orderId:', orderData);
-        toast.error('Failed to create order. Invalid response.');
-        setProcessing(false);
-        return;
-      }
-      
-      console.log('Order created successfully:', orderData);
 
       // Initialize Razorpay
-      const options = {
+      const razorpay = new window.Razorpay({
         key: orderData.keyId,
         amount: orderData.amount,
         currency: orderData.currency,
         name: 'FresherPools',
-        description: `${selectedPlanData.name} - Resume Builder`,
+        description: selectedPlanData.name,
         order_id: orderData.orderId,
+        prefill: { email: user.email },
+        theme: { color: '#6366f1' },
         handler: async (response: any) => {
-          console.log('Payment successful, verifying...', response);
-          toast.loading('Verifying payment...', { id: 'verify-loading' });
-          
           try {
             const { data: verifyData, error: verifyError } = await supabase.functions.invoke('razorpay-verify', {
               body: {
@@ -235,51 +176,29 @@ const ResumePremiumGate = ({ open, onClose, resumeCount, onUpgrade }: ResumePrem
               },
             });
 
-            toast.dismiss('verify-loading');
-
-            if (verifyError) {
-              console.error('Verify error:', verifyError);
-              toast.error('Payment verification failed. Please contact support.');
-              return;
-            }
-            
-            if (!verifyData?.success) {
-              console.error('Verify failed:', verifyData);
-              toast.error('Payment verification failed. Please contact support.');
+            if (verifyError || !verifyData?.success) {
+              toast.error('Payment verification failed. Contact support.');
               return;
             }
 
-            console.log('Payment verified successfully');
-            toast.success('Payment successful! Premium features unlocked.');
+            toast.success('Payment successful! Premium unlocked.');
             onUpgrade();
             onClose();
           } catch (error) {
-            console.error('Payment verification error:', error);
-            toast.dismiss('verify-loading');
-            toast.error('Payment verification failed. Please contact support.');
+            console.error('Verification error:', error);
+            toast.error('Payment verification failed.');
           }
         },
-        prefill: {
-          email: user.email,
-        },
-        theme: {
-          color: '#6366f1',
-        },
         modal: {
-          ondismiss: () => {
-            console.log('Payment modal dismissed');
-            setProcessing(false);
-          },
+          ondismiss: () => setProcessing(false),
         },
-      };
+      });
 
-      console.log('Opening Razorpay checkout...');
-      const razorpay = new window.Razorpay(options);
       razorpay.on('payment.failed', (response: any) => {
-        console.error('Payment failed:', response.error);
         toast.error(`Payment failed: ${response.error.description}`);
         setProcessing(false);
       });
+
       razorpay.open();
       setProcessing(false);
     } catch (error) {

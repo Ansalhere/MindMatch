@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useResumeLimit } from '@/hooks/useResumeLimit';
 import { useUser } from '@/hooks/useUser';
+import ResumePremiumGate from './ResumePremiumGate';
 
 interface ATSScoreCardProps {
   data: ResumeData;
@@ -34,7 +35,7 @@ const ANONYMOUS_ATS_KEY = 'ats_checks_anonymous';
 const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
   const navigate = useNavigate();
   const { user } = useUser();
-  const { isPremium, isAdmin } = useResumeLimit();
+  const { isPremium, isAdmin, upgradeToPremium, downloadCount } = useResumeLimit();
   const [score, setScore] = useState(0);
   const [checks, setChecks] = useState<ATSCheck[]>([]);
   const [showDetails, setShowDetails] = useState(false);
@@ -45,11 +46,12 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
   const [atsCheckCount, setAtsCheckCount] = useState(0);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [showPremiumGate, setShowPremiumGate] = useState(false);
   const [isCountLoaded, setIsCountLoaded] = useState(false);
 
   const isLoggedIn = !!user;
   
-  // Use separate storage keys and only count from user's own key
+  // Use separate storage keys for anonymous and logged-in users
   const getStorageKey = () => {
     if (isLoggedIn && user?.id) {
       return `ats_checks_${user.id}`;
@@ -57,7 +59,7 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
     return ANONYMOUS_ATS_KEY;
   };
 
-  // Load ATS check count from localStorage - only for current user type
+  // Load ATS check count from localStorage
   useEffect(() => {
     const storageKey = getStorageKey();
     const stored = localStorage.getItem(storageKey);
@@ -70,13 +72,14 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
         setAtsCheckCount(0);
       }
     } else {
-      // No stored count for this user - start fresh
+      // No stored count - start fresh with 0 (meaning 3 free checks available)
       setAtsCheckCount(0);
     }
     setIsCountLoaded(true);
-  }, [user?.id]); // Re-run when user changes
+  }, [user?.id, isLoggedIn]);
 
-  const canCheckATS = isPremium || isAdmin || atsCheckCount < FREE_ATS_CHECK_LIMIT;
+  // Calculate if user can check ATS - only after count is loaded
+  const canCheckATS = !isCountLoaded ? true : (isPremium || isAdmin || atsCheckCount < FREE_ATS_CHECK_LIMIT);
   const remainingATSChecks = Math.max(0, FREE_ATS_CHECK_LIMIT - atsCheckCount);
 
   const recordATSCheck = () => {
@@ -458,13 +461,25 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
               <Button 
                 size="sm" 
                 className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
-                onClick={() => window.location.href = '/resume-builder'}
+                onClick={() => setShowPremiumGate(true)}
               >
                 <Lock className="h-4 w-4" />
                 Upgrade to Premium
               </Button>
             </div>
           )}
+
+          {/* Premium Gate Modal */}
+          <ResumePremiumGate
+            open={showPremiumGate}
+            onClose={() => setShowPremiumGate(false)}
+            resumeCount={downloadCount}
+            onUpgrade={() => {
+              upgradeToPremium();
+              setShowUpgradePrompt(false);
+              setShowPremiumGate(false);
+            }}
+          />
 
           {/* Job Description Input */}
           <div className="space-y-2">
