@@ -9,10 +9,11 @@ import { User, MapPin, Phone, DollarSign, ArrowRight } from 'lucide-react';
 
 interface DetailedSignupFormProps {
   onSubmit: (data: any) => void;
+  onSkip: () => void;
   isLoading: boolean;
 }
 
-const DetailedSignupForm = ({ onSubmit, isLoading }: DetailedSignupFormProps) => {
+const DetailedSignupForm = ({ onSubmit, onSkip, isLoading }: DetailedSignupFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     // Basic Info (Step 1)
@@ -55,22 +56,12 @@ const DetailedSignupForm = ({ onSubmit, isLoading }: DetailedSignupFormProps) =>
   };
 
   const canProceed = () => {
-    switch (currentStep) {
-      case 1:
-        return formData.phone && formData.location;
-      case 2:
-        // All fields in step 2 are optional for skip
-        return true;
-      case 3:
-        // All fields in step 3 are optional for skip
-        return true;
-      default:
-        return false;
-    }
+    // All steps are optional now - can always proceed
+    return true;
   };
 
   const skipToComplete = () => {
-    // Submit with only the data collected so far
+    // Submit with only the data collected so far (can be empty)
     onSubmit(formData);
   };
 
@@ -82,7 +73,7 @@ const DetailedSignupForm = ({ onSubmit, isLoading }: DetailedSignupFormProps) =>
           Complete Your Profile - Step {currentStep} of 3
         </CardTitle>
         <p className="text-sm text-muted-foreground mt-1">
-          Fill in your details to get better job matches. You can skip and complete later.
+          Your account is created! Fill in additional details for better job matches, or skip to complete later.
         </p>
         <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
           <div 
@@ -95,11 +86,11 @@ const DetailedSignupForm = ({ onSubmit, isLoading }: DetailedSignupFormProps) =>
       <CardContent className="space-y-6">
         {currentStep === 1 && (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Basic Information</h3>
+            <h3 className="text-lg font-semibold">Basic Information (Optional)</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="phone">Phone Number *</Label>
+                <Label htmlFor="phone">Phone Number</Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -113,7 +104,7 @@ const DetailedSignupForm = ({ onSubmit, isLoading }: DetailedSignupFormProps) =>
               </div>
               
               <div>
-                <Label htmlFor="location">Location *</Label>
+                <Label htmlFor="location">Location</Label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -334,15 +325,24 @@ const DetailedSignupForm = ({ onSubmit, isLoading }: DetailedSignupFormProps) =>
           </Button>
           
           <div className="flex gap-2">
-            {currentStep > 1 && (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={onSkip}
+              disabled={isLoading}
+              className="text-muted-foreground"
+            >
+              Skip All & Go to Dashboard
+            </Button>
+            
+            {currentStep < 3 && (
               <Button
                 type="button"
-                variant="ghost"
+                variant="secondary"
                 onClick={skipToComplete}
                 disabled={isLoading}
-                className="text-muted-foreground"
               >
-                Skip & Complete Later
+                Save & Skip Remaining
               </Button>
             )}
             
