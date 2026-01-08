@@ -3,24 +3,31 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 // Authentication functions
-export async function signUp(email: string, password: string, userData: any) {
+export async function signUp(
+  email: string,
+  password: string,
+  userData: any,
+  redirectPath: string = '/dashboard'
+) {
   try {
     console.log('Starting signup process for:', email);
-    const redirectUrl = `${window.location.origin}/dashboard`;
-    
+
+    const safeRedirectPath = redirectPath && redirectPath.startsWith('/') ? redirectPath : '/dashboard';
+    const redirectUrl = `${window.location.origin}${safeRedirectPath}`;
+
     // First check if user already exists
     const { data: existingUser } = await supabase.auth.getUser();
     if (existingUser?.user?.email === email) {
       throw new Error('User already logged in with this email');
     }
-    
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: userData,
-        emailRedirectTo: redirectUrl
-      }
+        emailRedirectTo: redirectUrl,
+      },
     });
 
     if (error) {
@@ -85,13 +92,18 @@ export async function signIn(email: string, password: string) {
   }
 }
 
-export async function signInWithOAuth(provider: 'google' | 'linkedin_oidc') {
+export async function signInWithOAuth(
+  provider: 'google' | 'linkedin_oidc',
+  redirectPath: string = '/dashboard'
+) {
   try {
+    const safeRedirectPath = redirectPath && redirectPath.startsWith('/') ? redirectPath : '/dashboard';
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/dashboard`
-      }
+        redirectTo: `${window.location.origin}${safeRedirectPath}`,
+      },
     });
 
     if (error) throw error;

@@ -34,7 +34,7 @@ const ANONYMOUS_ATS_KEY = 'ats_checks_anonymous';
 
 const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
   const navigate = useNavigate();
-  const { user } = useUser();
+  const { user, session } = useUser();
   const { isPremium, isAdmin, upgradeToPremium, downloadCount } = useResumeLimit();
   const [score, setScore] = useState(0);
   const [checks, setChecks] = useState<ATSCheck[]>([]);
@@ -49,13 +49,12 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
   const [showPremiumGate, setShowPremiumGate] = useState(false);
   const [isCountLoaded, setIsCountLoaded] = useState(false);
 
-  const isLoggedIn = !!user;
-  
+  const authUserId = session?.user?.id;
+  const isLoggedIn = !!authUserId;
+
   // Use separate storage keys for anonymous and logged-in users
   const getStorageKey = () => {
-    if (isLoggedIn && user?.id) {
-      return `ats_checks_${user.id}`;
-    }
+    if (authUserId) return `ats_checks_${authUserId}`;
     return ANONYMOUS_ATS_KEY;
   };
 
@@ -63,7 +62,7 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
   useEffect(() => {
     const storageKey = getStorageKey();
     const stored = localStorage.getItem(storageKey);
-    
+
     if (stored) {
       try {
         const count = parseInt(stored, 10);
@@ -76,7 +75,14 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
       setAtsCheckCount(0);
     }
     setIsCountLoaded(true);
-  }, [user?.id, isLoggedIn]);
+  }, [authUserId]);
+
+  // If user logs in after hitting the anonymous limit, hide the login prompt
+  useEffect(() => {
+    if (isLoggedIn) {
+      setShowLoginPrompt(false);
+    }
+  }, [isLoggedIn]);
 
   // Calculate if user can check ATS - only after count is loaded
   const canCheckATS = !isCountLoaded ? true : (isPremium || isAdmin || atsCheckCount < FREE_ATS_CHECK_LIMIT);
@@ -197,12 +203,6 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
     const matchScore = matches.length > 0 ? Math.round((foundCount / matches.length) * 100) : 0;
     setJdScore(matchScore);
   };
-
-  useEffect(() => {
-    if (jobDescription) {
-      analyzeJobDescription();
-    }
-  }, [data, jobDescription]);
 
   useEffect(() => {
     const newChecks: ATSCheck[] = [
@@ -496,14 +496,18 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
             <Textarea
               placeholder="Paste the job description here to check how well your resume matches..."
               value={jobDescription}
-              onChange={(e) => setJobDescription(e.target.value)}
+              onChange={(e) => {
+                setJobDescription(e.target.value);
+                setKeywordMatches([]);
+                setJdScore(null);
+              }}
               className="min-h-[100px] text-sm resize-none"
             />
             <Button 
               onClick={analyzeJobDescription} 
               size="sm" 
               className="w-full"
-              disabled={!jobDescription.trim() || (!canCheckATS && jdScore === null)}
+              disabled={!jobDescription.trim()}
             >
               {canCheckATS ? (
                 <>
