@@ -49,6 +49,8 @@ const AuthForm = () => {
   const { completeReferral } = useReferralTracking();
   // Check for mode parameter from URL (e.g., ?mode=signup)
   const urlMode = searchParams.get('mode');
+  // Get return URL for redirecting back after auth
+  const returnTo = searchParams.get('returnTo') || '/dashboard';
   // Default to login unless explicitly on /register route or mode=signup
   const [isRegister, setIsRegister] = useState(location.pathname === '/register' || urlMode === 'signup');
   const [isLoading, setIsLoading] = useState(false);
@@ -141,10 +143,10 @@ const AuthForm = () => {
             return;
           }
           
-          toast.success("Account created successfully! You can now access your dashboard.");
+          toast.success("Account created successfully!");
           // Small delay to ensure auth state is updated
           setTimeout(() => {
-            navigate('/dashboard', { replace: true });
+            navigate(returnTo, { replace: true });
           }, 100);
         } else {
           throw new Error('Signup failed. Please try again.');
@@ -157,10 +159,10 @@ const AuthForm = () => {
         }
         
         if (signInData?.user && signInData?.session) {
-          toast.success("Welcome back! Successfully logged in.");
+          toast.success("Welcome back!");
           // Small delay to ensure auth state is updated
           setTimeout(() => {
-            navigate('/dashboard', { replace: true });
+            navigate(returnTo, { replace: true });
           }, 100);
         } else {
           throw new Error('Login failed. Please try again.');
@@ -188,7 +190,7 @@ const AuthForm = () => {
   // Update user profile with additional details after account creation
   const handleDetailedSignup = async (detailedData: any) => {
     if (!createdUserId) {
-      navigate('/dashboard', { replace: true });
+      navigate(returnTo, { replace: true });
       return;
     }
     
@@ -212,21 +214,21 @@ const AuthForm = () => {
         // Don't throw - profile update is optional, still navigate to dashboard
       }
       
-      toast.success("Profile updated! Welcome to your dashboard.");
-      navigate('/dashboard', { replace: true });
+      toast.success("Profile updated!");
+      navigate(returnTo, { replace: true });
     } catch (error: any) {
       console.error('Detailed signup error:', error);
-      // Still navigate to dashboard even if update fails
-      navigate('/dashboard', { replace: true });
+      // Still navigate even if update fails
+      navigate(returnTo, { replace: true });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Skip detailed form and go directly to dashboard
+  // Skip detailed form and go directly to return URL
   const handleSkipDetailedForm = () => {
-    toast.success("Welcome! You can complete your profile later from the dashboard.");
-    navigate('/dashboard', { replace: true });
+    toast.success("Welcome! You can complete your profile later.");
+    navigate(returnTo, { replace: true });
   };
 
   if (showDetailedForm) {

@@ -440,7 +440,7 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
               <Button 
                 size="sm" 
                 className="w-full gap-2"
-                onClick={() => navigate('/auth?mode=signup')}
+                onClick={() => navigate('/auth?mode=signup&returnTo=/resume-builder')}
               >
                 <LogIn className="h-4 w-4" />
                 Login / Sign Up
