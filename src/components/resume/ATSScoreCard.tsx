@@ -45,13 +45,23 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
   const [atsCheckCount, setAtsCheckCount] = useState(0);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [isCountLoaded, setIsCountLoaded] = useState(false);
 
   const isLoggedIn = !!user;
-  const storageKey = isLoggedIn ? `ats_checks_${user.id}` : ANONYMOUS_ATS_KEY;
+  
+  // Use separate storage keys and only count from user's own key
+  const getStorageKey = () => {
+    if (isLoggedIn && user?.id) {
+      return `ats_checks_${user.id}`;
+    }
+    return ANONYMOUS_ATS_KEY;
+  };
 
-  // Load ATS check count from localStorage
+  // Load ATS check count from localStorage - only for current user type
   useEffect(() => {
+    const storageKey = getStorageKey();
     const stored = localStorage.getItem(storageKey);
+    
     if (stored) {
       try {
         const count = parseInt(stored, 10);
@@ -60,9 +70,11 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
         setAtsCheckCount(0);
       }
     } else {
+      // No stored count for this user - start fresh
       setAtsCheckCount(0);
     }
-  }, [storageKey]);
+    setIsCountLoaded(true);
+  }, [user?.id]); // Re-run when user changes
 
   const canCheckATS = isPremium || isAdmin || atsCheckCount < FREE_ATS_CHECK_LIMIT;
   const remainingATSChecks = Math.max(0, FREE_ATS_CHECK_LIMIT - atsCheckCount);
@@ -71,6 +83,7 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
     if (isPremium || isAdmin) return; // Don't count for premium/admin users
     const newCount = atsCheckCount + 1;
     setAtsCheckCount(newCount);
+    const storageKey = getStorageKey();
     localStorage.setItem(storageKey, newCount.toString());
   };
 

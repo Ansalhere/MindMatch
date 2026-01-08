@@ -56,7 +56,7 @@ const AuthForm = () => {
   const [error, setError] = useState<string | null>(null);
   const [formValues, setFormValues] = useState<FormValues>({});
   const [showDetailedForm, setShowDetailedForm] = useState(false);
-  const [basicSignupData, setBasicSignupData] = useState<any>(null);
+  const [createdUserId, setCreatedUserId] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // Update isRegister based on current route or URL params
@@ -109,14 +109,6 @@ const AuthForm = () => {
       }
       
       if (isRegister) {
-        // For candidates, show detailed form first
-        if (sanitizedData.user_type === 'candidate' && !showDetailedForm) {
-          setBasicSignupData({ email: sanitizedData.email, password: sanitizedData.password, name: sanitizedData.name, user_type: sanitizedData.user_type });
-          setShowDetailedForm(true);
-          setIsLoading(false);
-          return;
-        }
-        
         // Prepare user metadata with conditional employer fields
         const userData = {
           name: sanitizedData.name,
@@ -129,6 +121,7 @@ const AuthForm = () => {
           })
         };
         
+        // Create account immediately
         const { data: signUpData, error } = await signUp(sanitizedData.email, sanitizedData.password, userData);
         
         if (error) {
@@ -138,6 +131,15 @@ const AuthForm = () => {
         if (signUpData?.user) {
           // Complete referral if exists
           await completeReferral(signUpData.user.id);
+          setCreatedUserId(signUpData.user.id);
+          
+          // For candidates, show detailed form to collect more info (can be skipped)
+          if (sanitizedData.user_type === 'candidate') {
+            toast.success("Account created! Now let's add some details to your profile.");
+            setShowDetailedForm(true);
+            setIsLoading(false);
+            return;
+          }
           
           toast.success("Account created successfully! You can now access your dashboard.");
           // Small delay to ensure auth state is updated
@@ -183,42 +185,48 @@ const AuthForm = () => {
     setFormValues(prev => ({ ...prev, [name]: value }));
   };
 
+  // Update user profile with additional details after account creation
   const handleDetailedSignup = async (detailedData: any) => {
-    if (!basicSignupData) return;
+    if (!createdUserId) {
+      navigate('/dashboard', { replace: true });
+      return;
+    }
     
     try {
       setIsLoading(true);
       
-      const userData = {
-        name: basicSignupData.name,
-        user_type: basicSignupData.user_type,
-        ...detailedData
-      };
-      
-      const { data: signUpData, error } = await signUp(basicSignupData.email, basicSignupData.password, userData);
+      // Update the user's profile with additional data
+      const { error } = await supabase
+        .from('users')
+        .update({
+          phone: detailedData.phone || null,
+          location: detailedData.location || null,
+          current_ctc: detailedData.current_ctc || null,
+          expected_ctc: detailedData.expected_ctc || null,
+          bio: detailedData.bio || null,
+        })
+        .eq('id', createdUserId);
       
       if (error) {
-        throw error;
+        console.error('Profile update error:', error);
+        // Don't throw - profile update is optional, still navigate to dashboard
       }
       
-      if (signUpData?.user) {
-        // Complete referral if exists
-        await completeReferral(signUpData.user.id);
-        
-        toast.success("Account created successfully! You can now access your dashboard.");
-        setTimeout(() => {
-          navigate('/dashboard', { replace: true });
-        }, 100);
-      } else {
-        throw new Error('Signup failed. Please try again.');
-      }
+      toast.success("Profile updated! Welcome to your dashboard.");
+      navigate('/dashboard', { replace: true });
     } catch (error: any) {
       console.error('Detailed signup error:', error);
-      setError(error.message);
-      toast.error(error.message);
+      // Still navigate to dashboard even if update fails
+      navigate('/dashboard', { replace: true });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Skip detailed form and go directly to dashboard
+  const handleSkipDetailedForm = () => {
+    toast.success("Welcome! You can complete your profile later from the dashboard.");
+    navigate('/dashboard', { replace: true });
   };
 
   if (showDetailedForm) {
@@ -226,7 +234,11 @@ const AuthForm = () => {
       <div className="flex flex-col min-h-screen">
         <Navbar />
         <main className="flex-grow container mx-auto px-4 py-8">
-          <DetailedSignupForm onSubmit={handleDetailedSignup} isLoading={isLoading} />
+          <DetailedSignupForm 
+            onSubmit={handleDetailedSignup} 
+            onSkip={handleSkipDetailedForm}
+            isLoading={isLoading} 
+          />
         </main>
         <Footer />
       </div>
