@@ -162,6 +162,14 @@ const Job = () => {
       return;
     }
 
+    // Check if profile is complete before applying
+    const hasBasicInfo = user.name && user.location && user.phone;
+    if (!hasBasicInfo) {
+      toast.error('Please complete your profile before applying for jobs');
+      navigate('/edit-profile', { state: { from: `/job/${id}`, incomplete: true } });
+      return;
+    }
+
     setApplying(true);
 
     try {

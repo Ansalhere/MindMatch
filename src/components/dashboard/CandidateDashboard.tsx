@@ -90,9 +90,42 @@ const CandidateDashboard = ({ userData }: CandidateDashboardProps) => {
   };
 
   const rankPercentile = Math.round((1 - userData.ranking.position / userData.ranking.total) * 100);
+  
+  // Check if profile is incomplete
+  const hasBasicInfo = user?.name && user?.location && user?.phone;
+  const isProfileIncomplete = !hasBasicInfo;
 
   return (
     <div className="space-y-8">
+      {/* Profile Incomplete Warning Banner */}
+      {isProfileIncomplete && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-4 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30"
+        >
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-full bg-amber-500/20">
+                <User className="h-5 w-5 text-amber-500" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-amber-700 dark:text-amber-400">Profile Incomplete</h4>
+                <p className="text-sm text-muted-foreground">
+                  Complete your profile to apply for jobs and get better recommendations.
+                </p>
+              </div>
+            </div>
+            <Button 
+              onClick={() => navigate('/edit-profile')}
+              className="gap-2 bg-amber-500 hover:bg-amber-600"
+            >
+              Complete Profile
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </motion.div>
+      )}
       {/* Hero Stats Section */}
       <ScrollReveal>
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 p-6 md:p-8">

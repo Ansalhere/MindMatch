@@ -59,12 +59,19 @@ const DetailedSignupForm = ({ onSubmit, isLoading }: DetailedSignupFormProps) =>
       case 1:
         return formData.phone && formData.location;
       case 2:
-        return formData.expected_ctc && formData.experience_level && formData.job_role && formData.notice_period;
+        // All fields in step 2 are optional for skip
+        return true;
       case 3:
-        return formData.primary_skills && formData.education_level && formData.bio && formData.preferred_work_mode;
+        // All fields in step 3 are optional for skip
+        return true;
       default:
         return false;
     }
+  };
+
+  const skipToComplete = () => {
+    // Submit with only the data collected so far
+    onSubmit(formData);
   };
 
   return (
@@ -74,7 +81,10 @@ const DetailedSignupForm = ({ onSubmit, isLoading }: DetailedSignupFormProps) =>
           <User className="h-5 w-5" />
           Complete Your Profile - Step {currentStep} of 3
         </CardTitle>
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <p className="text-sm text-muted-foreground mt-1">
+          Fill in your details to get better job matches. You can skip and complete later.
+        </p>
+        <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
           <div 
             className="bg-primary h-2 rounded-full transition-all duration-300" 
             style={{ width: `${(currentStep / 3) * 100}%` }}
@@ -313,7 +323,7 @@ const DetailedSignupForm = ({ onSubmit, isLoading }: DetailedSignupFormProps) =>
           </div>
         )}
         
-        <div className="flex justify-between pt-6 border-t">
+        <div className="flex justify-between items-center pt-6 border-t">
           <Button
             type="button"
             variant="outline"
@@ -323,21 +333,35 @@ const DetailedSignupForm = ({ onSubmit, isLoading }: DetailedSignupFormProps) =>
             Previous
           </Button>
           
-          <Button
-            type="button"
-            onClick={nextStep}
-            disabled={!canProceed() || isLoading}
-            className="flex items-center gap-2"
-          >
-            {currentStep === 3 ? (
-              isLoading ? 'Creating Account...' : 'Complete Registration'
-            ) : (
-              <>
-                Next
-                <ArrowRight className="h-4 w-4" />
-              </>
+          <div className="flex gap-2">
+            {currentStep > 1 && (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={skipToComplete}
+                disabled={isLoading}
+                className="text-muted-foreground"
+              >
+                Skip & Complete Later
+              </Button>
             )}
-          </Button>
+            
+            <Button
+              type="button"
+              onClick={nextStep}
+              disabled={!canProceed() || isLoading}
+              className="flex items-center gap-2"
+            >
+              {currentStep === 3 ? (
+                isLoading ? 'Creating Account...' : 'Complete Registration'
+              ) : (
+                <>
+                  Next
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
