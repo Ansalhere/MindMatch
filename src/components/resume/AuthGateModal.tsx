@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { FileText, LogIn, UserPlus, CheckCircle2, Sparkles } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface AuthGateModalProps {
   open: boolean;
@@ -16,12 +16,15 @@ interface AuthGateModalProps {
 
 const AuthGateModal = ({ open, onClose }: AuthGateModalProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const returnTo = encodeURIComponent(`${location.pathname}${location.search}`);
 
   const benefits = [
     'Download unlimited free resumes',
     'Access all ATS-optimized templates',
     'Save your progress automatically',
     'Get personalized AI suggestions',
+    'Build your candidate rank',
   ];
 
   return (
@@ -48,7 +51,7 @@ const AuthGateModal = ({ open, onClose }: AuthGateModalProps) => {
 
         <div className="flex flex-col gap-3 mt-4">
           <Button
-            onClick={() => navigate('/auth?mode=signup')}
+            onClick={() => navigate(`/auth?mode=signup&returnTo=${returnTo}`)}
             className="w-full gap-2 h-12"
             size="lg"
           >
@@ -56,7 +59,7 @@ const AuthGateModal = ({ open, onClose }: AuthGateModalProps) => {
             Create Free Account
           </Button>
           <Button
-            onClick={() => navigate('/auth?mode=login')}
+            onClick={() => navigate(`/auth?mode=login&returnTo=${returnTo}`)}
             variant="outline"
             className="w-full gap-2"
           >
@@ -68,7 +71,7 @@ const AuthGateModal = ({ open, onClose }: AuthGateModalProps) => {
         <div className="mt-4 p-3 bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-lg">
           <div className="flex items-center gap-2 text-sm">
             <Sparkles className="h-4 w-4 text-primary" />
-            <span className="font-medium">Free users get 2 resume downloads!</span>
+            <span className="font-medium">Free users get 1 resume download!</span>
           </div>
         </div>
       </DialogContent>

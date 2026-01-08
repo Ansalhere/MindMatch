@@ -50,7 +50,10 @@ const AuthForm = () => {
   // Check for mode parameter from URL (e.g., ?mode=signup)
   const urlMode = searchParams.get('mode');
   // Get return URL for redirecting back after auth
-  const returnTo = searchParams.get('returnTo') || '/dashboard';
+  const returnTo = (() => {
+    const v = searchParams.get('returnTo');
+    return v && v.startsWith('/') ? v : '/dashboard';
+  })();
   // Default to login unless explicitly on /register route or mode=signup
   const [isRegister, setIsRegister] = useState(location.pathname === '/register' || urlMode === 'signup');
   const [isLoading, setIsLoading] = useState(false);
@@ -124,7 +127,12 @@ const AuthForm = () => {
         };
         
         // Create account immediately
-        const { data: signUpData, error } = await signUp(sanitizedData.email, sanitizedData.password, userData);
+        const { data: signUpData, error } = await signUp(
+          sanitizedData.email,
+          sanitizedData.password,
+          userData,
+          returnTo
+        );
         
         if (error) {
           throw error;
@@ -415,7 +423,7 @@ const AuthForm = () => {
                           const { error } = await supabase.auth.signInWithOAuth({
                             provider: 'google',
                             options: {
-                              redirectTo: `${window.location.origin}/dashboard`,
+                              redirectTo: `${window.location.origin}${returnTo}`,
                             }
                           });
                           if (error) throw error;
