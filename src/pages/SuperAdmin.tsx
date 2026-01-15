@@ -38,6 +38,7 @@ import {
 import EmailCampaignManager from '@/components/admin/EmailCampaignManager';
 import SubscriberManagement from '@/components/admin/SubscriberManagement';
 import EmailAnalyticsDashboard from '@/components/admin/EmailAnalyticsDashboard';
+import ResumeBuilderAnalytics from '@/components/admin/ResumeBuilderAnalytics';
 
 const SuperAdmin = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -457,7 +458,10 @@ const SuperAdmin = () => {
           </TabsContent>
 
           <TabsContent value="analytics">
-            <EmailAnalyticsDashboard />
+            <div className="space-y-6">
+              <ResumeBuilderAnalytics />
+              <EmailAnalyticsDashboard />
+            </div>
           </TabsContent>
 
           <TabsContent value="subscribers">
