@@ -10,7 +10,8 @@ import {
 } from 'recharts';
 import { 
   Eye, Download, Crown, UserPlus, MousePointerClick, 
-  RefreshCw, Calendar, TrendingUp, FileText, Zap
+  RefreshCw, Calendar, TrendingUp, FileText, Zap, Target, 
+  Briefcase, Upload, User, LogIn
 } from 'lucide-react';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 
@@ -51,7 +52,7 @@ const EVENT_LABELS: Record<string, string> = {
   tailor_modal_open: 'Tailor Modal Opened',
 };
 
-const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#EA4335', '#4285F4'];
 
 export default function ResumeBuilderAnalytics() {
   const [analytics, setAnalytics] = useState<AnalyticsData[]>([]);
@@ -122,6 +123,50 @@ export default function ResumeBuilderAnalytics() {
   const upgradeClicks = analytics.filter(a => a.event_type === 'premium_upgrade_click').length;
   const upgradeSuccess = analytics.filter(a => a.event_type === 'premium_upgrade_success').length;
 
+  // ATS Check Analytics
+  const atsCheckClicks = analytics.filter(a => a.event_type === 'ats_check_click').length;
+  const atsCheckSuccess = analytics.filter(a => a.event_type === 'ats_check_success').length;
+  const atsScores = analytics
+    .filter(a => a.event_type === 'ats_check_success' && a.event_data?.score)
+    .map(a => a.event_data.score);
+  const avgAtsScore = atsScores.length > 0 
+    ? Math.round(atsScores.reduce((a, b) => a + b, 0) / atsScores.length) 
+    : 0;
+
+  // Job Tailor Analytics
+  const jobTailorClicks = analytics.filter(a => a.event_type === 'job_tailor_click').length;
+  const jobTailorSuccess = analytics.filter(a => a.event_type === 'job_tailor_success').length;
+
+  // Upload and Profile Load Analytics
+  const uploadResumeClicks = analytics.filter(a => a.event_type === 'upload_resume_click').length;
+  const loadProfileClicks = analytics.filter(a => a.event_type === 'load_profile_click').length;
+
+  // Auth Gate Analytics
+  const authGateShown = analytics.filter(a => a.event_type === 'auth_gate_shown').length;
+  const createAccountClicks = analytics.filter(a => a.event_type === 'create_account_click').length;
+  const loginClicks = analytics.filter(a => a.event_type === 'login_click').length;
+
+  // User Type Breakdown
+  const loggedInEvents = analytics.filter(a => a.user_id).length;
+  const anonymousEvents = analytics.filter(a => !a.user_id).length;
+  const userTypeData = [
+    { name: 'Logged In', value: loggedInEvents, fill: '#00C49F' },
+    { name: 'Anonymous', value: anonymousEvents, fill: '#8884d8' },
+  ];
+
+  // Tab Change Analytics
+  const tabChanges = analytics
+    .filter(a => a.event_type === 'tab_change' && a.event_data?.tab)
+    .reduce((acc, item) => {
+      const tab = item.event_data.tab;
+      acc[tab] = (acc[tab] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+  
+  const tabChartData = Object.entries(tabChanges)
+    .map(([name, value]) => ({ name: name.charAt(0).toUpperCase() + name.slice(1), value }))
+    .sort((a, b) => b.value - a.value);
+
   const funnelData = [
     { name: 'Page Views', value: pageViews, fill: '#8884d8' },
     { name: 'Download Clicks', value: downloadClicks, fill: '#82ca9d' },
@@ -184,7 +229,7 @@ export default function ResumeBuilderAnalytics() {
         </div>
       </div>
 
-      {/* Key Metrics */}
+      {/* Key Metrics - Row 1 */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         <Card>
           <CardContent className="pt-6">
@@ -211,6 +256,17 @@ export default function ResumeBuilderAnalytics() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-2">
+              <User className="h-5 w-5 text-indigo-500" />
+              <div>
+                <p className="text-2xl font-bold">{uniqueUsers}</p>
+                <p className="text-xs text-muted-foreground">Logged In Users</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
               <Download className="h-5 w-5 text-purple-500" />
               <div>
                 <p className="text-2xl font-bold">{downloadSuccess}</p>
@@ -225,20 +281,7 @@ export default function ResumeBuilderAnalytics() {
               <Crown className="h-5 w-5 text-yellow-500" />
               <div>
                 <p className="text-2xl font-bold">{upgradeSuccess}</p>
-                <p className="text-xs text-muted-foreground">Upgrades</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-orange-500" />
-              <div>
-                <p className="text-2xl font-bold">
-                  {analytics.filter(a => a.event_type === 'ats_check_success').length}
-                </p>
-                <p className="text-xs text-muted-foreground">ATS Checks</p>
+                <p className="text-xs text-muted-foreground">Premium Upgrades</p>
               </div>
             </div>
           </CardContent>
@@ -251,7 +294,77 @@ export default function ResumeBuilderAnalytics() {
                 <p className="text-2xl font-bold">
                   {pageViews > 0 ? ((downloadSuccess / pageViews) * 100).toFixed(1) : 0}%
                 </p>
-                <p className="text-xs text-muted-foreground">Conversion Rate</p>
+                <p className="text-xs text-muted-foreground">Download Rate</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Key Metrics - Row 2: ATS & Features */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-orange-200 dark:border-orange-800">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <Zap className="h-5 w-5 text-orange-500" />
+              <div>
+                <p className="text-2xl font-bold">{atsCheckSuccess}</p>
+                <p className="text-xs text-muted-foreground">ATS Checks Done</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-orange-200 dark:border-orange-800">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-orange-600" />
+              <div>
+                <p className="text-2xl font-bold">{avgAtsScore}%</p>
+                <p className="text-xs text-muted-foreground">Avg ATS Score</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <Briefcase className="h-5 w-5 text-blue-600" />
+              <div>
+                <p className="text-2xl font-bold">{jobTailorSuccess}</p>
+                <p className="text-xs text-muted-foreground">Job Tailors Done</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <Upload className="h-5 w-5 text-teal-500" />
+              <div>
+                <p className="text-2xl font-bold">{uploadResumeClicks}</p>
+                <p className="text-xs text-muted-foreground">Resume Uploads</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <LogIn className="h-5 w-5 text-cyan-500" />
+              <div>
+                <p className="text-2xl font-bold">{loadProfileClicks}</p>
+                <p className="text-xs text-muted-foreground">Profile Loads</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <MousePointerClick className="h-5 w-5 text-pink-500" />
+              <div>
+                <p className="text-2xl font-bold">{authGateShown}</p>
+                <p className="text-xs text-muted-foreground">Auth Gates Shown</p>
               </div>
             </div>
           </CardContent>
@@ -373,18 +486,52 @@ export default function ResumeBuilderAnalytics() {
         </Card>
       </div>
 
-      {/* Template Popularity */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Template Popularity</CardTitle>
-          <CardDescription>Most selected templates</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {templateChartData.length > 0 ? (
+      {/* Template & User Analytics */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Template Popularity */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Template Popularity</CardTitle>
+            <CardDescription>Most selected templates</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {templateChartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={templateChartData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {templateChartData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-center text-muted-foreground py-8">No template data yet</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* User Type Breakdown */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">User Breakdown</CardTitle>
+            <CardDescription>Logged in vs anonymous events</CardDescription>
+          </CardHeader>
+          <CardContent>
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
-                  data={templateChartData}
+                  data={userTypeData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -393,18 +540,71 @@ export default function ResumeBuilderAnalytics() {
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {templateChartData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  {userTypeData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
                 </Pie>
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
-          ) : (
-            <p className="text-center text-muted-foreground py-8">No template selection data yet</p>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        {/* Tab Navigation */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Form Section Usage</CardTitle>
+            <CardDescription>Which sections users interact with</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {tabChartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={tabChartData} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" fontSize={12} />
+                  <YAxis dataKey="name" type="category" width={100} fontSize={11} />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#8884d8" name="Interactions" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-center text-muted-foreground py-8">No tab navigation data yet</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* ATS Score Distribution */}
+      {atsScores.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">ATS Score Distribution</CardTitle>
+            <CardDescription>Range of ATS scores achieved by users</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-5 gap-2">
+              {['0-20', '21-40', '41-60', '61-80', '81-100'].map((range, idx) => {
+                const [min, max] = range.split('-').map(Number);
+                const count = atsScores.filter(s => s >= min && s <= max).length;
+                const percentage = atsScores.length > 0 ? (count / atsScores.length) * 100 : 0;
+                const colors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-lime-500', 'bg-green-500'];
+                return (
+                  <div key={range} className="text-center">
+                    <div className="h-24 flex items-end justify-center mb-2">
+                      <div 
+                        className={`w-full ${colors[idx]} rounded-t`}
+                        style={{ height: `${Math.max(percentage, 5)}%` }}
+                      />
+                    </div>
+                    <p className="text-xs font-medium">{range}%</p>
+                    <p className="text-xs text-muted-foreground">{count} users</p>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Recent Events Table */}
       <Card>
