@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useResumeLimit } from '@/hooks/useResumeLimit';
 import { useUser } from '@/hooks/useUser';
+import { useResumeAnalytics } from '@/hooks/useResumeAnalytics';
 import ResumePremiumGate from './ResumePremiumGate';
 
 interface ATSScoreCardProps {
@@ -35,6 +36,7 @@ const ANONYMOUS_ATS_KEY = 'ats_checks_anonymous';
 const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
   const navigate = useNavigate();
   const { user, session } = useUser();
+  const { trackEvent } = useResumeAnalytics();
   const { isPremium, isAdmin, upgradeToPremium, downloadCount } = useResumeLimit();
   const [score, setScore] = useState(0);
   const [checks, setChecks] = useState<ATSCheck[]>([]);
@@ -170,11 +172,22 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
   };
 
   // Analyze job description
-  const analyzeJobDescription = () => {
+  const analyzeJobDescription = async () => {
     if (!jobDescription.trim()) {
       setKeywordMatches([]);
       setJdScore(null);
       return;
+    }
+
+    // Track ATS check attempt (even if blocked by limits)
+    try {
+      await trackEvent('ats_check_click', {
+        mode: 'job_match',
+        is_logged_in: isLoggedIn,
+        remaining_free_checks: remainingATSChecks,
+      });
+    } catch {
+      // analytics should never block UX
     }
 
     // Check if user can perform ATS check
@@ -198,10 +211,22 @@ const ATSScoreCard = ({ data }: ATSScoreCardProps) => {
     }));
 
     setKeywordMatches(matches);
-    
+
     const foundCount = matches.filter(m => m.found).length;
     const matchScore = matches.length > 0 ? Math.round((foundCount / matches.length) * 100) : 0;
     setJdScore(matchScore);
+
+    // Track success with score details
+    try {
+      await trackEvent('ats_check_success', {
+        mode: 'job_match',
+        score: matchScore,
+        keywords_total: matches.length,
+        keywords_found: foundCount,
+      });
+    } catch {
+      // analytics should never block UX
+    }
   };
 
   useEffect(() => {
