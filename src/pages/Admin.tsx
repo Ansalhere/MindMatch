@@ -19,7 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader } from "@/components/ui/loader";
-import { Search, Users, Briefcase, Ban, CheckCircle, Settings } from 'lucide-react';
+import { Search, Users, Briefcase, Ban, CheckCircle, Settings, BarChart3 } from 'lucide-react';
+import ResumeBuilderAnalytics from '@/components/admin/ResumeBuilderAnalytics';
 
 const Admin = () => {
   const { user, isLoading } = useUser();
@@ -159,7 +160,7 @@ const Admin = () => {
         </div>
         
         <Tabs defaultValue="users">
-          <TabsList className="mb-6">
+          <TabsList className="mb-6 flex-wrap h-auto">
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Users
@@ -167,6 +168,10 @@ const Admin = () => {
             <TabsTrigger value="jobs" className="flex items-center gap-2">
               <Briefcase className="h-4 w-4" />
               Jobs
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Resume Analytics
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
@@ -330,6 +335,10 @@ const Admin = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+          
+          <TabsContent value="analytics">
+            <ResumeBuilderAnalytics />
           </TabsContent>
           
           <TabsContent value="settings">

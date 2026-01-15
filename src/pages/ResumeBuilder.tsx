@@ -23,6 +23,7 @@ import AuthGateModal from '@/components/resume/AuthGateModal';
 import { toast } from 'sonner';
 import { useUser } from '@/hooks/useUser';
 import { useResumeLimit } from '@/hooks/useResumeLimit';
+import { useResumeAnalytics } from '@/hooks/useResumeAnalytics';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
@@ -79,6 +80,7 @@ export interface ResumeData {
 const ResumeBuilder = () => {
   const { user, profile } = useUser();
   const { canDownload, remainingDownloads, downloadCount, isPremium, recordDownload, upgradeToPremium } = useResumeLimit();
+  const { trackEvent, trackPageView } = useResumeAnalytics();
   const resumeRef = useRef<HTMLDivElement>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplate>('professional');
   const [showPremiumGate, setShowPremiumGate] = useState(false);
@@ -110,6 +112,9 @@ const ResumeBuilder = () => {
 
   // Track Google Ads conversion for Resume Builder page visit
   useEffect(() => {
+    // Track page view for analytics
+    trackPageView();
+    
     if (typeof window !== 'undefined' && (window as any).gtag) {
       (window as any).gtag('event', 'conversion', {
         'send_to': 'AW-803431504/Qx-DCPaVvNYbENDIjf8C',
@@ -117,7 +122,7 @@ const ResumeBuilder = () => {
         'currency': 'USD'
       });
     }
-  }, []);
+  }, [trackPageView]);
 
   useEffect(() => {
     if (user?.id) {
@@ -318,6 +323,8 @@ const ResumeBuilder = () => {
   };
 
   const handleTailorToJob = async () => {
+    trackEvent('job_tailor_click', { strength: tailoringStrength });
+    
     if (!jobDescription.trim()) {
       toast.error("Please enter a job description");
       return;
@@ -362,6 +369,7 @@ const ResumeBuilder = () => {
         
         if (hasContent) {
           setResumeData(data.resumeData);
+          trackEvent('job_tailor_success', { strength: tailoringStrength });
           toast.success("Resume tailored successfully!");
           setShowTailorModal(false);
         } else {
@@ -379,13 +387,17 @@ const ResumeBuilder = () => {
   };
 
   const handleDownload = async () => {
+    trackEvent('download_click', { template: selectedTemplate });
+    
     // Require login to download
     if (!user) {
+      trackEvent('auth_gate_shown', { trigger: 'download' });
       setShowAuthGate(true);
       return;
     }
 
     if (!canDownload) {
+      trackEvent('premium_gate_shown', { trigger: 'download_limit' });
       setShowPremiumGate(true);
       return;
     }
@@ -459,6 +471,7 @@ const ResumeBuilder = () => {
       pdf.save(fileName);
 
       recordDownload(selectedTemplate);
+      trackEvent('download_success', { template: selectedTemplate });
       toast.success("Resume downloaded!");
     } catch (error) {
       console.error('Error downloading resume:', error);
@@ -545,7 +558,10 @@ const ResumeBuilder = () => {
 
                   {!isPremium && (
                     <Button
-                      onClick={() => setShowPremiumGate(true)}
+                      onClick={() => {
+                        trackEvent('premium_upgrade_click', { location: 'header' });
+                        setShowPremiumGate(true);
+                      }}
                       variant="outline"
                       size="sm"
                       className="gap-1 h-8 px-2 sm:px-3"
@@ -596,7 +612,10 @@ const ResumeBuilder = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setShowTemplateModal(true)}
+                    onClick={() => {
+                      trackEvent('template_modal_open');
+                      setShowTemplateModal(true);
+                    }}
                     className="gap-1.5 text-xs sm:text-sm h-8 sm:h-9"
                   >
                     <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -606,7 +625,10 @@ const ResumeBuilder = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setShowTailorModal(true)}
+                    onClick={() => {
+                      trackEvent('tailor_modal_open');
+                      setShowTailorModal(true);
+                    }}
                     className="gap-1.5 text-xs sm:text-sm h-8 sm:h-9"
                   >
                     <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -641,7 +663,10 @@ const ResumeBuilder = () => {
 
                 {/* Form Tabs - Mobile Optimized */}
                 <Card className="overflow-hidden">
-                  <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <Tabs value={activeTab} onValueChange={(value) => {
+                    trackEvent('tab_change', { tab: value });
+                    setActiveTab(value);
+                  }}>
                     <nav className="border-b bg-muted/30 p-1" aria-label="Resume sections">
                       <TabsList className="w-full h-auto grid grid-cols-3 gap-1 bg-transparent">
                         {formSections.map((section) => {
@@ -806,6 +831,7 @@ const ResumeBuilder = () => {
             <TemplateSelector
               selectedTemplate={selectedTemplate}
               onTemplateChange={(t) => {
+                trackEvent('template_select', { template: t });
                 setSelectedTemplate(t);
                 setShowTemplateModal(false);
               }}
