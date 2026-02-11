@@ -1,113 +1,43 @@
-import React from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Routes, Route } from "react-router-dom";
-import { SecurityHeaders } from "@/components/ui/security-headers";
-import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
-import Profile from "./pages/Profile";
-import CandidateDetails from "./pages/CandidateDetails";
-import Profiles from "./pages/Profiles";
-import NotFound from "./pages/NotFound";
-import Auth from "./pages/Auth";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Packages from "./pages/Packages";
-import PostJob from "./pages/PostJob";
-import EditJob from "./pages/EditJob";
-import AddSkill from "./pages/AddSkill";
-import RankingExplanationPage from "./pages/RankingExplanation";
-import Jobs from "./pages/Jobs";
+import { useEffect, useState } from "react";
+import Alert from "./components/Alert";
+import Button from "./components/Button";
+import ListGroup from "./components/ListGroup";
 
-import CompanyProfile from "./pages/CompanyProfile";
-import Skills from "./pages/Skills";
-import SkillAssessmentPage from "./pages/SkillAssessmentPage";
-import ResumeBuilder from "./pages/ResumeBuilder";
-import Community from "./pages/Community";
-import Rankings from "./pages/Rankings";
-import Career from "./pages/Career";
-import SuccessStories from "./pages/SuccessStories";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import Pricing from "./pages/Pricing";
-import Terms from "./pages/Terms";
-import Privacy from "./pages/Privacy";
-import Refund from "./pages/Refund";
-import Shipping from "./pages/Shipping";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
-import Job from "./pages/Job";
-import Admin from "./pages/Admin";
-import SuperAdmin from "./pages/SuperAdmin";
-import AdminLogin from "./pages/AdminLogin";
-import AdminSignup from "./pages/AdminSignup";
-import EmployerLogin from "./pages/EmployerLogin";
-import CompleteProfile from "./pages/CompleteProfile";
-import LoginSelector from "./components/navigation/LoginSelector";
-import AdminSetup from "./components/AdminSetup";
-import { AuthProvider } from "./hooks/useUser";
-import { ProfileCompletionGuard } from "./components/profile/ProfileCompletionGuard";
+interface CardProps {
+  title: string;
+}
 
-const queryClient = new QueryClient();
+const Card = ({ title }: CardProps) => {
+  const [hasLiked, setHasLiked] = useState(false);
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <ProfileCompletionGuard>
-        <TooltipProvider>
-          <SecurityHeaders />
-          <Toaster />
-          <Sonner position="top-center" closeButton theme="light" className="font-sans" duration={4000} />
-          <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/auth-selector" element={<LoginSelector />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/admin-login" element={<AdminLogin />} />
-          <Route path="/admin-signup" element={<AdminSignup />} />
-          <Route path="/employer-login" element={<EmployerLogin />} />
-          <Route path="/edit-profile" element={<CompleteProfile />} />
-          <Route path="/profile/:id/:type" element={<Profile />} />
-          <Route path="/candidate/:id" element={<CandidateDetails />} />
-          <Route path="/profiles" element={<Profiles />} />
-          <Route path="/packages" element={<Packages />} />
-          <Route path="/post-job" element={<PostJob />} />
-          <Route path="/edit-job/:id" element={<EditJob />} />
-          <Route path="/add-skill" element={<AddSkill />} />
-          <Route path="/ranking-explanation" element={<RankingExplanationPage />} />
-          <Route path="/jobs" element={<Jobs />} />
-          <Route path="/job/:id" element={<Job />} />
-          
-          <Route path="/company/:id" element={<CompanyProfile />} />
-          <Route path="/skills" element={<Skills />} />
-          <Route path="/skill-assessment/:categoryId" element={<SkillAssessmentPage />} />
-          <Route path="/resume-builder" element={<ResumeBuilder />} />
-          <Route path="/community" element={<Community />} />
-          <Route path="/rankings" element={<Rankings />} />
-          <Route path="/resources" element={<Career />} />
-          <Route path="/success-stories" element={<SuccessStories />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/refund" element={<Refund />} />
-          <Route path="/shipping" element={<Shipping />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/:slug" element={<BlogPost />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/admin-setup" element={<AdminSetup />} />
-          <Route path="/super-admin" element={<SuperAdmin />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </TooltipProvider>
-      </ProfileCompletionGuard>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+  useEffect(() => {
+    console.log("Clicked on " + title + " card " + hasLiked);
+  }, [hasLiked, title]);
+
+  return (
+    <div className="card">
+      <div className="card-body">
+        <h5 className="card-title">{title}</h5>
+        <p className="card-text">This is a description for the card.</p>
+        <button className="btn" onClick={() => setHasLiked(!hasLiked)}>
+          {hasLiked ? "❤️" : "🤍"}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+function App() {
+  
+
+  return (
+    <>
+      <Card title="Card 1" />
+      <Card title="Card 2" />
+      <Card title="Card 3" />
+      <Card title="Card 4" />
+    </>
+  );
+}
 
 export default App;

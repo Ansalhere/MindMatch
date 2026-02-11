@@ -1,78 +1,13 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title id="page-title">FresherPools - AI-Powered Job Matching Platform for Fresh Talent</title>
-    <meta id="page-description" name="description" content="FresherPools - Connect fresh talent with employers through AI-powered job matching and skill verification" />
-    <meta name="author" content="FresherPools" />
-    
-    <!-- Modern Font Stack -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <meta id="og-title" property="og:title" content="FresherPools - AI-Powered Job Matching Platform" />
-    <meta id="og-description" property="og:description" content="Connect fresh talent with employers through AI-powered job matching and skill verification" />
-    <meta property="og:type" content="website" />
-    <meta id="og-url" property="og:url" content="" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@fresherpools" />
-    <meta id="twitter-title" name="twitter:title" content="FresherPools - AI-Powered Job Matching Platform" />
-    <meta id="twitter-description" name="twitter:description" content="Connect fresh talent with employers through AI-powered job matching and skill verification" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <script>
-      // Update meta tags from URL parameters for social media crawlers
-      (function() {
-        const params = new URLSearchParams(window.location.search);
-        const title = params.get('title');
-        const description = params.get('desc');
-        const url = window.location.href.split('?')[0];
-        
-        if (title) {
-          document.getElementById('page-title').textContent = title + ' | FresherPools';
-          document.getElementById('og-title').setAttribute('content', title + ' | FresherPools');
-          document.getElementById('twitter-title').setAttribute('content', title + ' | FresherPools');
-        }
-        
-        if (description) {
-          const shortDesc = description.substring(0, 160);
-          document.getElementById('page-description').setAttribute('content', shortDesc);
-          document.getElementById('og-description').setAttribute('content', shortDesc);
-          document.getElementById('twitter-description').setAttribute('content', shortDesc);
-        }
-        
-        document.getElementById('og-url').setAttribute('content', url);
-      })();
-    </script>
-    
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4780726447163486"
-     crossorigin="anonymous"></script>
-    
-    <!-- Google tag (gtag.js) for Ads and Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-803431504"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'AW-803431504');
-      gtag('config', 'AW-17828346318');
-      gtag('config', 'G-E97KJZ7BYJ');
-    </script>
-    
-    <!-- Custom Favicon -->
-    <link rel="icon" href="/favicon.png" type="image/png">
+    <title>Vite + React + TS</title>
   </head>
-
   <body>
     <div id="root"></div>
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

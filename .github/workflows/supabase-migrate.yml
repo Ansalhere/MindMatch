@@ -1,0 +1,62 @@
+name: Supabase — migrate requests and smoke-test
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  actions: write
+  id-token: write
+
+jobs:
+  migrate:
+    name: Create table → migrate → smoke tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install backend dependencies
+        run: npm ci --prefix psy-matrimoni/backend
+
+      - name: Create requests table (if POSTGRES_URL provided)
+        if: ${{ secrets.POSTGRES_URL != '' }}
+        env:
+          POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
+        run: |
+          node psy-matrimoni/backend/scripts/create_requests_table.js 2>&1 | tee create_table.log
+
+      - name: Run migration (Supabase service role)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node psy-matrimoni/backend/scripts/migrate-requests-to-db.js 2>&1 | tee migration.log
+
+      - name: Start backend (background)
+        run: |
+          nohup npm run dev --prefix psy-matrimoni/backend > backend.log 2>&1 & echo $! > backend.pid
+          # wait for health endpoint
+          n=0; until curl -sS http://127.0.0.1:5001/health || [ $n -ge 30 ]; do sleep 1; n=$((n+1)); done
+          curl -fsS http://127.0.0.1:5001/health
+
+      - name: Run smoke tests
+        run: |
+          echo '== GET /api/requests (truncated) =='
+          curl -sS http://127.0.0.1:5001/api/requests | jq . | head -n 40 || true
+
+      - name: Upload logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: supabase-migration-logs
+          path: |
+            create_table.log
+            migration.log
+            backend.log
