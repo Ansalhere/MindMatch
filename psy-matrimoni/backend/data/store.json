@@ -1,0 +1,13 @@
+{
+  "users": [
+    {
+      "id": "744c7065-b19a-4e14-b4c0-c80baf97f94e",
+      "email": "ansalka.jb@gmail.com",
+      "password": "$2a$10$uA4oqh.AaSRmEM19J8Nkou9Yzb53QG4sHppaub4qSZ0hari4fICNO",
+      "name": "ansal",
+      "createdAt": "2026-02-12T16:40:15.032Z"
+    }
+  ],
+  "profiles": [],
+  "requests": []
+}

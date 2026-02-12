@@ -1,0 +1,86 @@
+╔════════════════════════════════════════════════════════╗
+║                                                        ║
+║        🚨 BLANK PAGE? DO THIS NOW! 🚨                ║
+║                                                        ║
+╚════════════════════════════════════════════════════════╝
+
+📋 STEP-BY-STEP FIX
+
+┌────────────────────────────────────────────────────────┐
+│ 1. OPEN A NEW TERMINAL                                 │
+│    - Click the "+" button in VS Code terminal          │
+│    - Or open Terminal.app                              │
+└────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────┐
+│ 2. RUN THIS COMMAND                                    │
+│                                                        │
+│    cd /Users/ansalka/vite-project/psy-matrimoni       │
+│    chmod +x EMERGENCY_FIX.sh                          │
+│    ./EMERGENCY_FIX.sh                                 │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────┐
+│ 3. WAIT 5 MINUTES                                      │
+│    - Dependencies will install (be patient!)           │
+│    - Backend will start                                │
+│    - Frontend will start                               │
+└────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────┐
+│ 4. LOOK FOR THIS MESSAGE                               │
+│                                                        │
+│    ✅ VITE v5.0.11  ready in XXX ms                   │
+│    ➜  Local:   http://localhost:5173/                 │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────┐
+│ 5. OPEN BROWSER                                        │
+│                                                        │
+│    👉  http://localhost:5173  👈                      │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+
+╔════════════════════════════════════════════════════════╗
+║  🎯 YOU SHOULD SEE                                     ║
+╠════════════════════════════════════════════════════════╣
+║                                                        ║
+║    MindMatch                                           ║
+║    Psychological Matrimonial Matchmaking               ║
+║                                                        ║
+║    [Get Started]  [Login]                              ║
+║                                                        ║
+╚════════════════════════════════════════════════════════╝
+
+❌ STILL BLANK?
+
+Do this:
+1. Press F12 in browser
+2. Click "Console" tab
+3. Look for RED errors
+4. Copy the error text
+5. Tell me what it says
+
+OR
+
+Run this and tell me what you see:
+   curl http://localhost:5001/health
+
+═══════════════════════════════════════════════════════════
+
+💡 WHY WAS IT BLANK BEFORE?
+
+The terminal was corrupted and dependencies weren't installed.
+The EMERGENCY_FIX.sh script:
+- Kills old processes
+- Cleans everything
+- Reinstalls fresh
+- Starts properly
+
+═══════════════════════════════════════════════════════════
+
+🚀 JUST RUN:  ./EMERGENCY_FIX.sh  🚀
+
+═══════════════════════════════════════════════════════════

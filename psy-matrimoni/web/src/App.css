@@ -1,0 +1,10 @@
+/* All styles are handled by Tailwind CSS in index.css */
+
+
+.nav a:hover {
+  background: rgba(100, 108, 255, 0.1);
+}
+
+.nav a.active {
+  background: rgba(100, 108, 255, 0.2);
+}
